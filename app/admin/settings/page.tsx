@@ -1,0 +1,393 @@
+'use client';
+
+import { motion } from 'framer-motion';
+import {
+  AlertCircle,
+  Check,
+  FileText,
+  LayoutTemplate,
+  Link2,
+  LoaderCircle,
+  MapPin,
+  Save,
+  Search,
+  Settings2,
+  Share2,
+  Sparkles,
+  X,
+} from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useMemo, useState } from 'react';
+
+import { useSheetData } from '../../hooks/useSheetData';
+
+const SHEETDB_URL = 'https://sheetdb.io/api/v1/1igtyf9vf5393';
+
+type SettingRow = {
+  key: string;
+  value?: string;
+};
+
+type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
+
+const labelMap: Record<string, string> = {
+  hero_badge: 'Label kecil hero',
+  hero_title: 'Judul utama hero',
+  hero_word_1: 'Kata dinamis 1',
+  hero_word_2: 'Kata dinamis 2',
+  hero_word_3: 'Kata dinamis 3',
+  hero_word_4: 'Kata dinamis 4',
+  hero_suffix: 'Akhiran tulisan dinamis',
+  hero_description: 'Deskripsi hero',
+  hero_button_product: 'Teks tombol produk',
+  hero_button_contact: 'Teks tombol kontak',
+  hero_rotation_speed: 'Kecepatan pergantian kata',
+  footer_phone: 'Nomor telepon footer',
+  footer_email: 'Email footer',
+  footer_address: 'Alamat footer',
+  map_url: 'URL Google Maps',
+};
+
+function formatLabel(key: string) {
+  if (labelMap[key]) return labelMap[key];
+
+  return key
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function getGroup(key: string) {
+  if (key.startsWith('hero_')) return 'hero';
+  if (key.startsWith('footer_') || key === 'map_url') return 'footer';
+  if (key.startsWith('link_')) return 'social';
+  return 'general';
+}
+
+const groupDetails = {
+  hero: {
+    title: 'Hero Beranda',
+    description: 'Tulisan utama yang muncul pada bagian awal halaman beranda.',
+    icon: LayoutTemplate,
+  },
+  footer: {
+    title: 'Footer dan Kontak',
+    description: 'Informasi kontak yang ditampilkan pada bagian bawah website.',
+    icon: MapPin,
+  },
+  general: {
+    title: 'Pengaturan Lainnya',
+    description: 'Field tambahan dari tab Settings yang belum memiliki kategori khusus.',
+    icon: Settings2,
+  },
+};
+
+function shouldUseTextarea(key: string, value: string) {
+  return (
+    key.includes('description') ||
+    key.includes('address') ||
+    key.includes('words') ||
+    value.length > 95
+  );
+}
+
+export default function SettingsPage() {
+  const {
+    data,
+    loading,
+    error,
+  } = useSheetData('Settings');
+
+  const settings = useMemo(
+    () =>
+      data.filter(
+        (item): item is SettingRow =>
+          typeof item?.key === 'string' && item.key.trim().length > 0,
+      ),
+    [data],
+  );
+
+  const [formState, setFormState] = useState<Record<string, string>>({});
+  const [originalState, setOriginalState] = useState<Record<string, string>>({});
+  const [saveStatus, setSaveStatus] = useState<Record<string, SaveStatus>>({});
+  const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    if (settings.length === 0) return;
+
+    const initialMap = settings.reduce<Record<string, string>>((result, item) => {
+      result[item.key] = item.value ?? '';
+      return result;
+    }, {});
+
+    // Sinkronisasi awal data SheetDB ke form yang dapat diedit.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setFormState(initialMap);
+    setOriginalState(initialMap);
+  }, [settings]);
+
+  const visibleSettings = useMemo(() => {
+    const keyword = search.trim().toLowerCase();
+
+    return settings.filter((setting) => {
+      if (getGroup(setting.key) === 'social') return false;
+      if (!keyword) return true;
+
+      return `${setting.key} ${formatLabel(setting.key)} ${formState[setting.key] ?? ''}`
+        .toLowerCase()
+        .includes(keyword);
+    });
+  }, [formState, search, settings]);
+
+  const groupedSettings = useMemo(() => {
+    return visibleSettings.reduce<Record<'hero' | 'footer' | 'general', SettingRow[]>>(
+      (groups, item) => {
+        const group = getGroup(item.key);
+        if (group !== 'social') groups[group].push(item);
+        return groups;
+      },
+      { hero: [], footer: [], general: [] },
+    );
+  }, [visibleSettings]);
+
+  const changedCount = Object.keys(formState).filter(
+    (key) => formState[key] !== originalState[key] && getGroup(key) !== 'social',
+  ).length;
+
+  const handleChange = (key: string, value: string) => {
+    setFormState((current) => ({ ...current, [key]: value }));
+    setSaveStatus((current) => ({ ...current, [key]: 'idle' }));
+  };
+
+  const handleSave = async (key: string) => {
+    if (saveStatus[key] === 'saving') return;
+
+    setSaveStatus((current) => ({ ...current, [key]: 'saving' }));
+
+    try {
+      const response = await fetch(
+        `${SHEETDB_URL}/key/${encodeURIComponent(key)}?sheet=Settings`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ value: formState[key] ?? '' }),
+        },
+      );
+
+      if (!response.ok) throw new Error(`Gagal memperbarui ${key}.`);
+
+      setOriginalState((current) => ({ ...current, [key]: formState[key] ?? '' }));
+      setSaveStatus((current) => ({ ...current, [key]: 'saved' }));
+
+      window.setTimeout(() => {
+        setSaveStatus((current) => ({ ...current, [key]: 'idle' }));
+      }, 2200);
+    } catch (saveError) {
+      console.error(saveError);
+      setSaveStatus((current) => ({ ...current, [key]: 'error' }));
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3 text-slate-500">
+        <LoaderCircle className="h-7 w-7 animate-spin text-sky-300" />
+        <p className="text-sm">Memuat pengaturan website...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <section className="admin-panel relative overflow-hidden rounded-[26px] px-6 py-7 sm:px-8">
+        <div aria-hidden="true" className="absolute -right-16 -top-24 h-56 w-56 rounded-full bg-violet-500/10 blur-3xl" />
+        <div className="relative flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+          <div>
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-violet-300/15 bg-violet-400/[0.07] px-3 py-1.5 text-xs font-semibold text-violet-200">
+              <Sparkles className="h-3.5 w-3.5" />
+              Content management
+            </div>
+            <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">Pengaturan Teks Website</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
+              Edit tulisan yang disimpan pada tab Settings. Setiap field tetap disimpan secara individual agar perubahan lebih aman.
+            </p>
+          </div>
+
+          <Link
+            href="/admin/social-media"
+            className="inline-flex h-12 items-center justify-center gap-2 self-start rounded-xl border border-sky-300/15 bg-sky-400/[0.07] px-5 text-sm font-semibold text-sky-200 transition hover:-translate-y-0.5 hover:border-sky-300/25 hover:bg-sky-400/[0.12] lg:self-auto"
+          >
+            <Share2 className="h-4 w-4" />
+            Atur sosial media
+          </Link>
+        </div>
+      </section>
+
+      {error && (
+        <div className="flex items-start gap-3 rounded-2xl border border-red-300/15 bg-red-400/[0.06] px-5 py-4 text-sm text-red-100">
+          <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-300" />
+          Gagal memuat tab Settings: {error}
+        </div>
+      )}
+
+      <section className="admin-panel rounded-[22px] p-4 sm:p-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="relative w-full lg:max-w-lg">
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-slate-600" />
+            <input
+              type="search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Cari field pengaturan..."
+              className="admin-field h-12 rounded-xl pl-11 pr-11 text-sm"
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch('')}
+                aria-label="Hapus pencarian"
+                className="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-lg text-slate-600 transition hover:bg-white/5 hover:text-white"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+
+          <div className="flex items-center gap-3 text-xs">
+            <span className="rounded-lg border border-white/[0.07] bg-white/[0.03] px-3 py-2 text-slate-500">
+              {visibleSettings.length} field ditampilkan
+            </span>
+            {changedCount > 0 && (
+              <span className="rounded-lg border border-amber-300/10 bg-amber-400/[0.06] px-3 py-2 font-semibold text-amber-200">
+                {changedCount} belum disimpan
+              </span>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {(Object.keys(groupDetails) as Array<keyof typeof groupDetails>).map((groupKey) => {
+        const items = groupedSettings[groupKey];
+        if (items.length === 0) return null;
+
+        const group = groupDetails[groupKey];
+        const GroupIcon = group.icon;
+
+        return (
+          <section key={groupKey} className="admin-panel overflow-hidden rounded-[24px]">
+            <div className="flex items-start gap-4 border-b border-white/[0.07] px-5 py-5 sm:px-6">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-white/[0.08] bg-white/[0.04] text-sky-200">
+                <GroupIcon className="h-5 w-5" />
+              </span>
+              <div>
+                <h3 className="font-semibold text-white">{group.title}</h3>
+                <p className="mt-1 text-xs leading-5 text-slate-500">{group.description}</p>
+              </div>
+            </div>
+
+            <div className="grid gap-4 p-4 sm:p-6 xl:grid-cols-2">
+              {items.map((setting, index) => {
+                const value = formState[setting.key] ?? '';
+                const status = saveStatus[setting.key] ?? 'idle';
+                const changed = value !== originalState[setting.key];
+                const textarea = shouldUseTextarea(setting.key, value);
+                const isRotationSpeed = setting.key === 'hero_rotation_speed';
+
+                return (
+                  <motion.article
+                    key={setting.key}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: Math.min(index * 0.025, 0.18) }}
+                    className={`rounded-2xl border p-4 transition sm:p-5 ${
+                      changed
+                        ? 'border-amber-300/15 bg-amber-400/[0.035]'
+                        : 'border-white/[0.07] bg-white/[0.022] hover:border-white/[0.11]'
+                    }`}
+                  >
+                    <div className="mb-3 flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <label htmlFor={setting.key} className="block text-sm font-semibold text-slate-200">
+                          {formatLabel(setting.key)}
+                        </label>
+                        <p className="mt-1 truncate font-mono text-[10px] text-slate-600">{setting.key}</p>
+                      </div>
+                      {changed && (
+                        <span className="shrink-0 rounded-full border border-amber-300/10 bg-amber-400/[0.07] px-2 py-1 text-[9px] font-bold uppercase tracking-[0.1em] text-amber-200">
+                          Diubah
+                        </span>
+                      )}
+                    </div>
+
+                    {textarea ? (
+                      <textarea
+                        id={setting.key}
+                        rows={4}
+                        value={value}
+                        onChange={(event) => handleChange(setting.key, event.target.value)}
+                        className="admin-field min-h-28 resize-y rounded-xl px-4 py-3 text-sm leading-6"
+                      />
+                    ) : (
+                      <input
+                        id={setting.key}
+                        type={isRotationSpeed ? 'number' : setting.key.includes('email') ? 'email' : 'text'}
+                        min={isRotationSpeed ? 1000 : undefined}
+                        step={isRotationSpeed ? 100 : undefined}
+                        value={value}
+                        onChange={(event) => handleChange(setting.key, event.target.value)}
+                        className="admin-field h-12 rounded-xl px-4 text-sm"
+                      />
+                    )}
+
+                    <div className="mt-4 flex items-center justify-between gap-3">
+                      <span className="min-h-5 text-[11px]">
+                        {status === 'saved' && (
+                          <span className="inline-flex items-center gap-1.5 text-emerald-300">
+                            <Check className="h-3.5 w-3.5" /> Tersimpan
+                          </span>
+                        )}
+                        {status === 'error' && (
+                          <span className="inline-flex items-center gap-1.5 text-red-300">
+                            <AlertCircle className="h-3.5 w-3.5" /> Gagal disimpan
+                          </span>
+                        )}
+                      </span>
+
+                      <button
+                        type="button"
+                        onClick={() => handleSave(setting.key)}
+                        disabled={!changed || status === 'saving'}
+                        className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 px-4 text-xs font-semibold text-white shadow-[0_8px_24px_rgba(14,165,233,0.16)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:translate-y-0"
+                      >
+                        {status === 'saving' ? (
+                          <LoaderCircle className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Save className="h-4 w-4" />
+                        )}
+                        {status === 'saving' ? 'Menyimpan' : 'Simpan'}
+                      </button>
+                    </div>
+                  </motion.article>
+                );
+              })}
+            </div>
+          </section>
+        );
+      })}
+
+      {visibleSettings.length === 0 && (
+        <section className="admin-panel flex min-h-[300px] flex-col items-center justify-center rounded-[24px] px-6 text-center">
+          <span className="grid h-16 w-16 place-items-center rounded-2xl border border-white/[0.08] bg-white/[0.035] text-slate-600">
+            <FileText className="h-7 w-7" />
+          </span>
+          <h3 className="mt-5 font-semibold text-slate-200">Field tidak ditemukan</h3>
+          <p className="mt-2 text-sm text-slate-500">Coba gunakan kata kunci pencarian yang berbeda.</p>
+        </section>
+      )}
+
+      <div className="flex items-start gap-3 rounded-2xl border border-sky-300/10 bg-sky-400/[0.045] p-4 text-xs leading-5 text-sky-100/65">
+        <Link2 className="mt-0.5 h-4 w-4 shrink-0 text-sky-300" />
+        Perubahan disimpan ke tab <strong className="font-semibold text-sky-100">Settings</strong> menggunakan key yang sama. Struktur spreadsheet dan endpoint tidak diubah.
+      </div>
+    </div>
+  );
+}
