@@ -18,8 +18,17 @@
         "name": "next"
       }
     ],
-    "paths": {
-      "@/*": ["./*"]
+"baseUrl": ".",
+"paths": {
+  "@/*": ["./*"],
+  "@/components/*": ["./components/*"],
+  "@/hooks/*": ["./hooks/*"],
+  "@/locales/*": ["./app/locales/*"],
+      "@/models/*": ["./app/models/*"],
+      "@/styles/*": ["./app/styles/*"],
+      "@/themes/*": ["./app/themes/*"],
+      "@/utils/*": ["./app/utils/*"],
+      "@/types/*": ["./app/types/*"]
     }
   },
   "include": [
@@ -30,5 +39,8 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "Modernize-Nextjs-Free"
+  ]
 }
