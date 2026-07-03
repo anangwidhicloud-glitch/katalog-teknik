@@ -3,6 +3,7 @@ import { useState } from 'react'
 import Sidebar from './components/admin/Sidebar'
 import Navbar from './components/admin/Navbar'
 
+import AdminLogoutButton from './components/admin/AdminLogoutButton';
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [isShow, setIsShow] = useState(true)
 
@@ -15,6 +16,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className={`flex-1 flex flex-col transition-all duration-300 ${isShow ? 'pl-64' : 'pl-0'}`}>
         <Navbar onToggle={() => setIsShow(!isShow)} />
         <main className="p-8">
+          <AdminLogoutButton />
           {children}
         </main>
       </div>

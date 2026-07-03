@@ -9,27 +9,16 @@ export const metadata: Metadata = {
   description: "Katalog produk teknik profesional",
 };
 
-export default function RootLayout({
+export default function MainLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="id">
-      {/* Tambahkan bg-[#0a0a0f] di body agar background gelap merata */}
-      <body className="bg-[#0a0a0f] text-white">
-        <Header />
-        
-        {/* ShootingStarField dipasang di sini agar muncul di semua halaman */}
-        <ShootingStarField />
-        
-        {/* Tambahkan 'relative z-10' agar konten berada di atas background animasi */}
-        <main className="min-h-screen pt-20 relative z-10">
-          {children}
-        </main>
-        
-        <Footer /> 
-      </body>
-    </html>
+    <>
+      <Header />
+      {children}
+      <Footer />
+    </>
   );
 }

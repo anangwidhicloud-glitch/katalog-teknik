@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSheetData } from '../hooks/useSheetData';
 
-const words = ["Standar Dunia", "Kualitas Premium", "Daya Tahan Tinggi", "Brand Terpercaya"];
 
 const features = [
   { title: "Produk Original", desc: "Produk kami terjamin 100% original dari brand terpercaya." },
@@ -29,11 +28,47 @@ export default function Home() {
   const [index, setIndex] = useState(0);
   const [activeCat, setActiveCat] = useState("All Produk");
 
+  const { data: settings } = useSheetData('Settings');
+
+  const content = settings.reduce<Record<string, string>>((result, item: any) => {
+    if (item.key) {
+      result[item.key] = item.value ?? '';
+    }
+
+    return result;
+  }, {});
+
+  const defaultWords = [
+    "Standar Dunia",
+    "Kualitas Premium",
+    "Daya Tahan Tinggi",
+    "Brand Terpercaya",
+  ];
+
+  const sheetWords = [
+    content.hero_word_1,
+    content.hero_word_2,
+    content.hero_word_3,
+    content.hero_word_4,
+  ]
+    .map((word) => word?.trim())
+    .filter((word): word is string => Boolean(word));
+
+  const words = sheetWords.length > 0 ? sheetWords : defaultWords;
+  const rotationSpeed = Math.max(Number(content.hero_rotation_speed) || 3000, 1000);
+
   // Timer untuk teks berganti di Hero
   useEffect(() => {
-    const timer = setInterval(() => setIndex((prev) => (prev + 1) % words.length), 3000);
+    setIndex(0);
+
+    if (words.length <= 1) return;
+
+    const timer = setInterval(() => {
+      setIndex((prev) => (prev + 1) % words.length);
+    }, rotationSpeed);
+
     return () => clearInterval(timer);
-  }, []);
+  }, [words.length, rotationSpeed]);
 
   const filtered = activeCat === "All Produk" ? products : products.filter(p => p.cat === activeCat);
 
@@ -50,10 +85,10 @@ export default function Home() {
     className="flex flex-col items-center"
   >
     <div className="text-sm uppercase tracking-widest text-gray-400 mb-4 border border-gray-600 px-3 py-1 rounded">
-      AUTHORIZED DISTRIBUTOR RESMI
+      {content.hero_badge || "AUTHORIZED DISTRIBUTOR RESMI"}
     </div>
     
-    <h1 className="text-6xl md:text-8xl font-bold mb-4">Temukan Solusi</h1>
+    <h1 className="text-6xl md:text-8xl font-bold mb-4">{content.hero_title || "Temukan Solusi"}</h1>
     
     <AnimatePresence mode="wait">
       <motion.h1 
@@ -63,12 +98,12 @@ export default function Home() {
         exit={{ opacity: 0, y: -20 }}
         className="text-6xl md:text-8xl font-bold mb-6 animate-gradient-text"
       >
-        {words[index]} Peralatan Anda
+        {words[index]} {content.hero_suffix || "Peralatan Anda"}
       </motion.h1>
     </AnimatePresence>
 
     <p className="text-gray-400 max-w-xl mb-8">
-      Menyediakan automotive service equipment kelas dunia dan hand tools berstandar internasional untuk efisiensi maksimal.
+      {content.hero_description || "Menyediakan automotive service equipment kelas dunia dan hand tools berstandar internasional untuk efisiensi maksimal."}
     </p>
     
     <div className="flex gap-4">
@@ -77,14 +112,14 @@ export default function Home() {
         whileTap={{ scale: 0.95 }}
         className="bg-purple-600 px-8 py-4 rounded-xl font-bold shadow-[0_0_20px_rgba(147,51,234,0.4)] hover:shadow-[0_0_30px_rgba(147,51,234,0.7)] transition-all duration-300"
       >
-        Lihat Produk
+        {content.hero_button_product || "Lihat Produk"}
       </motion.button>
       <motion.button 
         whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.05)" }}
         whileTap={{ scale: 0.95 }}
         className="px-8 py-4 rounded-xl font-bold border border-gray-500 hover:border-white transition-all duration-300"
       >
-        Hubungi Kami
+        {content.hero_button_contact || "Hubungi Kami"}
       </motion.button>
     </div>
   </motion.div>

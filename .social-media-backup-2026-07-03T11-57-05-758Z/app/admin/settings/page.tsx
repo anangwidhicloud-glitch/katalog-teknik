@@ -1,5 +1,4 @@
 'use client';
-import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useSheetData } from '../../hooks/useSheetData';
 
@@ -42,15 +41,6 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-4xl mx-auto p-8 text-white space-y-8">
-        <div className="mb-6 flex justify-end">
-          <Link
-            href="/admin/social-media"
-            className="inline-flex items-center rounded-xl border border-blue-400/25 bg-blue-500/10 px-4 py-2.5 text-sm font-semibold text-blue-200 transition hover:border-blue-400/40 hover:bg-blue-500/20"
-          >
-            Atur Link Sosial Media
-          </Link>
-        </div>
-
       <h1 className="text-3xl font-bold">Pengaturan Teks Website</h1>
       
       <div className="bg-[#1a1a1a] p-8 rounded-2xl border border-white/10 space-y-6">
