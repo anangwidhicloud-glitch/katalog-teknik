@@ -25,63 +25,68 @@ import MPBackground from './components/MPBackground';
 import SectionHeading from './components/SectionHeading';
 
 type ProductRow = {
-  No?: string;
-  'Nama Produk'?: string;
-  'Kategori Utama'?: string;
-  'Kategori Kedua'?: string;
-  'Sub Kategori'?: string;
-  Harga?: string;
-  Rating?: string;
-  Foto_URL?: string;
-  Terlaris?: string;
+  id?: number;
+  legacyNo?: number | string | null;
+  name?: string | null;
+  mainCategory?: string | null;
+  secondCategory?: string | null;
+  subCategory?: string | null;
+  price?: number | string | null;
+  rating?: number | string | null;
+  imageUrl?: string | null;
+  isBestSeller?: boolean | string | null;
 };
 
+type SettingRow = {
+  key: string;
+  value?: string | null;
+};
 const fallbackProducts: ProductRow[] = [
   {
-    No: '1',
-    'Nama Produk': 'Blue-point BWA 200 Imaging Wheel Alignment',
-    'Kategori Utama': 'Otomotif',
-    'Kategori Kedua': 'Wheel',
-    'Sub Kategori': 'Alignment',
-    Harga: '12000000',
-    Rating: '5',
-    Foto_URL:
+    legacyNo: '1',
+    name: 'Blue-point BWA 200 Imaging Wheel Alignment',
+    mainCategory: 'Otomotif',
+    secondCategory: 'Wheel',
+    subCategory: 'Alignment',
+    price: '12000000',
+    rating: '5',
+    imageUrl:
       'https://res.cloudinary.com/dwe145gm2/image/upload/v1782441578/01._Blue-point_BWA_200_Imaging_Wheel_Alignment_uuvxtv.png',
-    Terlaris: 'True',
+    isBestSeller: true,
   },
   {
-    No: '3',
-    'Nama Produk': 'Blue-point Swing-Arm Tire Changer',
-    'Kategori Utama': 'Otomotif',
-    'Kategori Kedua': 'Tire',
-    'Sub Kategori': 'Changer',
-    Harga: '8500000',
-    Rating: '5',
-    Foto_URL:
+    legacyNo: '3',
+    name: 'Blue-point Swing-Arm Tire Changer',
+    mainCategory: 'Otomotif',
+    secondCategory: 'Tire',
+    subCategory: 'Changer',
+    price: '8500000',
+    rating: '5',
+    imageUrl:
       'https://res.cloudinary.com/dwe145gm2/image/upload/v1782441574/03._Blue-point_Swing-Arm_Tire_Changer_lqawlq.png',
-    Terlaris: 'True',
+    isBestSeller: true,
   },
   {
-    No: '7',
-    'Nama Produk': 'Blue-point 4T Clear-Floor Two-Post Lift',
-    'Kategori Utama': 'Hidraulis',
-    'Kategori Kedua': 'Lift',
-    'Sub Kategori': '4 Ton',
-    Harga: '25000000',
-    Rating: '5',
-    Foto_URL:
+    legacyNo: '7',
+    name: 'Blue-point 4T Clear-Floor Two-Post Lift',
+    mainCategory: 'Hidraulis',
+    secondCategory: 'Lift',
+    subCategory: '4 Ton',
+    price: '25000000',
+    rating: '5',
+    imageUrl:
       'https://res.cloudinary.com/dwe145gm2/image/upload/v1782441574/07._Blue-point_4T_Clear-Floor_Two-Post_Lift_-_Wide_fg9xom.png',
-    Terlaris: 'True',
+    isBestSeller: true,
   },
   {
-    No: '10',
-    'Nama Produk': 'Blue-point Professional AC Unit',
-    'Kategori Utama': 'Perlengkapan',
-    'Kategori Kedua': 'Fluid',
-    'Sub Kategori': 'Flushing',
-    Harga: '29500000',
-    Rating: '4',
-    Foto_URL:
+    legacyNo: '10',
+    name: 'Blue-point Professional AC Unit',
+    mainCategory: 'Perlengkapan',
+    secondCategory: 'Fluid',
+    subCategory: 'Flushing',
+    price: '29500000',
+    rating: '4',
+    imageUrl:
       'https://res.cloudinary.com/dwe145gm2/image/upload/v1782441575/10._Blue-point_Professional_AC_unit_with_Flushing_Function_mt6shq.png',
   },
 ];
@@ -121,7 +126,7 @@ const partners = [
   'Solusi Otomotif',
 ];
 
-function formatCurrency(value?: string) {
+function formatCurrency(value?: string | number | null) {
   const number = Number(String(value ?? '').replace(/[^0-9.-]/g, ''));
   if (!Number.isFinite(number)) return value || 'Hubungi kami';
 
@@ -134,19 +139,23 @@ function formatCurrency(value?: string) {
 
 function getProductCategory(product: ProductRow) {
   return (
-    product['Kategori Kedua']?.trim() ||
-    product['Kategori Utama']?.trim() ||
+    product.secondCategory?.trim() ||
+    product.mainCategory?.trim() ||
     'Peralatan'
   );
 }
 
 function getProductRating(product: ProductRow) {
-  const rating = Number(product.Rating);
+  const rating = Number(product.rating);
   return Number.isFinite(rating) ? rating : 0;
 }
 
 function isBestSeller(product: ProductRow) {
-  return String(product.Terlaris ?? '').trim().toLowerCase() === 'true';
+  if (typeof product.isBestSeller === 'boolean') return product.isBestSeller;
+
+  return ['true', '1', 'yes', 'ya', 'iya'].includes(
+    String(product.isBestSeller ?? '').trim().toLowerCase(),
+  );
 }
 
 function sortProducts(products: ProductRow[]) {
@@ -161,18 +170,25 @@ function sortProducts(products: ProductRow[]) {
 export default function Home() {
   const [wordIndex, setWordIndex] = useState(0);
   const [activeCategory, setActiveCategory] = useState('Semua');
-  const { data: settings } = useSheetData('Settings');
-  const { data: productRows, loading: productsLoading } = useSheetData();
+const {
+  data: productRows,
+  loading: productsLoading,
+} = useSheetData<ProductRow>('Products');
 
-  const content = useMemo(
-    () =>
-      Object.fromEntries(
-        (settings as Array<{ key?: string; value?: string }>)
-          .filter((item) => item.key)
-          .map((item) => [item.key as string, item.value ?? '']),
-      ),
-    [settings],
-  );
+const {
+  data: settingRows,
+} = useSheetData<SettingRow>('Settings');
+
+const content = useMemo<
+  Record<string, string>
+>(() => {
+  return settingRows.reduce<
+    Record<string, string>
+  >((result, item) => {
+    result[item.key] = item.value ?? '';
+    return result;
+  }, {});
+}, [settingRows]);
 
   const defaultWords = ['Standar Dunia', 'Kualitas Premium', 'Daya Tahan Tinggi', 'Brand Terpercaya'];
   const sheetWords = [
@@ -324,17 +340,16 @@ export default function Home() {
                   transition={{ duration: 24, repeat: Infinity, ease: 'linear' }}
                 />
                 <div className="hero-product-halo" />
-                {heroProduct.Foto_URL ? (
+                {heroProduct.imageUrl ? (
                   <motion.div
                     className="hero-product-image-wrap"
                     animate={{ y: [0, -8, 0] }}
                     transition={{ duration: 5.6, repeat: Infinity, ease: 'easeInOut' }}
                   >
                     <Image
-                      src={heroProduct.Foto_URL}
-                      alt={heroProduct['Nama Produk'] || 'Produk unggulan'}
+                      src={heroProduct.imageUrl}
+                      alt={heroProduct.name || 'Produk unggulan'}
                       fill
-                      priority
                       sizes="(max-width: 1040px) 72vw, 420px"
                       className="hero-product-image"
                     />
@@ -347,7 +362,7 @@ export default function Home() {
               <div className="hero-visual-footer-clean">
                 <div className="hero-product-caption">
                   <span>Featured equipment</span>
-                  <strong>{heroProduct['Nama Produk'] || 'Precision Equipment System'}</strong>
+                  <strong>{heroProduct.name || 'Precision Equipment System'}</strong>
                 </div>
                 <div className="hero-metric-row">
                   <div className="hero-metric-item">
@@ -356,7 +371,7 @@ export default function Home() {
                   </div>
                   <div className="hero-metric-separator" />
                   <div className="hero-metric-item">
-                    <strong>{heroProduct.Rating || '4.9'}</strong>
+                    <strong>{heroProduct.rating || '4.9'}</strong>
                     <span>Quality rating</span>
                   </div>
                   <div className="hero-metric-separator" />
@@ -436,7 +451,7 @@ export default function Home() {
             {visibleProducts.map((product, index) => (
               <motion.article
                 layout
-                key={`${resolvedActiveCategory}-${product.No ?? index}-${product['Nama Produk'] ?? 'produk'}`}
+                key={`${resolvedActiveCategory}-${product.legacyNo ?? index}-${product.name ?? 'produk'}`}
                 className="site-card product-card home-product-card"
                 data-aos="fade-up"
                 data-aos-delay={String((index % 3) * 90)}
@@ -458,10 +473,10 @@ export default function Home() {
                       <Boxes size={13} /> {getProductCategory(product)}
                     </span>
                   </div>
-                  {product.Foto_URL ? (
+                  {product.imageUrl ? (
                     <Image
-                      src={product.Foto_URL}
-                      alt={product['Nama Produk'] || 'Produk teknik'}
+                      src={product.imageUrl}
+                      alt={product.name || 'Produk teknik'}
                       fill
                       sizes="(max-width: 760px) 100vw, (max-width: 1040px) 50vw, 33vw"
                       className="product-image"
@@ -473,13 +488,13 @@ export default function Home() {
                 </div>
                 <div className="product-card-content">
                   <div className="product-card-meta">
-                    <span>{product['Sub Kategori'] || product['Kategori Utama'] || 'Professional Series'}</span>
+                    <span>{product.subCategory || product.mainCategory || 'Professional Series'}</span>
                     <span className="product-rating">
-                      <Star size={13} fill="currentColor" /> {product.Rating || '5.0'}
+                      <Star size={13} fill="currentColor" /> {product.rating || '5.0'}
                     </span>
                   </div>
-                  <h3 className="product-card-title">{product['Nama Produk'] || 'Produk Teknik Profesional'}</h3>
-                  <div className="product-price">{formatCurrency(product.Harga)}</div>
+                  <h3 className="product-card-title">{product.name || 'Produk Teknik Profesional'}</h3>
+                  <div className="product-price">{formatCurrency(product.price)}</div>
                   <div className="product-card-actions">
                     <Link href="/products" className="site-button site-button-secondary">Detail</Link>
                     <Link href="/contact" className="site-button site-button-primary">Penawaran</Link>
@@ -556,8 +571,8 @@ export default function Home() {
       <section className="section-block section-shell">
         <div className="stats-grid">
           {[
-            { value: '15+', label: 'Produk pilihan', icon: Boxes },
-            { value: '4', label: 'Kategori utama', icon: Sparkles },
+            { value: `${allProducts.length}+`, label: 'Produk pilihan', icon: Boxes },
+            { value: `${productCategories.length - 1}`, label: 'Kategori utama', icon: Sparkles },
             { value: '100%', label: 'Fokus kualitas', icon: ShieldCheck },
             { value: 'Fast', label: 'Respon konsultasi', icon: Headphones },
           ].map((item, index) => {

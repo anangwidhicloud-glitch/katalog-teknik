@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-
+import { env } from '@/lib/env';
+import { verifyPassword } from '@/lib/auth/password';
 import {
   ADMIN_SESSION_COOKIE,
   ADMIN_SESSION_MAX_AGE,
   createAdminSession,
-  secureCompare,
-} from '../../../../lib/admin-auth';
+} from '@/lib/auth/admin-session';
 
 export const runtime = 'nodejs';
 
@@ -14,10 +14,8 @@ type LoginBody = {
   password?: unknown;
 };
 
-function delay(milliseconds: number) {
-  return new Promise((resolve) =>
-    setTimeout(resolve, milliseconds),
-  );
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export async function POST(request: Request) {
@@ -27,81 +25,32 @@ export async function POST(request: Request) {
     body = (await request.json()) as LoginBody;
   } catch {
     return NextResponse.json(
-      {
-        message: 'Format permintaan tidak valid.',
-      },
+      { message: 'Format request tidak valid.' },
       { status: 400 },
     );
   }
 
   const email =
-    typeof body.email === 'string'
-      ? body.email.trim().toLowerCase()
-      : '';
+    typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
+  const password = typeof body.password === 'string' ? body.password : '';
 
-  const password =
-    typeof body.password === 'string'
-      ? body.password
-      : '';
-
-  const configuredEmail = process.env.ADMIN_EMAIL
-    ?.trim()
-    .toLowerCase();
-
-  const configuredPassword =
-    process.env.ADMIN_PASSWORD;
-
-  const authSecret = process.env.ADMIN_AUTH_SECRET;
-
-  if (
-    !configuredEmail ||
-    !configuredPassword ||
-    !authSecret
-  ) {
-    console.error(
-      'ADMIN_EMAIL, ADMIN_PASSWORD, atau ADMIN_AUTH_SECRET belum dikonfigurasi.',
-    );
-
-    return NextResponse.json(
-      {
-        message:
-          'Konfigurasi login admin belum lengkap.',
-      },
-      { status: 500 },
-    );
-  }
-
-  const validEmail = secureCompare(
-    email,
-    configuredEmail,
-  );
-
-  const validPassword = secureCompare(
-    password,
-    configuredPassword,
-  );
+  const validEmail = email === env.ADMIN_EMAIL.toLowerCase();
+  const validPassword = await verifyPassword(password, env.ADMIN_PASSWORD_HASH);
 
   if (!validEmail || !validPassword) {
     await delay(650);
 
     return NextResponse.json(
-      {
-        message: 'Email atau kata sandi salah.',
-      },
+      { message: 'Email atau password salah.' },
       { status: 401 },
     );
   }
 
-  const response = NextResponse.json({
-    success: true,
-  });
+  const response = NextResponse.json({ success: true });
 
   response.cookies.set({
     name: ADMIN_SESSION_COOKIE,
-    value: createAdminSession(
-      configuredEmail,
-      authSecret,
-    ),
+    value: createAdminSession(env.ADMIN_EMAIL, env.ADMIN_AUTH_SECRET),
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',

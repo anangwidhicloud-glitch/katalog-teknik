@@ -11,25 +11,27 @@ import {
   Search,
   Star,
   X,
+  Pencil,
+  Trash2,
 } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 
 type ProductRow = {
-  No?: string;
-  'Nama Produk'?: string;
-  'Kategori Utama'?: string;
-  'Kategori Kedua'?: string;
-  'Sub Kategori'?: string;
-  Harga?: string;
-  Rating?: string;
-  Foto_URL?: string;
-  Terlaris?: string;
+  id?: number;
+  legacyNo?: number | null;
+  name?: string | null;
+  mainCategory?: string | null;
+  secondCategory?: string | null;
+  subCategory?: string | null;
+  price?: number | string | null;
+  rating?: number | string | null;
+  imageUrl?: string | null;
+  isBestSeller?: boolean | null;
 };
 
-const SHEETDB_URL = 'https://sheetdb.io/api/v1/89uva05es1czu';
-
-function formatCurrency(value?: string) {
+function formatCurrency(value?: string | number | null) {
   const number = Number(String(value ?? '').replace(/[^0-9.-]/g, ''));
 
   if (!Number.isFinite(number)) return value || '—';
@@ -41,8 +43,12 @@ function formatCurrency(value?: string) {
   }).format(number);
 }
 
-function isTruthy(value?: string) {
-  return ['true', 'ya', 'yes', '1'].includes(String(value ?? '').trim().toLowerCase());
+function isTruthy(value?: boolean | string | null) {
+  if (typeof value === 'boolean') return value;
+
+  return ['true', 'ya', 'yes', '1'].includes(
+    String(value ?? '').trim().toLowerCase(),
+  );
 }
 
 export default function ProductsPage() {
@@ -51,7 +57,53 @@ export default function ProductsPage() {
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('Semua kategori');
+async function handleDelete(id: number) {
+  const confirmDelete = window.confirm(
+    'Apakah Anda yakin ingin menghapus produk ini?'
+  );
 
+  if (!confirmDelete) {
+    return;
+  }
+
+
+  try {
+    const response = await fetch(
+      `/api/products/${id}`,
+      {
+        method: 'DELETE',
+      },
+    );
+
+
+    const result = await response.json();
+
+
+    if (!response.ok) {
+      throw new Error(
+        result.message ||
+        'Gagal menghapus produk.',
+      );
+    }
+
+
+    setProducts((prev) =>
+      prev.filter(
+        (product) => product.id !== id,
+      ),
+    );
+
+
+  } catch (error) {
+
+    alert(
+      error instanceof Error
+        ? error.message
+        : 'Terjadi kesalahan.',
+    );
+
+  }
+}
   useEffect(() => {
     const controller = new AbortController();
 
@@ -60,7 +112,7 @@ export default function ProductsPage() {
       setError('');
 
       try {
-        const response = await fetch(SHEETDB_URL, {
+        const response = await fetch('/api/products', {
           signal: controller.signal,
         });
 
@@ -68,12 +120,17 @@ export default function ProductsPage() {
           throw new Error('Data produk tidak dapat dimuat.');
         }
 
-        const data = (await response.json()) as ProductRow[];
-        setProducts(Array.isArray(data) ? data : []);
+        const data = await response.json();
+
+        if (!Array.isArray(data)) {
+          throw new Error('Format data produk dari API tidak valid.');
+        }
+
+        setProducts(data as ProductRow[]);
       } catch (requestError) {
         if (requestError instanceof DOMException && requestError.name === 'AbortError') return;
 
-        console.error('Error fetching data:', requestError);
+        console.error('Gagal memuat produk dari Neon:', requestError);
         setError(requestError instanceof Error ? requestError.message : 'Terjadi kesalahan saat memuat produk.');
       } finally {
         setLoading(false);
@@ -87,7 +144,7 @@ export default function ProductsPage() {
   const categories = useMemo(() => {
     const unique = new Set(
       products
-        .map((product) => product['Kategori Utama']?.trim())
+        .map((product) => product.mainCategory?.trim())
         .filter((value): value is string => Boolean(value)),
     );
 
@@ -98,12 +155,12 @@ export default function ProductsPage() {
     const keyword = search.trim().toLowerCase();
 
     return products.filter((product) => {
-      const matchesCategory = category === 'Semua kategori' || product['Kategori Utama'] === category;
+      const matchesCategory = category === 'Semua kategori' || product.mainCategory === category;
       const searchable = [
-        product['Nama Produk'],
-        product['Kategori Utama'],
-        product['Kategori Kedua'],
-        product['Sub Kategori'],
+        product.name,
+        product.mainCategory,
+        product.secondCategory,
+        product.subCategory,
       ]
         .filter(Boolean)
         .join(' ')
@@ -113,23 +170,34 @@ export default function ProductsPage() {
     });
   }, [category, products, search]);
 
-  const bestSellerCount = products.filter((product) => isTruthy(product.Terlaris)).length;
+  const bestSellerCount = products.filter((product) => isTruthy(product.isBestSeller)).length;
 
   return (
     <div className="space-y-6">
       <section className="admin-panel relative overflow-hidden rounded-[26px] px-6 py-7 sm:px-8">
         <div aria-hidden="true" className="absolute -right-16 -top-20 h-52 w-52 rounded-full bg-blue-500/10 blur-3xl" />
         <div className="relative flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
-          <div>
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-blue-300/15 bg-blue-400/[0.07] px-3 py-1.5 text-xs font-semibold text-blue-200">
-              <Boxes className="h-3.5 w-3.5" />
-              Data katalog
-            </div>
-            <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">Manajemen Produk</h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
-              Telusuri produk yang tersimpan pada Google Sheets tanpa mengubah struktur data yang sudah digunakan website.
-            </p>
-          </div>
+<div>
+  <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-blue-300/15 bg-blue-400/[0.07] px-3 py-1.5 text-xs font-semibold text-blue-200">
+    <Boxes className="h-3.5 w-3.5" />
+    Data katalog
+  </div>
+
+  <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+    Manajemen Produk
+  </h2>
+
+  <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
+    Telusuri produk yang tersimpan langsung di Neon PostgreSQL.
+  </p>
+</div>
+
+<Link
+  href="/admin/products/add"
+  className="inline-flex h-11 items-center justify-center rounded-xl bg-sky-500 px-5 text-sm font-semibold text-white transition hover:bg-sky-400"
+>
+  Tambah Produk
+</Link>
 
           <div className="grid grid-cols-2 gap-3 sm:flex">
             <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] px-4 py-3">
@@ -214,7 +282,7 @@ export default function ProductsPage() {
         {loading ? (
           <div className="flex min-h-[360px] flex-col items-center justify-center gap-3 text-slate-500">
             <LoaderCircle className="h-7 w-7 animate-spin text-sky-300" />
-            <p className="text-sm">Memuat produk dari Google Sheets...</p>
+            <p className="text-sm">Memuat produk dari Neon PostgreSQL...</p>
           </div>
         ) : filteredProducts.length === 0 ? (
           <div className="flex min-h-[360px] flex-col items-center justify-center px-6 text-center">
@@ -236,14 +304,19 @@ export default function ProductsPage() {
                   <th className="px-4 py-4">Harga</th>
                   <th className="px-4 py-4">Rating</th>
                   <th className="px-4 py-4">Status</th>
-                  <th className="px-6 py-4 text-right">Nomor</th>
+                  <th className="px-6 py-4 text-right">
+                      Nomor
+                  </th>
+                  <th className="px-6 py-4 text-right">
+                      Aksi
+                    </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/[0.055]">
                 <AnimatePresence initial={false}>
                   {filteredProducts.map((product, index) => (
                     <motion.tr
-                      key={`${product.No ?? index}-${product['Nama Produk'] ?? 'product'}`}
+                      key={`${product.legacyNo ?? index}-${product.name ?? 'product'}`}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
@@ -253,10 +326,10 @@ export default function ProductsPage() {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-4">
                           <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.035]">
-                            {product.Foto_URL ? (
+                            {product.imageUrl ? (
                               <Image
-                                src={product.Foto_URL}
-                                alt={product['Nama Produk'] || 'Produk'}
+                                src={product.imageUrl}
+                                alt={product.name || 'Produk'}
                                 fill
                                 sizes="56px"
                                 className="object-cover transition duration-300 group-hover:scale-105"
@@ -267,28 +340,28 @@ export default function ProductsPage() {
                           </div>
                           <div className="min-w-0">
                             <p className="max-w-[340px] truncate text-sm font-semibold text-slate-200">
-                              {product['Nama Produk'] || 'Produk tanpa nama'}
+                              {product.name || 'Produk tanpa nama'}
                             </p>
                             <p className="mt-1 max-w-[300px] truncate text-xs text-slate-600">
-                              {[product['Kategori Kedua'], product['Sub Kategori']].filter(Boolean).join(' • ') || 'Detail kategori belum tersedia'}
+                              {[product.secondCategory, product.subCategory].filter(Boolean).join(' • ') || 'Detail kategori belum tersedia'}
                             </p>
                           </div>
                         </div>
                       </td>
                       <td className="px-4 py-4">
                         <span className="inline-flex rounded-lg border border-blue-300/10 bg-blue-400/[0.055] px-2.5 py-1 text-xs font-medium text-blue-200">
-                          {product['Kategori Utama'] || 'Tanpa kategori'}
+                          {product.mainCategory || 'Tanpa kategori'}
                         </span>
                       </td>
-                      <td className="px-4 py-4 text-sm font-semibold text-sky-200">{formatCurrency(product.Harga)}</td>
+                      <td className="px-4 py-4 text-sm font-semibold text-sky-200">{formatCurrency(product.price)}</td>
                       <td className="px-4 py-4">
                         <span className="inline-flex items-center gap-1.5 text-sm text-amber-200">
                           <Star className="h-4 w-4 fill-amber-300 text-amber-300" />
-                          {product.Rating || '—'}
+                          {product.rating || '—'}
                         </span>
                       </td>
                       <td className="px-4 py-4">
-                        {isTruthy(product.Terlaris) ? (
+                        {isTruthy(product.isBestSeller) ? (
                           <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/10 bg-emerald-400/[0.07] px-2.5 py-1 text-[11px] font-semibold text-emerald-200">
                             <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" />
                             Terlaris
@@ -297,7 +370,33 @@ export default function ProductsPage() {
                           <span className="text-xs text-slate-600">Reguler</span>
                         )}
                       </td>
-                      <td className="px-6 py-4 text-right text-xs font-medium text-slate-600">#{product.No || index + 1}</td>
+                      <td className="px-6 py-4 text-right text-xs font-medium text-slate-600">#{product.legacyNo || index + 1}</td>
+                      <td className="px-6 py-4">
+  <div className="flex justify-end gap-2">
+
+    <Link
+      href={`/admin/products/${product.id}/edit`}
+      className="grid h-9 w-9 place-items-center rounded-lg border border-blue-300/10 bg-blue-400/[0.05] text-blue-200 transition hover:bg-blue-400/10"
+      title="Edit produk"
+    >
+      <Pencil className="h-4 w-4" />
+    </Link>
+
+
+<button
+  type="button"
+  onClick={() =>
+    product.id &&
+    handleDelete(product.id)
+  }
+  className="grid h-9 w-9 place-items-center rounded-lg border border-red-300/10 bg-red-400/[0.05] text-red-200 transition hover:bg-red-400/10"
+  title="Hapus produk"
+>
+  <Trash2 className="h-4 w-4" />
+</button>
+
+  </div>
+</td>
                     </motion.tr>
                   ))}
                 </AnimatePresence>
@@ -308,7 +407,7 @@ export default function ProductsPage() {
       </section>
 
       <p className="text-center text-xs leading-5 text-slate-600">
-        Halaman ini mempertahankan sumber data SheetDB yang sudah digunakan. Fitur edit dan hapus tidak ditambahkan agar alur data lama tidak berubah.
+        Halaman ini membaca data langsung dari Neon PostgreSQL. Halaman ini membaca dan mengelola data langsung dari Neon PostgreSQL.
       </p>
     </div>
   );

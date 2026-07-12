@@ -31,9 +31,18 @@ export default function ContactPage() {
   const phone = content.footer_phone || '0856 4010 0044';
   const email = content.footer_email || 'anang.widhi.p@gmail.com';
   const address = content.footer_address || 'Jl. Mayor Oking Citeureup, Puspanegara, Kabupaten Bogor, Jawa Barat 16810.';
-  const mapUrl = content.map_url?.startsWith('http')
-    ? content.map_url
-    : 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3964.836881774213!2d106.8785663749939!3d-6.425867993563943!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69b83b3e10759f%3A0x89e0b8d5a8b7c7b7!2sGudang%20PT%20Indolakto!5e0!3m2!1sen!2sid!4v1716382000000!5m2!1sen!2sid';
+ const defaultMapUrl =
+  'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3964.836881774213!2d106.8785663749939!3d-6.425867993563943!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69b83b3e10759f%3A0x89e0b8d5a8b7c7b7!2sGudang%20PT%20Indolakto!5e0!3m2!1sen!2sid!4v1716382000000!5m2!1sen!2sid';
+
+const savedMapUrl =
+  content.map_url?.trim() || '';
+
+const mapUrl =
+  savedMapUrl.startsWith(
+    'https://www.google.com/maps/embed',
+  )
+    ? savedMapUrl
+    : defaultMapUrl;
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

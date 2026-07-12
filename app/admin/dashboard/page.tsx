@@ -19,12 +19,16 @@ import Link from 'next/link';
 import { useSheetData } from '../../hooks/useSheetData';
 
 type ProductRow = {
-  'Nama Produk'?: string;
-  'Kategori Utama'?: string;
-  Harga?: string;
-  Rating?: string;
-  Foto_URL?: string;
-  Terlaris?: string;
+  id?: number;
+  legacyNo?: number | string | null;
+  name?: string | null;
+  mainCategory?: string | null;
+  secondCategory?: string | null;
+  subCategory?: string | null;
+  price?: number | string | null;
+  rating?: number | string | null;
+  imageUrl?: string | null;
+  isBestSeller?: boolean | string | null;
 };
 
 type SettingRow = {
@@ -59,7 +63,7 @@ const quickActions = [
   },
 ];
 
-function formatCurrency(value?: string) {
+function formatCurrency(value?: string | number | null) {
   const number = Number(String(value ?? '').replace(/[^0-9.-]/g, ''));
 
   if (!Number.isFinite(number)) return value || '—';
@@ -71,8 +75,9 @@ function formatCurrency(value?: string) {
   }).format(number);
 }
 
-function isTruthy(value?: string) {
-  return ['true', 'ya', 'yes', '1'].includes(String(value ?? '').trim().toLowerCase());
+function isTruthy(value?: boolean | string | null) {
+  if (typeof value === 'boolean') return value;
+  return ['true','ya','yes','1'].includes(String(value ?? '').trim().toLowerCase());
 }
 
 export default function DashboardPage() {
@@ -80,7 +85,7 @@ export default function DashboardPage() {
     data: productData,
     loading: productsLoading,
     error: productsError,
-  } = useSheetData();
+  } = useSheetData<ProductRow>('Products');
 
   const {
     data: settingData,
@@ -90,7 +95,7 @@ export default function DashboardPage() {
 
   const products = productData as ProductRow[];
   const settings = settingData as SettingRow[];
-  const bestSellerCount = products.filter((item) => isTruthy(item.Terlaris)).length;
+  const bestSellerCount = products.filter((item) => isTruthy(item.isBestSeller)).length;
   const socialKeys = new Set(['link_tiktok', 'link_fb', 'link_youtube', 'link_instagram']);
   const activeSocialCount = settings.filter(
     (item) => item.key && socialKeys.has(item.key) && item.value?.trim(),
@@ -108,7 +113,7 @@ export default function DashboardPage() {
     {
       label: 'Produk Terlaris',
       value: productsLoading ? '—' : bestSellerCount.toString(),
-      detail: 'Ditandai di spreadsheet',
+      detail: 'Ditandai sebagai produk terlaris',
       icon: Star,
       accent: 'from-amber-500/20 to-amber-300/[0.04]',
       iconClass: 'text-amber-200 bg-amber-400/10 border-amber-300/15',
@@ -206,7 +211,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-5 sm:px-6">
             <div>
               <h3 className="font-semibold text-white">Produk terbaru</h3>
-              <p className="mt-1 text-xs text-slate-500">Ringkasan lima produk pertama dari spreadsheet.</p>
+              <p className="mt-1 text-xs text-slate-500">Ringkasan lima produk pertama dari database Neon.</p>
             </div>
             <Link href="/admin/products" className="text-xs font-semibold text-sky-300 transition hover:text-sky-200">
               Lihat semua
@@ -228,19 +233,19 @@ export default function DashboardPage() {
               <div className="px-6 py-12 text-center text-sm text-slate-500">Belum ada data produk.</div>
             ) : (
               products.slice(0, 5).map((product, index) => (
-                <div key={`${product['Nama Produk']}-${index}`} className="flex items-center gap-4 px-5 py-4 transition hover:bg-white/[0.025] sm:px-6">
+                <div key={`${product.name}-${index}`} className="flex items-center gap-4 px-5 py-4 transition hover:bg-white/[0.025] sm:px-6">
                   <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.04]">
-                    {product.Foto_URL ? (
-                      <Image src={product.Foto_URL} alt={product['Nama Produk'] || 'Produk'} fill sizes="44px" className="object-cover" />
+                    {product.imageUrl ? (
+                      <Image src={product.imageUrl} alt={product.name || 'Produk'} fill sizes="44px" className="object-cover" />
                     ) : (
                       <PackageCheck className="absolute inset-0 m-auto h-5 w-5 text-slate-600" />
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-slate-200">{product['Nama Produk'] || 'Produk tanpa nama'}</p>
-                    <p className="mt-1 truncate text-xs text-slate-600">{product['Kategori Utama'] || 'Tanpa kategori'}</p>
+                    <p className="truncate text-sm font-medium text-slate-200">{product.name || 'Produk tanpa nama'}</p>
+                    <p className="mt-1 truncate text-xs text-slate-600">{product.mainCategory || 'Tanpa kategori'}</p>
                   </div>
-                  <p className="hidden shrink-0 text-xs font-semibold text-sky-300 sm:block">{formatCurrency(product.Harga)}</p>
+                  <p className="hidden shrink-0 text-xs font-semibold text-sky-300 sm:block">{formatCurrency(product.price)}</p>
                 </div>
               ))
             )}
@@ -280,7 +285,7 @@ export default function DashboardPage() {
             <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-300" />
             <div>
               <p className="text-xs font-semibold text-emerald-100">Sistem terhubung</p>
-              <p className="mt-1 text-xs leading-5 text-emerald-200/55">Data dibaca langsung dari SheetDB dan tab Settings.</p>
+              <p className="mt-1 text-xs leading-5 text-emerald-200/55">Data dibaca langsung dari Neon PostgreSQL.</p>
             </div>
           </div>
         </div>

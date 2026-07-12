@@ -27,15 +27,16 @@ import { useSheetData } from '../../hooks/useSheetData';
 import PageHero from '../components/PageHero';
 
 type ProductRow = {
-  No?: string;
-  'Nama Produk'?: string;
-  'Kategori Utama'?: string;
-  'Kategori Kedua'?: string;
-  'Sub Kategori'?: string;
-  Harga?: string;
-  Rating?: string;
-  Foto_URL?: string;
-  Terlaris?: string;
+  id?: number;
+  legacyNo?: number | null;
+  name?: string | null;
+  mainCategory?: string | null;
+  secondCategory?: string | null;
+  subCategory?: string | null;
+  price?: number | string | null;
+  rating?: number | string | null;
+  imageUrl?: string | null;
+  isBestSeller?: boolean | null;
 };
 
 type SubCategoryNode = {
@@ -73,15 +74,15 @@ type CategorySidebarProps = {
 };
 
 const fallbackProducts: ProductRow[] = [
-  { No: '1', 'Nama Produk': 'Blue-point BWA 200 Imaging Wheel Alignment', 'Kategori Utama': 'Otomotif', 'Kategori Kedua': 'Wheel', 'Sub Kategori': 'Alignment', Harga: '12000000', Rating: '5', Terlaris: 'True' },
-  { No: '2', 'Nama Produk': 'Blue-point Pyramid2 Imaging Wheel Alignment', 'Kategori Utama': 'Otomotif', 'Kategori Kedua': 'Wheel', 'Sub Kategori': 'Alignment', Harga: '6000000', Rating: '5' },
-  { No: '3', 'Nama Produk': 'Blue-point Swing-Arm Tire Changer', 'Kategori Utama': 'Otomotif', 'Kategori Kedua': 'Tire', 'Sub Kategori': 'Changer', Harga: '8500000', Rating: '5', Terlaris: 'True' },
-  { No: '4', 'Nama Produk': 'Blue-point Two-Post Lift', 'Kategori Utama': 'Hidraulis', 'Kategori Kedua': 'Lift', 'Sub Kategori': '4 Ton', Harga: '25000000', Rating: '4', Terlaris: 'True' },
-  { No: '5', 'Nama Produk': 'Blue-point Brake Fluid Changer', 'Kategori Utama': 'Perlengkapan', 'Kategori Kedua': 'Fluid', 'Sub Kategori': 'Brake', Harga: '3000000', Rating: '4' },
-  { No: '6', 'Nama Produk': 'Blue-point Hydraulic Jack', 'Kategori Utama': 'Hidraulis', 'Kategori Kedua': 'Jack', 'Sub Kategori': 'Manual', Harga: '8800000', Rating: '5' },
+  { legacyNo: 1, name: 'Blue-point BWA 200 Imaging Wheel Alignment', mainCategory: 'Otomotif', secondCategory: 'Wheel', subCategory: 'Alignment', price: '12000000', rating: '5', isBestSeller: true },
+  { legacyNo: 2, name: 'Blue-point Pyramid2 Imaging Wheel Alignment', mainCategory: 'Otomotif', secondCategory: 'Wheel', subCategory: 'Alignment', price: '6000000', rating: '5' },
+  { legacyNo: 3, name: 'Blue-point Swing-Arm Tire Changer', mainCategory: 'Otomotif', secondCategory: 'Tire', subCategory: 'Changer', price: '8500000', rating: '5', isBestSeller: true },
+  { legacyNo: 4, name: 'Blue-point Two-Post Lift', mainCategory: 'Hidraulis', secondCategory: 'Lift', subCategory: '4 Ton', price: '25000000', rating: '4', isBestSeller: true },
+  { legacyNo: 5, name: 'Blue-point Brake Fluid Changer', mainCategory: 'Perlengkapan', secondCategory: 'Fluid', subCategory: 'Brake', price: '3000000', rating: '4' },
+  { legacyNo: 6, name: 'Blue-point Hydraulic Jack', mainCategory: 'Hidraulis', secondCategory: 'Jack', subCategory: 'Manual', price: '888800000', rating: '5' },
 ];
 
-function formatCurrency(value?: string) {
+function formatCurrency(value?: string | number | null) {
   const number = Number(String(value ?? '').replace(/[^0-9.-]/g, ''));
   if (!Number.isFinite(number)) return value || 'Hubungi kami';
 
@@ -92,11 +93,12 @@ function formatCurrency(value?: string) {
   }).format(number);
 }
 
-function isTruthy(value?: string) {
+function isTruthy(value?: boolean | string | null) {
+  if (typeof value === 'boolean') return value;
   return ['true', '1', 'yes', 'ya'].includes(String(value ?? '').trim().toLowerCase());
 }
 
-function cleanCategory(value?: string, fallback = 'Lainnya') {
+function cleanCategory(value?: string | null, fallback = 'Lainnya') {
   return value?.trim() || fallback;
 }
 
@@ -104,9 +106,9 @@ function buildCategoryTree(products: ProductRow[]): MainCategoryNode[] {
   const mainMap = new Map<string, Map<string, Map<string, number>>>();
 
   products.forEach((product) => {
-    const main = cleanCategory(product['Kategori Utama']);
-    const second = cleanCategory(product['Kategori Kedua']);
-    const sub = cleanCategory(product['Sub Kategori']);
+    const main = cleanCategory(product.mainCategory);
+    const second = cleanCategory(product.secondCategory);
+    const sub = cleanCategory(product.subCategory);
 
     if (!mainMap.has(main)) mainMap.set(main, new Map());
     const secondMap = mainMap.get(main)!;
@@ -325,7 +327,7 @@ function CategorySidebar({
 }
 
 export default function ProductsPage() {
-  const { data, loading, error } = useSheetData();
+  const { data, loading, error } = useSheetData<ProductRow>('Products');
   const products = (data as ProductRow[]).length > 0 ? (data as ProductRow[]) : fallbackProducts;
   const [search, setSearch] = useState('');
   const [selectedMain, setSelectedMain] = useState('Semua');
@@ -344,14 +346,14 @@ export default function ProductsPage() {
     const keyword = search.trim().toLowerCase();
 
     return products.filter((product) => {
-      const main = cleanCategory(product['Kategori Utama']);
-      const second = cleanCategory(product['Kategori Kedua']);
-      const sub = cleanCategory(product['Sub Kategori']);
+      const main = cleanCategory(product.mainCategory);
+      const second = cleanCategory(product.secondCategory);
+      const sub = cleanCategory(product.subCategory);
       const mainMatch = selectedMain === 'Semua' || main === selectedMain;
       const secondMatch = !selectedSecond || second === selectedSecond;
       const subMatch = !selectedSub || sub === selectedSub;
       const searchable = [
-        product['Nama Produk'],
+        product.name,
         main,
         second,
         sub,
@@ -466,7 +468,10 @@ export default function ProductsPage() {
         <div className="mt-8 flex flex-wrap gap-3">
           <span className="site-chip"><Boxes size={14} /> {products.length} produk tersedia</span>
           <span className="site-chip"><Layers3 size={14} /> {categoryTree.length} kategori utama</span>
-          <span className="site-chip"><Star size={14} /> {products.filter((item) => isTruthy(item.Terlaris)).length} produk terlaris</span>
+          <span className="site-chip">
+  <Star size={14} />
+  {products.filter((item) => item.isBestSeller).length} produk terlaris
+</span>
         </div>
       </PageHero>
 
@@ -580,7 +585,7 @@ export default function ProductsPage() {
                   {visibleProducts.map((product, index) => (
                     <motion.article
                       layout
-                      key={`${product.No ?? index}-${product['Nama Produk'] ?? 'produk'}`}
+                      key={`${product.legacyNo ?? index}-${product.name ?? 'produk'}`}
                       initial={{ opacity: 0, scale: 0.94, y: 24 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.92, y: 14 }}
@@ -591,13 +596,13 @@ export default function ProductsPage() {
                       <div className="product-card-ambient" />
                       <div className="product-image-wrap">
                         <div className="product-card-badges">
-                          {isTruthy(product.Terlaris) && <span className="site-chip product-badge product-best-badge">Terlaris</span>}
-                          <span className="site-chip product-badge product-main-badge">{cleanCategory(product['Kategori Utama'])}</span>
+                          {isTruthy(product.isBestSeller) && <span className="site-chip product-badge product-best-badge">Terlaris</span>}
+                          <span className="site-chip product-badge product-main-badge">{cleanCategory(product.mainCategory)}</span>
                         </div>
-                        {product.Foto_URL ? (
+                        {product.imageUrl ? (
                           <Image
-                            src={product.Foto_URL}
-                            alt={product['Nama Produk'] || 'Produk teknik'}
+                            src={product.imageUrl}
+                            alt={product.name || 'Produk teknik'}
                             fill
                             sizes="(max-width: 760px) 100vw, (max-width: 1040px) 50vw, 34vw"
                             className="product-image"
@@ -610,18 +615,18 @@ export default function ProductsPage() {
 
                       <div className="product-card-content">
                         <div className="product-category-trail">
-                          <span>{cleanCategory(product['Kategori Utama'])}</span>
+                          <span>{cleanCategory(product.mainCategory)}</span>
                           <ChevronRight size={11} />
-                          <span>{cleanCategory(product['Kategori Kedua'])}</span>
+                          <span>{cleanCategory(product.secondCategory)}</span>
                           <ChevronRight size={11} />
-                          <span>{cleanCategory(product['Sub Kategori'])}</span>
+                          <span>{cleanCategory(product.subCategory)}</span>
                         </div>
-                        <h2 className="product-card-title">{product['Nama Produk'] || 'Produk Teknik Profesional'}</h2>
+                        <h2 className="product-card-title">{product.name || 'Produk Teknik Profesional'}</h2>
                         <div className="product-card-meta">
                           <span>Professional equipment</span>
-                          <span className="inline-flex items-center gap-1 text-amber-500"><Star size={13} fill="currentColor" /> {product.Rating || '5'}</span>
+                          <span className="inline-flex items-center gap-1 text-amber-500"><Star size={13} fill="currentColor" /> {product.rating || '5'}</span>
                         </div>
-                        <div className="product-price">{formatCurrency(product.Harga)}</div>
+                        <div className="product-price">{formatCurrency(product.price)}</div>
                         <div className="product-card-actions">
                           <button type="button" className="site-button site-button-secondary" onClick={() => setSelected(product)}>
                             Detail
@@ -738,10 +743,10 @@ export default function ProductsPage() {
                 <X size={19} />
               </button>
               <div className="product-modal-image">
-                {selected.Foto_URL ? (
+                {selected.imageUrl ? (
                   <Image
-                    src={selected.Foto_URL}
-                    alt={selected['Nama Produk'] || 'Produk'}
+                    src={selected.imageUrl}
+                    alt={selected.name || 'Produk'}
                     fill
                     sizes="(max-width: 760px) 100vw, 45vw"
                     className="object-contain p-10"
@@ -751,19 +756,19 @@ export default function ProductsPage() {
                 )}
               </div>
               <div className="product-modal-content">
-                <span className="site-chip">{selected['Kategori Utama'] || 'Peralatan'}</span>
-                <h2 className="mt-6 text-3xl font-black tracking-[-0.04em]">{selected['Nama Produk']}</h2>
+                <span className="site-chip">{selected.mainCategory || 'Peralatan'}</span>
+                <h2 className="mt-6 text-3xl font-black tracking-[-0.04em]">{selected.name}</h2>
                 <p className="mt-4 leading-7 text-[var(--text-secondary)]">
-                  Produk kategori {selected['Kategori Kedua'] || selected['Kategori Utama']} dengan spesifikasi {selected['Sub Kategori'] || 'profesional'}, dirancang untuk mendukung operasional workshop secara efisien.
+                  Produk kategori {selected.secondCategory || selected.mainCategory} dengan spesifikasi {selected.subCategory || 'profesional'}, dirancang untuk mendukung operasional workshop secara efisien.
                 </p>
                 <div className="mt-7 grid grid-cols-2 gap-3">
                   <div className="site-card p-4">
                     <span className="text-xs text-[var(--text-muted)]">Rating</span>
-                    <strong className="mt-2 flex items-center gap-2 text-lg"><Star size={16} fill="currentColor" className="text-amber-500" /> {selected.Rating || '5'}</strong>
+                    <strong className="mt-2 flex items-center gap-2 text-lg"><Star size={16} fill="currentColor" className="text-amber-500" /> {selected.rating || '5'}</strong>
                   </div>
                   <div className="site-card p-4">
                     <span className="text-xs text-[var(--text-muted)]">Harga</span>
-                    <strong className="mt-2 block text-lg">{formatCurrency(selected.Harga)}</strong>
+                    <strong className="mt-2 block text-lg">{formatCurrency(selected.price)}</strong>
                   </div>
                 </div>
                 <Link href="/contact" className="site-button site-button-primary mt-7 w-full">

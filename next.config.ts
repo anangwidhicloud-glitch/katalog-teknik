@@ -3,16 +3,15 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // Konfigurasi gambar untuk mengizinkan Cloudinary
-  images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'res.cloudinary.com',
-        port: '',
-        pathname: '/**',
-      },
-    ],
-  },
+images: {
+  remotePatterns: [
+    {
+      protocol: 'https',
+      hostname: 'res.cloudinary.com',
+      pathname: '/dwe145gm2/image/upload/**',
+    },
+  ],
+},
   // Konfigurasi SASS Anda tetap di sini
   sassOptions: {
     includePaths: [

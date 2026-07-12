@@ -34,14 +34,12 @@ import { useSheetData } from '../../hooks/useSheetData';
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend);
 
 type ProductRow = {
-  No?: string;
-  'Nama Produk'?: string;
-  'Kategori Utama'?: string;
-  'Kategori Kedua'?: string;
-  'Sub Kategori'?: string;
-  Harga?: string;
-  Rating?: string;
-  Terlaris?: string;
+  mainCategory?: string | null;
+  secondCategory?: string | null;
+  subCategory?: string | null;
+  price: number;
+  rating?: number | null;
+  isBestSeller: boolean;
 };
 
 type CountEntry = {
@@ -59,16 +57,25 @@ const palette = [
   'rgba(20, 184, 166, 0.82)',
 ];
 
-function numericValue(value?: string) {
-  const parsed = Number(String(value ?? '').replace(/[^0-9.-]/g, ''));
-  return Number.isFinite(parsed) ? parsed : 0;
+function numericValue(
+  value?: number | string | null,
+) {
+  const parsed = Number(
+    String(value ?? '').replace(
+      /[^0-9.-]/g,
+      '',
+    ),
+  );
+
+  return Number.isFinite(parsed)
+    ? parsed
+    : 0;
 }
 
-function isTruthy(value?: string) {
-  return ['true', '1', 'yes', 'ya'].includes(String(value ?? '').trim().toLowerCase());
-}
-
-function cleanLabel(value?: string, fallback = 'Lainnya') {
+function cleanLabel(
+  value?: string | null,
+  fallback = 'Lainnya',
+) {
   return value?.trim() || fallback;
 }
 
@@ -173,8 +180,9 @@ const doughnutOptions: ChartOptions<'doughnut'> = {
 };
 
 export default function AnalyticsPage() {
-  const { data, loading, error } = useSheetData();
-  const products = data as ProductRow[];
+  const { data, loading, error } =
+  useSheetData<ProductRow>('Products');
+  const products = data;
 
   const analytics = useMemo(() => {
     const mainCategoryMap = new Map<string, number>();
@@ -190,11 +198,20 @@ export default function AnalyticsPage() {
     let bestSellerCount = 0;
 
     products.forEach((product) => {
-      const main = cleanLabel(product['Kategori Utama']);
-      const second = cleanLabel(product['Kategori Kedua']);
-      const sub = cleanLabel(product['Sub Kategori']);
-      const price = numericValue(product.Harga);
-      const rating = numericValue(product.Rating);
+const main =
+  cleanLabel(product.mainCategory);
+
+const second =
+  cleanLabel(product.secondCategory);
+
+const sub =
+  cleanLabel(product.subCategory);
+
+const price =
+  numericValue(product.price);
+
+const rating =
+  numericValue(product.rating);
 
       mainCategoryMap.set(main, (mainCategoryMap.get(main) ?? 0) + 1);
       secondCategoryMap.set(second, (secondCategoryMap.get(second) ?? 0) + 1);
@@ -214,7 +231,9 @@ export default function AnalyticsPage() {
         ratingMap.set(ratingBucket, (ratingMap.get(ratingBucket) ?? 0) + 1);
       }
 
-      if (isTruthy(product.Terlaris)) bestSellerCount += 1;
+      if (product.isBestSeller) {
+  bestSellerCount += 1;
+}
     });
 
     const priceCategoryEntries = Array.from(priceByCategory.entries())

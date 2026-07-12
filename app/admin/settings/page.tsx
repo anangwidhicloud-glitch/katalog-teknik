@@ -19,9 +19,6 @@ import {
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 
-import { useSheetData } from '../../hooks/useSheetData';
-
-const SHEETDB_URL = 'https://sheetdb.io/api/v1/1igtyf9vf5393';
 
 type SettingRow = {
   key: string;
@@ -76,7 +73,7 @@ const groupDetails = {
   },
   general: {
     title: 'Pengaturan Lainnya',
-    description: 'Field tambahan dari tab Settings yang belum memiliki kategori khusus.',
+    description: 'Field tambahan dari database yang belum memiliki kategori khusus.',
     icon: Settings2,
   },
 };
@@ -91,25 +88,69 @@ function shouldUseTextarea(key: string, value: string) {
 }
 
 export default function SettingsPage() {
-  const {
-    data,
-    loading,
-    error,
-  } = useSheetData('Settings');
-
-  const settings = useMemo(
-    () =>
-      data.filter(
-        (item): item is SettingRow =>
-          typeof item?.key === 'string' && item.key.trim().length > 0,
-      ),
-    [data],
-  );
-
+  const [settings, setSettings] = useState<SettingRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [formState, setFormState] = useState<Record<string, string>>({});
   const [originalState, setOriginalState] = useState<Record<string, string>>({});
   const [saveStatus, setSaveStatus] = useState<Record<string, SaveStatus>>({});
   const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadSettings = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetch('/api/settings', {
+          method: 'GET',
+          cache: 'no-store',
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            result?.message || `Gagal memuat pengaturan (HTTP ${response.status}).`,
+          );
+        }
+
+        if (!Array.isArray(result)) {
+          throw new Error('Format data pengaturan tidak valid.');
+        }
+
+        const rows = result.filter(
+          (item): item is SettingRow =>
+            typeof item?.key === 'string' && item.key.trim().length > 0,
+        );
+
+        if (!cancelled) {
+          setSettings(rows);
+        }
+      } catch (loadError) {
+        const message =
+          loadError instanceof Error
+            ? loadError.message
+            : 'Gagal memuat pengaturan website.';
+
+        if (!cancelled) {
+          setError(message);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void loadSettings();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (settings.length === 0) return;
@@ -119,7 +160,7 @@ export default function SettingsPage() {
       return result;
     }, {});
 
-    // Sinkronisasi awal data SheetDB ke form yang dapat diedit.
+    // Sinkronisasi awal data Neon ke form yang dapat diedit.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setFormState(initialMap);
     setOriginalState(initialMap);
@@ -158,34 +199,70 @@ export default function SettingsPage() {
     setSaveStatus((current) => ({ ...current, [key]: 'idle' }));
   };
 
-  const handleSave = async (key: string) => {
-    if (saveStatus[key] === 'saving') return;
+const handleSave = async (key: string) => {
+  if (saveStatus[key] === 'saving') return;
 
-    setSaveStatus((current) => ({ ...current, [key]: 'saving' }));
+  const savedValue = formState[key] ?? '';
 
-    try {
-      const response = await fetch(
-        `${SHEETDB_URL}/key/${encodeURIComponent(key)}?sheet=Settings`,
-        {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ value: formState[key] ?? '' }),
-        },
+  setSaveStatus((current) => ({
+    ...current,
+    [key]: 'saving',
+  }));
+
+  try {
+    const response = await fetch('/api/settings', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        key,
+        value: savedValue,
+      }),
+    });
+
+    const result = (await response.json()) as {
+      message?: string;
+    };
+
+    if (!response.ok) {
+      throw new Error(
+        result.message ||
+          `Gagal memperbarui ${key}.`,
       );
-
-      if (!response.ok) throw new Error(`Gagal memperbarui ${key}.`);
-
-      setOriginalState((current) => ({ ...current, [key]: formState[key] ?? '' }));
-      setSaveStatus((current) => ({ ...current, [key]: 'saved' }));
-
-      window.setTimeout(() => {
-        setSaveStatus((current) => ({ ...current, [key]: 'idle' }));
-      }, 2200);
-    } catch (saveError) {
-      console.error(saveError);
-      setSaveStatus((current) => ({ ...current, [key]: 'error' }));
     }
-  };
+
+    setOriginalState((current) => ({
+      ...current,
+      [key]: savedValue,
+    }));
+
+    setSettings((current) =>
+      current.map((item) =>
+        item.key === key ? { ...item, value: savedValue } : item,
+      ),
+    );
+
+    setSaveStatus((current) => ({
+      ...current,
+      [key]: 'saved',
+    }));
+
+    window.setTimeout(() => {
+      setSaveStatus((current) => ({
+        ...current,
+        [key]: 'idle',
+      }));
+    }, 2200);
+  } catch (saveError) {
+    console.error(saveError);
+
+    setSaveStatus((current) => ({
+      ...current,
+      [key]: 'error',
+    }));
+  }
+};
 
   if (loading) {
     return (
@@ -208,7 +285,7 @@ export default function SettingsPage() {
             </div>
             <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">Pengaturan Teks Website</h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
-              Edit tulisan yang disimpan pada tab Settings. Setiap field tetap disimpan secara individual agar perubahan lebih aman.
+              Edit tulisan website yang disimpan di Neon PostgreSQL. Setiap field tetap disimpan secara individual agar perubahan lebih aman.
             </p>
           </div>
 
@@ -225,7 +302,7 @@ export default function SettingsPage() {
       {error && (
         <div className="flex items-start gap-3 rounded-2xl border border-red-300/15 bg-red-400/[0.06] px-5 py-4 text-sm text-red-100">
           <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-300" />
-          Gagal memuat tab Settings: {error}
+          Gagal memuat pengaturan dari Neon: {error}
         </div>
       )}
 
@@ -386,7 +463,7 @@ export default function SettingsPage() {
 
       <div className="flex items-start gap-3 rounded-2xl border border-sky-300/10 bg-sky-400/[0.045] p-4 text-xs leading-5 text-sky-100/65">
         <Link2 className="mt-0.5 h-4 w-4 shrink-0 text-sky-300" />
-        Perubahan disimpan ke tab <strong className="font-semibold text-sky-100">Settings</strong> menggunakan key yang sama. Struktur spreadsheet dan endpoint tidak diubah.
+        Perubahan disimpan langsung ke tabel <strong className="font-semibold text-sky-100">settings</strong> di Neon menggunakan key yang sama.
       </div>
     </div>
   );

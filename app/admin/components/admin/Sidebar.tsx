@@ -5,6 +5,7 @@ import {
   BarChart3,
   Boxes,
   ExternalLink,
+  Image as ImageIcon,
   LayoutDashboard,
   PanelTop,
   Share2,
@@ -44,6 +45,12 @@ const navigation: NavigationItem[] = [
     description: 'Kelola data produk',
     icon: Boxes,
   },
+  {
+  href: '/admin/gallery',
+  label: 'Galeri',
+  description: 'Kelola foto galeri',
+  icon: ImageIcon,
+},
   {
     href: '/admin/analytics',
     label: 'Analytics',
