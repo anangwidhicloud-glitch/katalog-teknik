@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   ArrowUpRight,
@@ -85,13 +86,25 @@ export default function DashboardPage() {
     data: productData,
     loading: productsLoading,
     error: productsError,
+    refresh: refreshProducts,
   } = useSheetData<ProductRow>('Products');
 
   const {
     data: settingData,
     loading: settingsLoading,
     error: settingsError,
+    refresh: refreshSettings,
   } = useSheetData('Settings');
+
+  useEffect(() => {
+    // React expects the effect callback to return void/destructor (not JSX).
+    // refreshProducts() returns a Promise; we just fire-and-forget.
+    void refreshProducts();
+  }, [refreshProducts]);
+
+  useEffect(() => {
+    void refreshSettings();
+  }, [refreshSettings]);
 
   const products = productData as ProductRow[];
   const settings = settingData as SettingRow[];

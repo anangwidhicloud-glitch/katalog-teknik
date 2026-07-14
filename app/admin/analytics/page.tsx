@@ -26,7 +26,7 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Bar, Doughnut } from 'react-chartjs-2';
 
 import { useSheetData } from '../../hooks/useSheetData';
@@ -180,9 +180,13 @@ const doughnutOptions: ChartOptions<'doughnut'> = {
 };
 
 export default function AnalyticsPage() {
-  const { data, loading, error } =
+  const { data, loading, error, refresh } =
   useSheetData<ProductRow>('Products');
   const products = data;
+
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
 
   const analytics = useMemo(() => {
     const mainCategoryMap = new Map<string, number>();
