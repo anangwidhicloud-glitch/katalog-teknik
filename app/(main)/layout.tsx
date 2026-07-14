@@ -10,7 +10,7 @@ import HiddenAdminAccess from './components/HiddenAdminAccess';
 import SiteBackground from './components/SiteBackground';
 import { ThemeProvider } from './components/ThemeProvider';
 import InternalAnalyticsTracker from "./components/InternalAnalyticsTracker";
-
+import { Suspense } from 'react';
 export const metadata: Metadata = {
   title: {
     default: 'MP Katalog Teknik',
@@ -31,7 +31,9 @@ export default function MainLayout({
       <SiteBackground />
       <Header />
       <HiddenAdminAccess />
-<InternalAnalyticsTracker />
+<Suspense fallback={null}>
+  <InternalAnalyticsTracker />
+</Suspense>
       <div className="site-content">
         {children}
       </div>
