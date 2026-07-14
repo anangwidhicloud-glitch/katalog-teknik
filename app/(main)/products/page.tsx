@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSheetData } from '../../hooks/useSheetData';
 import PageHero from '../components/PageHero';
 
@@ -327,7 +327,7 @@ function CategorySidebar({
 }
 
 export default function ProductsPage() {
-  const { data, loading, error } = useSheetData<ProductRow>('Products');
+  const { data, loading, error, refresh } = useSheetData<ProductRow>('Products');
   const products = (data as ProductRow[]).length > 0 ? (data as ProductRow[]) : fallbackProducts;
   const [search, setSearch] = useState('');
   const [selectedMain, setSelectedMain] = useState('Semua');
@@ -339,6 +339,10 @@ export default function ProductsPage() {
   const [selected, setSelected] = useState<ProductRow | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(12);
+
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
 
   const categoryTree = useMemo(() => buildCategoryTree(products), [products]);
 

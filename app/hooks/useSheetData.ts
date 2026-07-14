@@ -2,7 +2,7 @@
 
 import {
   useCallback,
-  useEffect,
+  useMemo,
   useState,
 } from 'react';
 
@@ -23,11 +23,23 @@ export function useSheetData<
 >(
   resource: string,
 ): SheetDataResult<T> {
+  const endpoint = useMemo(
+    () =>
+      resourceEndpoints[
+        resource.trim().toLowerCase()
+      ],
+    [resource],
+  );
+
   const [data, setData] = useState<T[]>([]);
   const [loading, setLoading] =
-    useState(true);
+    useState(() => Boolean(endpoint));
   const [error, setError] =
-    useState<string | null>(null);
+    useState<string | null>(() =>
+      endpoint
+        ? null
+        : `Resource "${resource}" tidak tersedia.`,
+    );
 
   const fetchData = useCallback(
     async () => {
@@ -35,11 +47,6 @@ export function useSheetData<
       setError(null);
 
       try {
-const endpoint =
-  resourceEndpoints[
-    resource.trim().toLowerCase()
-  ];
-
 if (!endpoint) {
   throw new Error(
     `Resource "${resource}" tidak tersedia.`,
@@ -79,12 +86,8 @@ const response = await fetch(endpoint, {
         setLoading(false);
       }
     },
-    [resource],
+    [endpoint, resource],
   );
-
-  useEffect(() => {
-    void fetchData();
-  }, [fetchData]);
 
   return {
     data,

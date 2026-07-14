@@ -87,8 +87,11 @@ const fallbackItems: GalleryRow[] = [
 ];
 
 export default function GalleryPage() {
-  const { data, error } =
-    useSheetData<GalleryRow>('Gallery');
+  const {
+    data,
+    error,
+    refresh,
+  } = useSheetData<GalleryRow>('Gallery');
 
   const rows =
     data.length > 0
@@ -129,6 +132,10 @@ export default function GalleryPage() {
           (item) =>
             item.category === category,
         );
+
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
 
   useEffect(() => {
     if (!selectedItem) {

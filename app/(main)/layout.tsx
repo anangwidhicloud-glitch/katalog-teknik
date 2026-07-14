@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 import AOSProvider from './components/AOSProvider';
+import FloatingWhatsApp from './components/FloatingWhatsApp';
 import Footer from './components/Footer';
 import Header from './components/Header';
 import SiteBackground from './components/SiteBackground';
@@ -33,6 +34,7 @@ export default function MainLayout({
       </div>
 
       <Footer />
+      <FloatingWhatsApp />
     </ThemeProvider>
   );
 }

@@ -1,12 +1,22 @@
 declare module '@tabler/icons-react' {
-  export const IconBasket: any;
-  export const IconCalendar: any;
-  export const IconSearch: any;
-  export const IconHome: any;
-  export const IconSettings: any;
-  export const IconLogout: any;
-  export const IconUser: any;
-  const _default: any;
+  import type {
+    ComponentType,
+    SVGProps,
+  } from 'react';
+
+  type IconComponent = ComponentType<
+    SVGProps<SVGSVGElement>
+  >;
+
+  export const IconBasket: IconComponent;
+  export const IconCalendar: IconComponent;
+  export const IconSearch: IconComponent;
+  export const IconHome: IconComponent;
+  export const IconSettings: IconComponent;
+  export const IconLogout: IconComponent;
+  export const IconUser: IconComponent;
+
+  const _default: Record<string, IconComponent>;
   export default _default;
 }
 

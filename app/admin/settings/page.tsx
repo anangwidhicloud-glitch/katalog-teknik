@@ -43,6 +43,8 @@ const labelMap: Record<string, string> = {
   footer_email: 'Email footer',
   footer_address: 'Alamat footer',
   map_url: 'URL Google Maps',
+  whatsapp_enabled: 'Aktifkan tombol WhatsApp',
+  whatsapp_message: 'Pesan default WhatsApp',
 };
 
 function formatLabel(key: string) {
@@ -57,6 +59,7 @@ function getGroup(key: string) {
   if (key.startsWith('hero_')) return 'hero';
   if (key.startsWith('footer_') || key === 'map_url') return 'footer';
   if (key.startsWith('link_')) return 'social';
+  if (key.startsWith('whatsapp_')) return 'general';
   return 'general';
 }
 

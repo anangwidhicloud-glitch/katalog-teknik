@@ -173,10 +173,12 @@ export default function Home() {
 const {
   data: productRows,
   loading: productsLoading,
+  refresh: refreshProducts,
 } = useSheetData<ProductRow>('Products');
 
 const {
   data: settingRows,
+  refresh: refreshSettings,
 } = useSheetData<SettingRow>('Settings');
 
 const content = useMemo<
@@ -189,6 +191,11 @@ const content = useMemo<
     return result;
   }, {});
 }, [settingRows]);
+
+  useEffect(() => {
+    void refreshProducts();
+    void refreshSettings();
+  }, [refreshProducts, refreshSettings]);
 
   const defaultWords = ['Standar Dunia', 'Kualitas Premium', 'Daya Tahan Tinggi', 'Brand Terpercaya'];
   const sheetWords = [

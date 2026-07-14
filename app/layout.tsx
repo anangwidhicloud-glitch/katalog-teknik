@@ -33,6 +33,7 @@ export default function RootLayout({
     <html
       lang="id"
       suppressHydrationWarning
+      data-scroll-behavior="smooth"
     >
       <body>
         <Script
