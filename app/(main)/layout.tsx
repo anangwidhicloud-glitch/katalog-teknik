@@ -9,6 +9,7 @@ import Header from './components/Header';
 import HiddenAdminAccess from './components/HiddenAdminAccess';
 import SiteBackground from './components/SiteBackground';
 import { ThemeProvider } from './components/ThemeProvider';
+import InternalAnalyticsTracker from "./components/InternalAnalyticsTracker";
 
 export const metadata: Metadata = {
   title: {
@@ -30,7 +31,7 @@ export default function MainLayout({
       <SiteBackground />
       <Header />
       <HiddenAdminAccess />
-
+<InternalAnalyticsTracker />
       <div className="site-content">
         {children}
       </div>
