@@ -9,8 +9,10 @@ import Sidebar from './Sidebar';
 
 export default function AdminShell({
   children,
+  isSuperAdmin,
 }: Readonly<{
   children: React.ReactNode;
+  isSuperAdmin: boolean;
 }>) {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -25,6 +27,7 @@ export default function AdminShell({
       <Sidebar
         isCollapsed={isCollapsed}
         isMobileOpen={isMobileOpen}
+        isSuperAdmin={isSuperAdmin}
         onCloseMobile={() => setIsMobileOpen(false)}
       />
 

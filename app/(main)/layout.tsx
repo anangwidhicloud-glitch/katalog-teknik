@@ -6,6 +6,7 @@ import AOSProvider from './components/AOSProvider';
 import FloatingWhatsApp from './components/FloatingWhatsApp';
 import Footer from './components/Footer';
 import Header from './components/Header';
+import HiddenAdminAccess from './components/HiddenAdminAccess';
 import SiteBackground from './components/SiteBackground';
 import { ThemeProvider } from './components/ThemeProvider';
 
@@ -28,6 +29,7 @@ export default function MainLayout({
       <AOSProvider />
       <SiteBackground />
       <Header />
+      <HiddenAdminAccess />
 
       <div className="site-content">
         {children}

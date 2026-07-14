@@ -1,8 +1,6 @@
 'use client';
 
-import {
-  AnimatePresence,
-  motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   BarChart3,
   Boxes,
@@ -14,9 +12,7 @@ import {
   Share2,
   ShieldCheck,
   Wrench,
-  X,
-  DatabaseBackup,
-} from 'lucide-react';
+  X,, DatabaseBackup } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { ComponentType } from 'react';
@@ -82,19 +78,13 @@ const navigation: NavigationItem[] = [
     icon: Share2,
   },
   {
-    href: '/admin/backup',
-    label: 'Backup & Restore',
-    description: 'Cadangkan data website',
-    icon: DatabaseBackup,
-  },
-  {
     href: '/admin/accounts',
     label: 'Keamanan Akun',
     description: 'Kelola akun admin',
     icon: ShieldCheck,
     superAdminOnly: true,
   },
-];
+{ href: '/admin/backup', label: 'Backup & Restore', description: 'Cadangkan data website', icon: DatabaseBackup, }, ];
 
 function isItemActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);

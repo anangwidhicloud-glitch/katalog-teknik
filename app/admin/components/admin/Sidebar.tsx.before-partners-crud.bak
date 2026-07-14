@@ -1,13 +1,10 @@
 'use client';
 
-import {
-  AnimatePresence,
-  motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   BarChart3,
   Boxes,
   ExternalLink,
-  Handshake,
   Image as ImageIcon,
   LayoutDashboard,
   PanelTop,
@@ -15,7 +12,6 @@ import {
   ShieldCheck,
   Wrench,
   X,
-  DatabaseBackup,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -58,12 +54,6 @@ const navigation: NavigationItem[] = [
     icon: ImageIcon,
   },
   {
-    href: '/admin/partners',
-    label: 'Logo Mitra',
-    description: 'Kelola logo partner',
-    icon: Handshake,
-  },
-  {
     href: '/admin/analytics',
     label: 'Analytics',
     description: 'Grafik dan insight katalog',
@@ -80,12 +70,6 @@ const navigation: NavigationItem[] = [
     label: 'Sosial Media',
     description: 'Tautan pada footer',
     icon: Share2,
-  },
-  {
-    href: '/admin/backup',
-    label: 'Backup & Restore',
-    description: 'Cadangkan data website',
-    icon: DatabaseBackup,
   },
   {
     href: '/admin/accounts',

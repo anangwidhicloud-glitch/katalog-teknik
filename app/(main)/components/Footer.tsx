@@ -171,29 +171,30 @@ export default function Footer() {
 
           <div data-aos="fade-up" data-aos-delay="80">
             <h3 className="footer-title">Jelajahi</h3>
+
             <ul className="footer-links">
               {quickLinks.map((item) => (
                 <li key={item.href}>
                   <Link href={item.href}>{item.label}</Link>
                 </li>
               ))}
-              <li>
-                <Link href="/admin">Admin Panel</Link>
-              </li>
             </ul>
           </div>
 
           <div data-aos="fade-up" data-aos-delay="160">
             <h3 className="footer-title">Hubungi</h3>
+
             <ul className="footer-contact-list">
               <li>
                 <Phone size={17} />
                 <a href={`tel:${phone.replace(/[^+\d]/g, '')}`}>{phone}</a>
               </li>
+
               <li>
                 <Mail size={17} />
                 <a href={`mailto:${email}`}>{email}</a>
               </li>
+
               <li>
                 <MapPin size={18} />
                 <span>{address}</span>
@@ -203,15 +204,18 @@ export default function Footer() {
 
           <div data-aos="fade-up" data-aos-delay="240">
             <h3 className="footer-title">Jam Operasional</h3>
+
             <div className="footer-hours">
               <p>
                 <span>Senin – Jumat</span>
                 <strong>09.00 – 16.30</strong>
               </p>
+
               <p>
                 <span>Sabtu</span>
                 <strong>09.00 – 15.00</strong>
               </p>
+
               <p>
                 <span>Minggu</span>
                 <strong className="footer-closed">Libur</strong>
@@ -222,6 +226,7 @@ export default function Footer() {
 
         <div className="footer-bottom">
           <p>© {new Date().getFullYear()} MP Katalog Teknik. All rights reserved.</p>
+
           <div>
             <span>Built for precision</span>
             <span className="footer-pulse" />

@@ -22,7 +22,6 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useSheetData } from '../hooks/useSheetData';
 import MPBackground from './components/MPBackground';
-import PartnerLogoStrip from './components/PartnerLogoStrip';
 import SectionHeading from './components/SectionHeading';
 
 type ProductRow = {
@@ -117,6 +116,15 @@ const process = [
   { title: 'Pendampingan', description: 'Dukungan penggunaan dan perawatan menjaga investasi tetap optimal.' },
 ];
 
+const partners = [
+  'PT Maju Jaya',
+  'Global Engineering',
+  'Otomotif Nusantara',
+  'Servis Prima',
+  'Workshop Indonesia',
+  'Teknik Bangun',
+  'Solusi Otomotif',
+];
 
 function formatCurrency(value?: string | number | null) {
   const number = Number(String(value ?? '').replace(/[^0-9.-]/g, ''));
@@ -245,7 +253,9 @@ const content = useMemo<
   }, [resolvedActiveCategory, bestSellerProducts]);
 
   const heroProduct = bestSellerProducts[0] ?? allProducts[0] ?? fallbackProducts[0];
-return (
+  const doubledPartners = [...partners, ...partners];
+
+  return (
     <main>
       <section className="hero-section section-shell">
         <div className="hero-grid">
@@ -557,7 +567,9 @@ return (
           </div>
           <div className="marquee-shell">
             <div className="marquee-track">
-              <PartnerLogoStrip />
+              {doubledPartners.map((partner, index) => (
+                <div className="partner-pill" key={`${partner}-${index}`}>{partner}</div>
+              ))}
             </div>
           </div>
         </div>
