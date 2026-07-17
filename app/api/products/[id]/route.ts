@@ -164,12 +164,14 @@ export async function DELETE(
 
     if (product.image_public_id) {
       try {
-        await cloudinary.uploader.destroy(
-          product.image_public_id,
-          {
-            invalidate: true,
-          },
-        );
+const destroyResult = await cloudinary.uploader.destroy(
+  product.image_public_id,
+  {
+    invalidate: true,
+    resource_type: "image",
+  },
+);
+
       } catch (deleteError) {
         console.error(
           'Gagal menghapus gambar produk:',
