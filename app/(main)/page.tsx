@@ -42,55 +42,7 @@ type SettingRow = {
   key: string;
   value?: string | null;
 };
-const fallbackProducts: ProductRow[] = [
-  {
-    legacyNo: '1',
-    name: 'Blue-point BWA 200 Imaging Wheel Alignment',
-    mainCategory: 'Otomotif',
-    secondCategory: 'Wheel',
-    subCategory: 'Alignment',
-    price: '12000000',
-    rating: '5',
-    imageUrl:
-      'https://res.cloudinary.com/dwe145gm2/image/upload/v1782441578/01._Blue-point_BWA_200_Imaging_Wheel_Alignment_uuvxtv.png',
-    isBestSeller: true,
-  },
-  {
-    legacyNo: '3',
-    name: 'Blue-point Swing-Arm Tire Changer',
-    mainCategory: 'Otomotif',
-    secondCategory: 'Tire',
-    subCategory: 'Changer',
-    price: '8500000',
-    rating: '5',
-    imageUrl:
-      'https://res.cloudinary.com/dwe145gm2/image/upload/v1782441574/03._Blue-point_Swing-Arm_Tire_Changer_lqawlq.png',
-    isBestSeller: true,
-  },
-  {
-    legacyNo: '7',
-    name: 'Blue-point 4T Clear-Floor Two-Post Lift',
-    mainCategory: 'Hidraulis',
-    secondCategory: 'Lift',
-    subCategory: '4 Ton',
-    price: '25000000',
-    rating: '5',
-    imageUrl:
-      'https://res.cloudinary.com/dwe145gm2/image/upload/v1782441574/07._Blue-point_4T_Clear-Floor_Two-Post_Lift_-_Wide_fg9xom.png',
-    isBestSeller: true,
-  },
-  {
-    legacyNo: '10',
-    name: 'Blue-point Professional AC Unit',
-    mainCategory: 'Perlengkapan',
-    secondCategory: 'Fluid',
-    subCategory: 'Flushing',
-    price: '29500000',
-    rating: '4',
-    imageUrl:
-      'https://res.cloudinary.com/dwe145gm2/image/upload/v1782441575/10._Blue-point_Professional_AC_unit_with_Flushing_Function_mt6shq.png',
-  },
-];
+const fallbackProducts: ProductRow[] = [];
 
 const features = [
   {
@@ -313,73 +265,100 @@ return (
             </div>
           </motion.div>
 
+          {heroProduct && (
+  <motion.div
+    className="hero-visual hero-visual-clean"
+    initial={{ opacity: 0, x: 42, scale: 0.96 }}
+    animate={{ opacity: 1, x: 0, scale: 1 }}
+    transition={{
+      duration: 1,
+      delay: 0.15,
+      ease: [0.22, 1, 0.36, 1],
+    }}
+  >
+    <div className="hero-visual-panel hero-visual-panel-clean">
+      <div className="hero-visual-grid" />
+      <MPBackground strong />
+
+      <div className="hero-visual-topbar">
+        <span className="hero-live-status">
+          <span className="hero-live-dot" />
+          Equipment intelligence
+        </span>
+
+        <span className="hero-visual-code">MP / 01</span>
+      </div>
+
+      <div className="hero-product-stage">
+        <motion.div
+          className="hero-product-orbit"
+          animate={{ rotate: 360 }}
+          transition={{
+            duration: 24,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+        />
+
+        <div className="hero-product-halo" />
+
+        {heroProduct.imageUrl ? (
           <motion.div
-            className="hero-visual hero-visual-clean"
-            initial={{ opacity: 0, x: 42, scale: 0.96 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            transition={{ duration: 1, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+            className="hero-product-image-wrap"
+            animate={{ y: [0, -8, 0] }}
+            transition={{
+              duration: 5.6,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
           >
-            <div className="hero-visual-panel hero-visual-panel-clean">
-              <div className="hero-visual-grid" />
-              <MPBackground strong />
-
-              <div className="hero-visual-topbar">
-                <span className="hero-live-status">
-                  <span className="hero-live-dot" /> Equipment intelligence
-                </span>
-                <span className="hero-visual-code">MP / 01</span>
-              </div>
-
-              <div className="hero-product-stage">
-                <motion.div
-                  className="hero-product-orbit"
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 24, repeat: Infinity, ease: 'linear' }}
-                />
-                <div className="hero-product-halo" />
-                {heroProduct.imageUrl ? (
-                  <motion.div
-                    className="hero-product-image-wrap"
-                    animate={{ y: [0, -8, 0] }}
-                    transition={{ duration: 5.6, repeat: Infinity, ease: 'easeInOut' }}
-                  >
-                    <Image
-                      src={heroProduct.imageUrl}
-                      alt={heroProduct.name || 'Produk unggulan'}
-                      fill
-                      sizes="(max-width: 1040px) 72vw, 420px"
-                      className="hero-product-image"
-                    />
-                  </motion.div>
-                ) : (
-                  <Wrench size={90} strokeWidth={0.9} className="hero-product-placeholder" />
-                )}
-              </div>
-
-              <div className="hero-visual-footer-clean">
-                <div className="hero-product-caption">
-                  <span>Featured equipment</span>
-                  <strong>{heroProduct.name || 'Precision Equipment System'}</strong>
-                </div>
-                <div className="hero-metric-row">
-                  <div className="hero-metric-item">
-                    <strong>15+</strong>
-                    <span>Produk pilihan</span>
-                  </div>
-                  <div className="hero-metric-separator" />
-                  <div className="hero-metric-item">
-                    <strong>{heroProduct.rating || '4.9'}</strong>
-                    <span>Quality rating</span>
-                  </div>
-                  <div className="hero-metric-separator" />
-                  <div className="hero-metric-item">
-                    <CheckCircle2 size={18} />
-                    <span>Original</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <Image
+              src={heroProduct.imageUrl}
+              alt={heroProduct.name || "Produk unggulan"}
+              fill
+              sizes="(max-width: 1040px) 72vw, 420px"
+              className="hero-product-image"
+            />
           </motion.div>
+        ) : (
+          <Wrench
+            size={90}
+            strokeWidth={0.9}
+            className="hero-product-placeholder"
+          />
+        )}
+      </div>
+
+      <div className="hero-visual-footer-clean">
+        <div className="hero-product-caption">
+          <span>Featured equipment</span>
+          <strong>{heroProduct.name || "Produk unggulan"}</strong>
+        </div>
+
+        <div className="hero-metric-row">
+          <div className="hero-metric-item">
+            <strong>{allProducts.length}</strong>
+            <span>Produk pilihan</span>
+          </div>
+
+          <div className="hero-metric-separator" />
+
+          <div className="hero-metric-item">
+            <strong>{heroProduct.rating || "-"}</strong>
+            <span>Quality rating</span>
+          </div>
+
+          <div className="hero-metric-separator" />
+
+          <div className="hero-metric-item">
+            <CheckCircle2 size={18} />
+            <span>Original</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </motion.div>
+)}
         </div>
       </section>
 
