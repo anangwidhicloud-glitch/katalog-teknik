@@ -1,4 +1,5 @@
 import {
+  bigint,
   boolean,
   integer,
   pgTable,
@@ -14,7 +15,7 @@ export const products = pgTable('products', {
   mainCategory: text('main_category'),
   secondCategory: text('second_category'),
   subCategory: text('sub_category'),
-  price: integer('price').notNull(),
+  price: bigint('price', { mode: 'number' }).notNull(),
   rating: integer('rating'),
   imageUrl: text('image_url').notNull(),
   imagePublicId: text('image_public_id'),

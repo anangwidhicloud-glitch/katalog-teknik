@@ -42,17 +42,19 @@ export async function POST(request: NextRequest) {
     const product = await createProduct(body);
 
     return NextResponse.json(product, { status: 201 });
-  } catch (error) {
-    if (error instanceof ZodError) {
-      return NextResponse.json(
-        { message: 'Data produk tidak valid.' },
-        { status: 400 }
-      );
-    }
+} catch (error) {
+  console.error("POST /api/products error:", error);
 
+  if (error instanceof ZodError) {
     return NextResponse.json(
-      { message: 'Gagal membuat produk.' },
-      { status: 500 }
+      { message: "Data produk tidak valid." },
+      { status: 400 }
     );
   }
+
+  return NextResponse.json(
+    { message: "Gagal membuat produk." },
+    { status: 500 }
+  );
+}
 }
