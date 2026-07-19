@@ -15,8 +15,14 @@ export const products = pgTable('products', {
   mainCategory: text('main_category'),
   secondCategory: text('second_category'),
   subCategory: text('sub_category'),
-  price: bigint('price', { mode: 'number' }).notNull(),
-  rating: integer('rating'),
+price: bigint('price', { mode: 'number' }).notNull(),
+description: text('description'),
+hasDiscount: boolean('has_discount').notNull().default(false),
+discountPrice: bigint('discount_price', { mode: 'number' }),
+soldCount: bigint('sold_count', { mode: 'number' })
+  .notNull()
+  .default(0),
+rating: integer('rating'),
   imageUrl: text('image_url').notNull(),
   imagePublicId: text('image_public_id'),
   isBestSeller: boolean('is_best_seller').notNull().default(false),

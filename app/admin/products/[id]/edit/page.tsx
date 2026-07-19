@@ -11,6 +11,22 @@ import {
 
 import ProductForm from '@/app/admin/components/ProductForm';
 
+type ProductData = {
+  id: string;
+  name: string;
+  mainCategory: string;
+  secondCategory: string;
+  subCategory: string;
+  price: number;
+  description?: string | null;
+  hasDiscount?: boolean;
+  discountPrice?: number | null;
+soldCount?: number;
+rating: number;
+imageUrl: string;
+imagePublicId?: string;
+};
+
 
 export default function EditProductPage() {
 
@@ -20,8 +36,7 @@ export default function EditProductPage() {
     params.id as string;
 
 
-  const [product, setProduct] =
-    useState(null);
+const [product, setProduct] = useState<ProductData | null>(null);
 
 
   const [loading, setLoading] =

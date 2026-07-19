@@ -34,18 +34,6 @@ export async function GET(
 
     const sql = getDatabase();
 
-const existingRows = await sql`
-  SELECT image_public_id
-  FROM products
-  WHERE id = ${productId}
-  LIMIT 1
-` as unknown as Array<{
-  image_public_id: string | null;
-}>;
-
-const oldImagePublicId =
-  existingRows[0]?.image_public_id ?? null;
-
 const products = await sql`
   SELECT
     id,
@@ -54,11 +42,14 @@ const products = await sql`
     main_category AS "mainCategory",
     second_category AS "secondCategory",
     sub_category AS "subCategory",
-    price,
-    rating,
-    image_url AS "imageUrl",
-    is_best_seller AS "isBestSeller",
-    created_at AS "createdAt",
+price,
+description,
+has_discount AS "hasDiscount",
+discount_price AS "discountPrice",
+sold_count AS "soldCount",
+rating,
+image_url AS "imageUrl",
+created_at AS "createdAt",
     updated_at AS "updatedAt"
   FROM products
   WHERE id = ${productId}
@@ -70,11 +61,14 @@ const products = await sql`
   mainCategory: string | null;
   secondCategory: string | null;
   subCategory: string | null;
-  price: number | null;
-  rating: number | null;
-  imageUrl: string | null;
-  isBestSeller: boolean | null;
-  createdAt: Date;
+price: number | null;
+description: string | null;
+hasDiscount: boolean;
+discountPrice: number | null;
+soldCount: number | null;
+rating: number | null;
+imageUrl: string | null;
+createdAt: Date;
   updatedAt: Date;
 }>;
 
@@ -164,11 +158,11 @@ export async function DELETE(
 
     if (product.image_public_id) {
       try {
-const destroyResult = await cloudinary.uploader.destroy(
+await cloudinary.uploader.destroy(
   product.image_public_id,
   {
     invalidate: true,
-    resource_type: "image",
+    resource_type: 'image',
   },
 );
 
@@ -221,17 +215,44 @@ export async function PUT(
   }
 
   try {
-    const body = (await request.json()) as {
-      name: string;
-      mainCategory: string;
-      secondCategory: string;
-      subCategory: string;
-      price: number;
-      rating: number;
-      imageUrl: string;
-      imagePublicId: string;
-      isBestSeller: boolean;
-    };
+const body = (await request.json()) as {
+  name: string;
+  mainCategory: string;
+  secondCategory: string;
+  subCategory: string;
+  price: number;
+description?: string | null;
+hasDiscount?: boolean;
+discountPrice?: number | null;
+soldCount?: number;
+rating: number;
+  imageUrl: string;
+  imagePublicId: string;
+  isBestSeller: boolean;
+};
+
+const normalizedPrice = Number(body.price) || 0;
+let normalizedDiscountPrice: number | null = null;
+
+if (body.hasDiscount) {
+  normalizedDiscountPrice =
+    Number(body.discountPrice) || 0;
+
+  if (
+    normalizedDiscountPrice <= 0 ||
+    normalizedDiscountPrice >= normalizedPrice
+  ) {
+    return NextResponse.json(
+      {
+        message:
+          'Harga diskon harus lebih besar dari 0 dan lebih kecil dari harga lama.',
+      },
+      {
+        status: 400,
+      },
+    );
+  }
+}
 
     const sql = getDatabase();
 
@@ -257,17 +278,20 @@ export async function PUT(
           ${body.secondCategory || 'Lainnya'},
         sub_category =
           ${body.subCategory || 'Lainnya'},
-        price =
-          ${Number(body.price) || 0},
-        rating =
-          ${Number(body.rating) || 0},
-        image_url =
-          ${body.imageUrl || ''},
-        image_public_id =
-          ${body.imagePublicId || null},
-        is_best_seller =
-          ${Boolean(body.isBestSeller)},
-        updated_at = NOW()
+price = ${normalizedPrice},
+description = ${body.description?.trim() || null},
+has_discount = ${Boolean(body.hasDiscount)},
+discount_price = ${normalizedDiscountPrice},
+sold_count = ${
+  Math.max(
+    0,
+    Math.floor(Number(body.soldCount) || 0),
+  )
+},
+rating = ${Number(body.rating) || 0},
+image_url = ${body.imageUrl || ''},
+image_public_id = ${body.imagePublicId || null},
+updated_at = NOW()
       WHERE id = ${productId}
     `;
 

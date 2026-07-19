@@ -46,7 +46,33 @@ const productCreateSchema = z.object({
     .number()
     .min(0),
 
-  rating: z
+    description: z
+  .string()
+  .trim()
+  .optional()
+  .default(''),
+
+hasDiscount: z
+  .boolean()
+  .optional()
+  .default(false),
+
+discountPrice: z
+  .coerce
+  .number()
+  .min(0)
+  .nullable()
+  .optional(),
+
+soldCount: z
+  .coerce
+  .number()
+  .int()
+  .min(0)
+  .optional()
+  .default(0),
+
+rating: z
     .coerce
     .number()
     .min(0)
@@ -60,14 +86,10 @@ imageUrl: z
     'Gambar produk wajib diunggah.',
   ),
 
-  imagePublicId: z
-    .string()
-    .trim()
-    .optional(),
-
-  isBestSeller: z
-    .boolean()
-    .default(false),
+imagePublicId: z
+  .string()
+  .trim()
+  .optional(),
 });
 
 
@@ -128,20 +150,17 @@ export async function createProduct(
         subCategory:
           parsed.subCategory,
 
-        price:
-          parsed.price,
+price: parsed.price,
+description: parsed.description || null,
+hasDiscount: parsed.hasDiscount,
+discountPrice: parsed.hasDiscount
+  ? parsed.discountPrice ?? null
+  : null,
+soldCount: parsed.soldCount,
+rating: parsed.rating,
 
-        rating:
-          parsed.rating,
-
-imageUrl:
-  parsed.imageUrl,
-
-        imagePublicId:
-          parsed.imagePublicId || null,
-
-        isBestSeller:
-          parsed.isBestSeller,
+imageUrl: parsed.imageUrl,
+imagePublicId: parsed.imagePublicId || null,
       },
     ]);
 

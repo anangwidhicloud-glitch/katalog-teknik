@@ -32,10 +32,14 @@ type ProductRow = {
   mainCategory?: string | null;
   secondCategory?: string | null;
   subCategory?: string | null;
-  price?: number | string | null;
-  rating?: number | string | null;
-  imageUrl?: string | null;
-  isBestSeller?: boolean | string | null;
+price?: number | string | null;
+description?: string | null;
+hasDiscount?: boolean | string | null;
+discountPrice?: number | string | null;
+soldCount?: number | string | null;
+rating?: number | string | null;
+imageUrl?: string | null;
+isBestSeller?: boolean | string | null;
 };
 
 type SettingRow = {
@@ -81,6 +85,71 @@ function formatCurrency(value?: string | number | null) {
   }).format(number);
 }
 
+function getNumericPrice(
+  value?: number | string | null,
+) {
+  return Number(value) || 0;
+}
+
+function getDiscountPercent(
+  price?: number | string | null,
+  discountPrice?: number | string | null,
+) {
+  const originalPrice = getNumericPrice(price);
+  const finalPrice = getNumericPrice(discountPrice);
+
+  if (
+    originalPrice <= 0 ||
+    finalPrice <= 0 ||
+    finalPrice >= originalPrice
+  ) {
+    return 0;
+  }
+
+  return Math.round(
+    ((originalPrice - finalPrice) / originalPrice) * 100,
+  );
+}
+
+function formatSoldCount(
+  value?: number | string | null,
+) {
+  const soldCount = Math.max(
+    0,
+    Math.floor(Number(value) || 0),
+  );
+
+  if (soldCount >= 1_000_000) {
+    const formatted = (soldCount / 1_000_000)
+      .toFixed(1)
+      .replace('.0', '')
+      .replace('.', ',');
+
+    return `${formatted}JT+ terjual`;
+  }
+
+  if (soldCount >= 1_000) {
+    const formatted = (soldCount / 1_000)
+      .toFixed(1)
+      .replace('.0', '')
+      .replace('.', ',');
+
+    return `${formatted}RB+ terjual`;
+  }
+
+  return `${soldCount.toLocaleString('id-ID')} terjual`;
+}
+
+function isTruthy(
+  value?: boolean | string | null,
+) {
+  if (typeof value === 'boolean') return value;
+
+  return ['true', '1', 'yes', 'ya'].includes(
+    String(value ?? '').trim().toLowerCase(),
+  );
+}
+
 function getProductCategory(product: ProductRow) {
   return (
     product.secondCategory?.trim() ||
@@ -89,26 +158,24 @@ function getProductCategory(product: ProductRow) {
   );
 }
 
-function getProductRating(product: ProductRow) {
-  const rating = Number(product.rating);
-  return Number.isFinite(rating) ? rating : 0;
+function getProductSoldCount(product: ProductRow) {
+  const soldCount = Number(product.soldCount);
+
+  if (!Number.isFinite(soldCount) || soldCount < 0) {
+    return 0;
+  }
+
+  return Math.floor(soldCount);
 }
 
-function isBestSeller(product: ProductRow) {
-  if (typeof product.isBestSeller === 'boolean') return product.isBestSeller;
-
-  return ['true', '1', 'yes', 'ya', 'iya'].includes(
-    String(product.isBestSeller ?? '').trim().toLowerCase(),
-  );
-}
-
-function sortProducts(products: ProductRow[]) {
-  return [...products].sort((left, right) => {
-    const bestSellerDifference = Number(isBestSeller(right)) - Number(isBestSeller(left));
-    if (bestSellerDifference !== 0) return bestSellerDifference;
-
-    return getProductRating(right) - getProductRating(left);
-  });
+function getTopSellingProducts(products: ProductRow[]) {
+  return [...products]
+    .sort(
+      (left, right) =>
+        getProductSoldCount(right) -
+        getProductSoldCount(left),
+    )
+    .slice(0, 10);
 }
 
 export default function Home() {
@@ -171,10 +238,10 @@ const content = useMemo<
     return rows.length > 0 ? rows : fallbackProducts;
   }, [productRows]);
 
-  const bestSellerProducts = useMemo(
-    () => sortProducts((productRows as ProductRow[]).filter(isBestSeller)),
-    [productRows],
-  );
+const bestSellerProducts = useMemo(
+  () => getTopSellingProducts(allProducts),
+  [allProducts],
+);
 
   const productCategories = useMemo(() => {
     const categories = Array.from(
@@ -428,7 +495,7 @@ return (
               <motion.article
                 layout
                 key={`${resolvedActiveCategory}-${product.legacyNo ?? index}-${product.name ?? 'produk'}`}
-                className="site-card product-card home-product-card"
+                className="site-card product-card product-catalog-card"
                 data-aos="fade-up"
                 data-aos-delay={String((index % 3) * 90)}
                 initial={{ opacity: 0, y: 24, scale: 0.96 }}
@@ -440,11 +507,9 @@ return (
                 <div className="product-card-glow" />
                 <div className="product-image-wrap">
                   <div className="product-badge-stack">
-                    {isBestSeller(product) && (
-                      <span className="site-chip product-badge product-badge-best">
-                        <BadgeCheck size={13} /> Terlaris
-                      </span>
-                    )}
+                    <span className="site-chip product-badge product-badge-best">
+  <BadgeCheck size={13} /> Terlaris #{index + 1}
+</span>
                     <span className="site-chip product-category-badge">
                       <Boxes size={13} /> {getProductCategory(product)}
                     </span>
@@ -462,20 +527,102 @@ return (
                   )}
                   <div className="product-image-shine" />
                 </div>
-                <div className="product-card-content">
-                  <div className="product-card-meta">
-                    <span>{product.subCategory || product.mainCategory || 'Professional Series'}</span>
-                    <span className="product-rating">
-                      <Star size={13} fill="currentColor" /> {product.rating || '5.0'}
-                    </span>
-                  </div>
-                  <h3 className="product-card-title">{product.name || 'Produk Teknik Profesional'}</h3>
-                  <div className="product-price">{formatCurrency(product.price)}</div>
-                  <div className="product-card-actions">
-                    <Link href="/products" className="site-button site-button-secondary">Detail</Link>
-                    <Link href="/contact" className="site-button site-button-primary">Penawaran</Link>
-                  </div>
-                </div>
+ <div className="product-card-content">
+  <div className="product-category-trail">
+    <span>
+      {product.mainCategory?.trim() || 'Peralatan'}
+    </span>
+
+    <span aria-hidden="true">›</span>
+
+    <span>
+      {product.secondCategory?.trim() || 'Kategori'}
+    </span>
+
+    <span aria-hidden="true">›</span>
+
+    <span>
+      {product.subCategory?.trim() || 'Produk'}
+    </span>
+  </div>
+
+  <h3 className="product-card-title">
+    {product.name || 'Produk Teknik Profesional'}
+  </h3>
+
+  <div className="product-card-meta">
+    <span>Professional equipment</span>
+
+    <span className="inline-flex items-center gap-1 text-amber-500">
+      <Star size={13} fill="currentColor" />
+      {product.rating || '5'}
+    </span>
+  </div>
+
+  {isTruthy(product.hasDiscount) &&
+  getNumericPrice(product.discountPrice) > 0 &&
+  getNumericPrice(product.discountPrice) <
+    getNumericPrice(product.price) ? (
+    <div className="mt-1 min-h-20.5">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+        <strong className="text-xl font-bold tracking-tight text-red-500">
+          {formatCurrency(product.discountPrice)}
+        </strong>
+
+        <span className="text-xs text-(--text-muted) line-through">
+          {formatCurrency(product.price)}
+        </span>
+
+        <span className="rounded-md border border-red-500/20 bg-red-500/10 px-1.5 py-0.5 text-[10px] font-bold text-red-500">
+          -
+          {getDiscountPercent(
+            product.price,
+            product.discountPrice,
+          )}
+          %
+        </span>
+      </div>
+
+      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2">
+        <span className="inline-flex items-center rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[10px] font-semibold text-emerald-600">
+          Garansi Harga Terbaik
+        </span>
+
+        <span className="text-xs font-medium text-(--text-muted)">
+          {formatSoldCount(product.soldCount)}
+        </span>
+      </div>
+    </div>
+  ) : (
+    <div className="mt-1 min-h-20.5">
+      <strong className="text-xl font-bold tracking-tight text-(--text-primary)">
+        {formatCurrency(product.price)}
+      </strong>
+
+      <div className="mt-2">
+        <span className="text-xs font-medium text-(--text-muted)">
+          {formatSoldCount(product.soldCount)}
+        </span>
+      </div>
+    </div>
+  )}
+
+  <div className="product-card-actions">
+    <Link
+      href="/products"
+      className="site-button site-button-secondary"
+    >
+      Detail
+    </Link>
+
+    <Link
+      href="/contact"
+      className="site-button site-button-primary"
+    >
+      Penawaran
+    </Link>
+  </div>
+</div>
               </motion.article>
             ))}
           </AnimatePresence>
@@ -490,11 +637,11 @@ return (
         {!productsLoading && visibleProducts.length === 0 && (
           <div className="site-card home-products-empty" data-aos="fade-up">
             <div className="empty-state-icon"><BadgeCheck size={26} /></div>
-            <h3>Belum ada produk berstatus Terlaris</h3>
-            <p>
-              Ubah kolom <strong>Terlaris</strong> menjadi <strong>True</strong> pada database
-              untuk menampilkan produk di bagian ini.
-            </p>
+            <h3>Belum ada produk untuk ditampilkan</h3>
+<p>
+  Tambahkan produk dan isi jumlah terjual melalui dashboard admin.
+  Produk dengan penjualan tertinggi akan otomatis muncul di bagian ini.
+</p>
           </div>
         )}
       </section>
@@ -530,7 +677,7 @@ return (
               title="Kolaborasi yang tumbuh dari kualitas."
               description="Kami terus membangun hubungan jangka panjang melalui produk yang relevan dan layanan yang dapat diandalkan."
             />
-            <div className="flex items-center gap-2 text-sm font-bold text-[var(--accent-blue)]">
+            <div className="flex items-center gap-2 text-sm font-bold text-(--accent-blue)">
               <BadgeCheck size={18} /> Trusted partner
             </div>
           </div>
@@ -553,7 +700,7 @@ return (
             const Icon = item.icon;
             return (
               <div key={item.label} className="site-card stat-card" data-aos="zoom-in" data-aos-delay={String(index * 70)}>
-                <Icon size={19} className="mx-auto mb-4 text-[var(--accent-blue)]" />
+                <Icon size={19} className="mx-auto mb-4 text-(--accent-blue)" />
                 <strong>{item.value}</strong>
                 <span>{item.label}</span>
               </div>

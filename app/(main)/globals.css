@@ -2057,6 +2057,7 @@ html[data-site-theme='light'] .hero-visual-panel-clean {
   line-height: 1.45;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
 .hero-metric-row {
@@ -2166,6 +2167,15 @@ html[data-site-theme='light'] .hero-visual-panel-clean {
 .home-product-grid {
   min-height: 430px;
   align-items: stretch;
+}
+
+@media (min-width: 1080px) {
+  .home-product-grid {
+    width: 100%;
+    margin-inline: auto;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+  }
 }
 
 .home-product-card {
@@ -3067,6 +3077,8 @@ html[data-site-theme='light'] .hero-visual-panel-clean {
   line-height: 1.38;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
+  
 }
 
 .product-catalog-card .product-card-meta {
