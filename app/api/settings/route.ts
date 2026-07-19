@@ -5,6 +5,7 @@ import { getDatabase } from '../../../lib/database/neon';
 import { isAdminAuthenticated } from '../../../lib/require-admin';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 const updateSettingSchema = z.object({
   key: z
@@ -29,7 +30,7 @@ export async function GET() {
 
     return NextResponse.json(rows, {
       headers: {
-        'Cache-Control': 'no-store',
+        'Cache-Control': 'no-store, no-cache, must-revalidate',
       },
     });
   } catch (error) {

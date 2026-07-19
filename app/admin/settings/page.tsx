@@ -19,12 +19,16 @@ import {
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 
+import { getSiteContentTab, siteContentTabs, type SiteContentTabId } from '@/lib/site-content-tabs';
+
 type SettingRow = {
   key: string;
   value?: string;
 };
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
+
+type ContentGroupId = 'hero' | 'navigation' | 'content' | 'contact' | 'social' | 'general';
 
 const labelMap: Record<string, string> = {
   hero_badge: 'Label kecil hero',
@@ -38,53 +42,259 @@ const labelMap: Record<string, string> = {
   hero_button_product: 'Teks tombol produk',
   hero_button_contact: 'Teks tombol kontak',
   hero_rotation_speed: 'Kecepatan pergantian kata',
-  footer_phone: 'Nomor telepon footer',
-  footer_email: 'Email footer',
-  footer_address: 'Alamat footer',
+
+  footer_phone: 'Nomor telepon',
+  footer_email: 'Email',
+  footer_address: 'Alamat',
   map_url: 'URL Google Maps',
+
   whatsapp_enabled: 'Aktifkan tombol WhatsApp',
+  whatsapp_number: 'Nomor WhatsApp',
   whatsapp_message: 'Pesan default WhatsApp',
+  whatsapp_aria_label: 'Label aksesibilitas WhatsApp',
+  whatsapp_screen_reader_label: 'Teks pembaca layar WhatsApp',
+
+  general_site_name: 'Nama website',
+  general_meta_description: 'Deskripsi metadata website',
+
+  link_tiktok: 'Link TikTok',
+  link_fb: 'Link Facebook',
+  link_youtube: 'Link YouTube',
+  link_instagram: 'Link Instagram',
+};
+
+const removablePrefixes = [
+  'header_',
+  'home_',
+  'products_',
+  'services_',
+  'gallery_',
+  'about_',
+  'contact_',
+  'footer_',
+  'general_',
+];
+
+const wordLabels: Record<string, string> = {
+  hero: 'hero',
+  eyebrow: 'label kecil',
+  title: 'judul',
+  highlight: 'sorotan',
+  description: 'deskripsi',
+  chip: 'label',
+  label: 'label',
+  button: 'tombol',
+  placeholder: 'placeholder',
+  message: 'pesan',
+  text: 'teks',
+  value: 'nilai',
+  item: 'item',
+  stat: 'statistik',
+  workflow: 'alur kerja',
+  commitment: 'komitmen',
+  scope: 'cakupan',
+  form: 'form',
+  modal: 'modal',
+  default: 'default',
+  empty: 'kosong',
+  load: 'muat',
+  error: 'gagal',
+  active: 'aktif',
+  selection: 'pilihan',
+  reset: 'reset',
+  search: 'pencarian',
+  filter: 'filter',
+  results: 'hasil',
+  result: 'hasil',
+  show: 'tampilkan',
+  page: 'halaman',
+  previous: 'sebelumnya',
+  next: 'berikutnya',
+  detail: 'detail',
+  price: 'harga',
+  rating: 'rating',
+  sold: 'terjual',
+  category: 'kategori',
+  main: 'utama',
+  sub: 'subkategori',
+  available: 'tersedia',
+  best: 'terbaik',
+  seller: 'terlaris',
+  card: 'kartu',
+  navigation: 'navigasi',
+  nav: 'navigasi',
+  contact: 'kontak',
+  brand: 'merek',
+  name: 'nama',
+  tagline: 'tagline',
+  initials: 'inisial',
+  aria: 'aksesibilitas',
+  open: 'buka',
+  close: 'tutup',
+  mobile: 'mobile',
+  theme: 'tema',
+  link: 'link',
+  home: 'beranda',
+  products: 'produk',
+  services: 'layanan',
+  gallery: 'galeri',
+  about: 'tentang',
+  email: 'email',
+  phone: 'telepon',
+  address: 'alamat',
+  location: 'lokasi',
+  help: 'bantuan',
+  note: 'catatan',
+  success: 'berhasil',
+  submit: 'kirim',
+  map: 'peta',
+  cta: 'ajakan',
+  hours: 'jam operasional',
+  weekday: 'Senin–Jumat',
+  saturday: 'Sabtu',
+  sunday: 'Minggu',
+  copyright: 'hak cipta',
+  bottom: 'bagian bawah',
+  social: 'media sosial',
+  media: 'media',
+  visual: 'visual',
+  manifesto: 'manifesto',
+  values: 'nilai',
+  documentation: 'dokumentasi',
+  youtube: 'YouTube',
+  video: 'video',
+  ready: 'siap',
+  enabled: 'aktif',
+  number: 'nomor',
+  screen: 'layar',
+  reader: 'pembaca',
+  site: 'website',
+  meta: 'metadata',
 };
 
 function formatLabel(key: string) {
   if (labelMap[key]) return labelMap[key];
 
-  return key.replace(/_/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
+  const cleanKey =
+    removablePrefixes.find((prefix) => key.startsWith(prefix)) !== undefined
+      ? key.replace(removablePrefixes.find((prefix) => key.startsWith(prefix)) ?? '', '')
+      : key;
+
+  const label = cleanKey
+    .split('_')
+    .map((word) => wordLabels[word] ?? word)
+    .join(' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  return label.replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-function getGroup(key: string) {
-  if (key.startsWith('hero_')) return 'hero';
-  if (key.startsWith('footer_') || key === 'map_url') return 'footer';
-  if (key.startsWith('link_')) return 'social';
-  if (key.startsWith('whatsapp_')) return 'general';
-  return 'general';
+function getGroup(key: string): ContentGroupId {
+  if (key.startsWith('hero_') || key.includes('_hero_')) {
+    return 'hero';
+  }
+
+  if (key.startsWith('nav_') || key.startsWith('header_nav_') || key.startsWith('footer_link_')) {
+    return 'navigation';
+  }
+
+  if (key.startsWith('link_')) {
+    return 'social';
+  }
+
+  if (
+    key.startsWith('contact_') ||
+    key.startsWith('whatsapp_') ||
+    key === 'map_url' ||
+    key === 'footer_phone' ||
+    key === 'footer_email' ||
+    key === 'footer_address'
+  ) {
+    return 'contact';
+  }
+
+  if (key.startsWith('general_') || key.endsWith('_enabled') || key.includes('rotation_speed')) {
+    return 'general';
+  }
+
+  return 'content';
 }
 
-const groupDetails = {
+const groupDetails: Record<
+  ContentGroupId,
+  {
+    title: string;
+    description: string;
+    icon: typeof LayoutTemplate;
+  }
+> = {
   hero: {
-    title: 'Hero Beranda',
-    description: 'Tulisan utama yang muncul pada bagian awal halaman beranda.',
+    title: 'Hero dan Pembuka',
+    description: 'Judul, deskripsi, label, dan tombol pada bagian awal halaman.',
     icon: LayoutTemplate,
   },
-  footer: {
-    title: 'Footer dan Kontak',
-    description: 'Informasi kontak yang ditampilkan pada bagian bawah website.',
+  navigation: {
+    title: 'Navigasi dan Menu',
+    description: 'Nama menu dan tulisan navigasi yang mengarahkan pengunjung.',
+    icon: Link2,
+  },
+  content: {
+    title: 'Isi Halaman',
+    description: 'Teks utama, kartu, statistik, ajakan, dan tulisan pendukung.',
+    icon: FileText,
+  },
+  contact: {
+    title: 'Kontak, Form, dan WhatsApp',
+    description: 'Informasi kontak, form, peta, serta pengaturan tombol WhatsApp.',
     icon: MapPin,
   },
+  social: {
+    title: 'Media Sosial',
+    description: 'Alamat akun media sosial yang digunakan pada website.',
+    icon: Share2,
+  },
   general: {
-    title: 'Pengaturan Lainnya',
-    description: 'Field tambahan dari database yang belum memiliki kategori khusus.',
+    title: 'Pengaturan Umum',
+    description: 'Metadata, status fitur, serta pengaturan teknis sederhana.',
     icon: Settings2,
   },
 };
+
+const groupOrder: ContentGroupId[] = [
+  'hero',
+  'navigation',
+  'content',
+  'contact',
+  'social',
+  'general',
+];
 
 function shouldUseTextarea(key: string, value: string) {
   return (
     key.includes('description') ||
     key.includes('address') ||
+    key.includes('message') ||
+    key.includes('text') ||
     key.includes('words') ||
     value.length > 95
   );
+}
+
+function isBooleanSetting(key: string) {
+  return key.endsWith('_enabled');
+}
+
+function getInputType(key: string) {
+  if (key.includes('email')) return 'email';
+
+  if (key.includes('url') || key.startsWith('link_') || key.endsWith('_link')) {
+    return 'url';
+  }
+
+  if (key.includes('rotation_speed')) return 'number';
+
+  return 'text';
 }
 
 export default function SettingsPage() {
@@ -95,6 +305,7 @@ export default function SettingsPage() {
   const [originalState, setOriginalState] = useState<Record<string, string>>({});
   const [saveStatus, setSaveStatus] = useState<Record<string, SaveStatus>>({});
   const [search, setSearch] = useState('');
+  const [activeTab, setActiveTab] = useState<SiteContentTabId>('home');
 
   useEffect(() => {
     let cancelled = false;
@@ -161,32 +372,66 @@ export default function SettingsPage() {
     setOriginalState(initialMap);
   }, [settings]);
 
+  const tabCounts = useMemo(() => {
+    return settings.reduce<Record<SiteContentTabId, number>>(
+      (result, setting) => {
+        const tab = getSiteContentTab(setting.key);
+        result[tab] += 1;
+        return result;
+      },
+      {
+        header: 0,
+        home: 0,
+        products: 0,
+        services: 0,
+        gallery: 0,
+        about: 0,
+        contact: 0,
+        footer: 0,
+        general: 0,
+      },
+    );
+  }, [settings]);
+
   const visibleSettings = useMemo(() => {
     const keyword = search.trim().toLowerCase();
 
     return settings.filter((setting) => {
-      if (getGroup(setting.key) === 'social') return false;
-      if (!keyword) return true;
+      const settingTab = getSiteContentTab(setting.key);
+
+      if (settingTab !== activeTab) {
+        return false;
+      }
+
+      if (!keyword) {
+        return true;
+      }
 
       return `${setting.key} ${formatLabel(setting.key)} ${formState[setting.key] ?? ''}`
         .toLowerCase()
         .includes(keyword);
     });
-  }, [formState, search, settings]);
+  }, [activeTab, formState, search, settings]);
 
   const groupedSettings = useMemo(() => {
-    return visibleSettings.reduce<Record<'hero' | 'footer' | 'general', SettingRow[]>>(
+    return visibleSettings.reduce<Record<ContentGroupId, SettingRow[]>>(
       (groups, item) => {
-        const group = getGroup(item.key);
-        if (group !== 'social') groups[group].push(item);
+        groups[getGroup(item.key)].push(item);
         return groups;
       },
-      { hero: [], footer: [], general: [] },
+      {
+        hero: [],
+        navigation: [],
+        content: [],
+        contact: [],
+        social: [],
+        general: [],
+      },
     );
   }, [visibleSettings]);
 
   const changedCount = Object.keys(formState).filter(
-    (key) => formState[key] !== originalState[key] && getGroup(key) !== 'social',
+    (key) => formState[key] !== originalState[key],
   ).length;
 
   const handleChange = (key: string, value: string) => {
@@ -302,6 +547,45 @@ export default function SettingsPage() {
         </div>
       )}
 
+      <div className="admin-panel rounded-3xl p-3">
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          {siteContentTabs.map((tab) => {
+            const isActive = activeTab === tab.id;
+
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => {
+                  setActiveTab(tab.id);
+                  setSearch('');
+                }}
+                className={`inline-flex shrink-0 items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition ${
+                  isActive
+                    ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-lg'
+                    : 'border border-white/8 bg-white/2 text-slate-400 hover:bg-white/5 hover:text-white'
+                }`}
+              >
+                {tab.label}
+                <span
+                  className={`rounded-md px-1.5 py-0.5 text-[10px] ${
+                    isActive ? 'bg-white/15 text-white' : 'bg-white/5 text-slate-500'
+                  }`}
+                >
+                  {tabCounts[tab.id]}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-3 border-t border-white/8 px-2 pt-3">
+          <p className="text-sm text-slate-400">
+            {siteContentTabs.find((tab) => tab.id === activeTab)?.description}
+          </p>
+        </div>
+      </div>
+
       <section className="admin-panel rounded-[22px] p-4 sm:p-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="relative w-full lg:max-w-lg">
@@ -338,7 +622,7 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      {(Object.keys(groupDetails) as Array<keyof typeof groupDetails>).map((groupKey) => {
+      {groupOrder.map((groupKey) => {
         const items = groupedSettings[groupKey];
         if (items.length === 0) return null;
 
@@ -363,6 +647,8 @@ export default function SettingsPage() {
                 const status = saveStatus[setting.key] ?? 'idle';
                 const changed = value !== originalState[setting.key];
                 const textarea = shouldUseTextarea(setting.key, value);
+                const booleanSetting = isBooleanSetting(setting.key);
+                const inputType = getInputType(setting.key);
                 const isRotationSpeed = setting.key === 'hero_rotation_speed';
 
                 return (
@@ -385,7 +671,7 @@ export default function SettingsPage() {
                         >
                           {formatLabel(setting.key)}
                         </label>
-                        <p className="mt-1 truncate font-mono text-[10px] text-slate-600">
+                        <p className="mt-1 break-all font-mono text-[10px] text-slate-600">
                           {setting.key}
                         </p>
                       </div>
@@ -396,7 +682,17 @@ export default function SettingsPage() {
                       )}
                     </div>
 
-                    {textarea ? (
+                    {booleanSetting ? (
+                      <select
+                        id={setting.key}
+                        value={value || 'true'}
+                        onChange={(event) => handleChange(setting.key, event.target.value)}
+                        className="admin-field h-12 rounded-xl px-4 text-sm"
+                      >
+                        <option value="true">Aktif</option>
+                        <option value="false">Nonaktif</option>
+                      </select>
+                    ) : textarea ? (
                       <textarea
                         id={setting.key}
                         rows={4}
@@ -407,13 +703,7 @@ export default function SettingsPage() {
                     ) : (
                       <input
                         id={setting.key}
-                        type={
-                          isRotationSpeed
-                            ? 'number'
-                            : setting.key.includes('email')
-                              ? 'email'
-                              : 'text'
-                        }
+                        type={inputType}
                         min={isRotationSpeed ? 1000 : undefined}
                         step={isRotationSpeed ? 100 : undefined}
                         value={value}
@@ -463,9 +753,13 @@ export default function SettingsPage() {
           <span className="grid h-16 w-16 place-items-center rounded-2xl border border-white/[0.08] bg-white/[0.035] text-slate-600">
             <FileText className="h-7 w-7" />
           </span>
-          <h3 className="mt-5 font-semibold text-slate-200">Field tidak ditemukan</h3>
-          <p className="mt-2 text-sm text-slate-500">
-            Coba gunakan kata kunci pencarian yang berbeda.
+          <h3 className="mt-5 font-semibold text-slate-200">
+            {search ? 'Field tidak ditemukan' : 'Belum ada field pada tab ini'}
+          </h3>
+          <p className="mt-2 max-w-md text-sm text-slate-500">
+            {search
+              ? 'Coba gunakan kata kunci pencarian yang berbeda.'
+              : 'Pastikan SQL NeonDB untuk bagian ini sudah dijalankan agar field CMS muncul.'}
           </p>
         </section>
       )}

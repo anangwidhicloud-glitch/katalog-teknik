@@ -439,7 +439,7 @@ export default function Home() {
           <SectionHeading
             eyebrow="Produk unggulan"
             title="Produk Kami"
-            description="Hanya produk yang pada database memiliki status Terlaris = True yang ditampilkan di bagian ini."
+            description="Menampilkan 10 produk dengan jumlah penjualan tertinggi, diurutkan otomatis dari yang paling banyak terjual."
           />
           <Link href="/products" className="site-button site-button-secondary">
             Lihat seluruh katalog <ArrowUpRight size={17} />

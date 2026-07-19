@@ -43,6 +43,11 @@ type ProductRow = {
   isBestSeller?: boolean | null;
 };
 
+type SettingRow = {
+  key: string;
+  value?: string | null;
+};
+
 type SubCategoryNode = {
   name: string;
   count: number;
@@ -74,6 +79,7 @@ type CategorySidebarProps = {
   onSelectSub: (main: string, second: string, sub: string) => void;
   onToggleMain: (name: string) => void;
   onToggleSecond: (main: string, second: string) => void;
+  getContent: (key: string, fallback: string) => string;
   onClose?: () => void;
 };
 
@@ -137,9 +143,9 @@ const fallbackProducts: ProductRow[] = [
   },
 ];
 
-function formatCurrency(value?: string | number | null) {
+function formatCurrency(value?: string | number | null, contactLabel = 'Hubungi kami') {
   const number = Number(String(value ?? '').replace(/[^0-9.-]/g, ''));
-  if (!Number.isFinite(number)) return value || 'Hubungi kami';
+  if (!Number.isFinite(number)) return value || contactLabel;
 
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
@@ -166,22 +172,22 @@ function getDiscountPercent(
   return Math.round(((originalPrice - finalPrice) / originalPrice) * 100);
 }
 
-function formatSoldCount(value?: number | string | null) {
+function formatSoldCount(value?: number | string | null, soldLabel = 'terjual') {
   const soldCount = Math.max(0, Math.floor(Number(value) || 0));
 
   if (soldCount >= 1_000_000) {
     const formatted = (soldCount / 1_000_000).toFixed(1).replace('.0', '').replace('.', ',');
 
-    return `${formatted}JT+ terjual`;
+    return `${formatted}JT+ ${soldLabel}`;
   }
 
   if (soldCount >= 1_000) {
     const formatted = (soldCount / 1_000).toFixed(1).replace('.0', '').replace('.', ',');
 
-    return `${formatted}RB+ terjual`;
+    return `${formatted}RB+ ${soldLabel}`;
   }
 
-  return `${soldCount.toLocaleString('id-ID')} terjual`;
+  return `${soldCount.toLocaleString('id-ID')} ${soldLabel}`;
 }
 
 function isTruthy(value?: boolean | string | null) {
@@ -252,6 +258,7 @@ function CategorySidebar({
   onSelectSub,
   onToggleMain,
   onToggleSecond,
+  getContent,
   onClose,
 }: CategorySidebarProps) {
   const allSelected = selectedMain === 'Semua';
@@ -263,15 +270,17 @@ function CategorySidebar({
           <FolderTree size={20} />
         </div>
         <div>
-          <span className="category-panel-kicker">3 tingkat navigasi</span>
-          <h2>Jelajahi Kategori</h2>
+          <span className="category-panel-kicker">
+            {getContent('products_category_kicker', '3 tingkat navigasi')}
+          </span>
+          <h2>{getContent('products_category_title', 'Jelajahi Kategori')}</h2>
         </div>
         {onClose && (
           <button
             type="button"
             className="category-panel-close"
             onClick={onClose}
-            aria-label="Tutup kategori"
+            aria-label={getContent('products_close_category_label', 'Tutup kategori')}
           >
             <X size={18} />
           </button>
@@ -290,14 +299,18 @@ function CategorySidebar({
           <Boxes size={17} />
         </span>
         <span className="category-node-copy">
-          <strong>Semua Produk</strong>
-          <small>Katalog lengkap</small>
+          <strong>{getContent('products_all_products_label', 'Semua Produk')}</strong>
+          <small>{getContent('products_complete_catalog_label', 'Katalog lengkap')}</small>
         </span>
         <span className="category-count">{totalCount}</span>
         {allSelected && <Check size={15} className="category-check" />}
       </button>
 
-      <div className="category-tree" role="tree" aria-label="Kategori produk bertingkat">
+      <div
+        className="category-tree"
+        role="tree"
+        aria-label={getContent('products_category_tree_label', 'Kategori produk bertingkat')}
+      >
         {tree.map((mainNode, mainIndex) => {
           const mainActive = selectedMain === mainNode.name;
           const mainOpen = expandedMain.has(mainNode.name);
@@ -324,7 +337,9 @@ function CategorySidebar({
                   </span>
                   <span className="category-node-copy">
                     <strong>{mainNode.name}</strong>
-                    <small>Kategori utama</small>
+                    <small>
+                      {getContent('products_main_category_item_label', 'Kategori utama')}
+                    </small>
                   </span>
                   <span className="category-count">{mainNode.count}</span>
                 </button>
@@ -332,7 +347,10 @@ function CategorySidebar({
                   type="button"
                   className="category-expand-button"
                   onClick={() => onToggleMain(mainNode.name)}
-                  aria-label={`${mainOpen ? 'Tutup' : 'Buka'} kategori ${mainNode.name}`}
+                  aria-label={`${getContent(
+                    mainOpen ? 'products_close_label' : 'products_open_label',
+                    mainOpen ? 'Tutup' : 'Buka',
+                  )} ${getContent('products_category_word', 'kategori')} ${mainNode.name}`}
                 >
                   <motion.span
                     animate={{ rotate: mainOpen ? 90 : 0 }}
@@ -374,7 +392,12 @@ function CategorySidebar({
                               <span className="category-node-dot" />
                               <span className="category-node-copy">
                                 <strong>{secondNode.name}</strong>
-                                <small>Kategori kedua</small>
+                                <small>
+                                  {getContent(
+                                    'products_second_category_item_label',
+                                    'Kategori kedua',
+                                  )}
+                                </small>
                               </span>
                               <span className="category-count">{secondNode.count}</span>
                             </button>
@@ -382,7 +405,10 @@ function CategorySidebar({
                               type="button"
                               className="category-expand-button category-expand-small"
                               onClick={() => onToggleSecond(mainNode.name, secondNode.name)}
-                              aria-label={`${secondOpen ? 'Tutup' : 'Buka'} kategori ${secondNode.name}`}
+                              aria-label={`${getContent(
+                                secondOpen ? 'products_close_label' : 'products_open_label',
+                                secondOpen ? 'Tutup' : 'Buka',
+                              )} ${getContent('products_category_word', 'kategori')} ${secondNode.name}`}
                             >
                               <motion.span
                                 animate={{ rotate: secondOpen ? 90 : 0 }}
@@ -437,7 +463,12 @@ function CategorySidebar({
 
       <div className="category-panel-foot">
         <Sparkles size={15} />
-        <span>Pilih hingga subkategori untuk hasil yang lebih presisi.</span>
+        <span>
+          {getContent(
+            'products_category_help',
+            'Pilih hingga subkategori untuk hasil yang lebih presisi.',
+          )}
+        </span>
       </div>
     </div>
   );
@@ -445,7 +476,21 @@ function CategorySidebar({
 
 export default function ProductsPage() {
   const { data, loading, error, refresh } = useSheetData<ProductRow>('Products');
-  const products = (data as ProductRow[]).length > 0 ? (data as ProductRow[]) : fallbackProducts;
+
+  const { data: settingRows, refresh: refreshSettings } = useSheetData<SettingRow>('Settings');
+
+  const content = useMemo<Record<string, string>>(() => {
+    return settingRows.reduce<Record<string, string>>((result, setting) => {
+      result[setting.key] = setting.value ?? '';
+      return result;
+    }, {});
+  }, [settingRows]);
+
+  const getContent = (key: string, fallback: string) => {
+    return content[key]?.trim() || fallback;
+  };
+
+  const products = data.length > 0 ? data : fallbackProducts;
   const [search, setSearch] = useState('');
   const [selectedMain, setSelectedMain] = useState('Semua');
   const [selectedSecond, setSelectedSecond] = useState('');
@@ -459,7 +504,8 @@ export default function ProductsPage() {
 
   useEffect(() => {
     void refresh();
-  }, [refresh]);
+    void refreshSettings();
+  }, [refresh, refreshSettings]);
 
   const categoryTree = useMemo(() => buildCategoryTree(products), [products]);
 
@@ -493,7 +539,9 @@ export default function ProductsPage() {
   }, [safeCurrentPage, totalPages]);
 
   const activePath = [
-    selectedMain === 'Semua' ? 'Semua Produk' : selectedMain,
+    selectedMain === 'Semua'
+      ? getContent('products_all_products_label', 'Semua Produk')
+      : selectedMain,
     selectedSecond,
     selectedSub,
   ].filter(Boolean);
@@ -569,29 +617,41 @@ export default function ProductsPage() {
     onSelectSub: selectSub,
     onToggleMain: toggleMain,
     onToggleSecond: toggleSecond,
+    getContent,
   };
 
   return (
     <main>
       <PageHero
-        eyebrow="Katalog produk"
+        eyebrow={getContent('products_hero_eyebrow', 'Katalog Produk')}
         title={
           <>
-            Peralatan yang siap <span className="gradient-text">bekerja keras.</span>
+            {getContent('products_hero_title', 'Peralatan yang siap')}{' '}
+            <span className="gradient-text">
+              {getContent('products_hero_title_highlight', 'bekerja keras.')}
+            </span>
           </>
         }
-        description="Telusuri produk melalui struktur kategori tiga tingkat yang mengikuti database: kategori utama, kategori kedua, hingga subkategori paling spesifik."
+        description={getContent(
+          'products_hero_description',
+          'Temukan produk teknik sesuai kebutuhan melalui kategori yang tersusun rapi dan mudah dijelajahi.',
+        )}
       >
         <div className="mt-8 flex flex-wrap gap-3">
           <span className="site-chip">
-            <Boxes size={14} /> {products.length} produk tersedia
+            <Boxes size={14} />
+            {products.length} {getContent('products_available_label', 'produk tersedia')}
           </span>
+
           <span className="site-chip">
-            <Layers3 size={14} /> {categoryTree.length} kategori utama
+            <Layers3 size={14} />
+            {categoryTree.length} {getContent('products_main_category_label', 'kategori utama')}
           </span>
+
           <span className="site-chip">
             <Star size={14} />
-            {products.filter((item) => item.isBestSeller).length} produk terlaris
+            {Math.min(products.length, 10)}{' '}
+            {getContent('products_best_seller_label', 'produk terlaris')}
           </span>
         </div>
       </PageHero>
@@ -614,11 +674,13 @@ export default function ProductsPage() {
                 onClick={() => setMobileFiltersOpen(true)}
               >
                 <PanelLeftOpen size={18} />
-                Kategori
+
+                {getContent('products_filter_button', 'Kategori')}
               </button>
 
               <div className="product-search">
                 <Search size={18} />
+
                 <input
                   type="search"
                   className="site-input"
@@ -627,7 +689,10 @@ export default function ProductsPage() {
                     setSearch(event.target.value);
                     setCurrentPage(1);
                   }}
-                  placeholder="Cari nama, kategori, atau tipe produk..."
+                  placeholder={getContent(
+                    'products_search_placeholder',
+                    'Cari nama, kategori, atau tipe produk...',
+                  )}
                 />
                 {search && (
                   <button
@@ -636,7 +701,7 @@ export default function ProductsPage() {
                       setSearch('');
                       setCurrentPage(1);
                     }}
-                    aria-label="Hapus pencarian"
+                    aria-label={getContent('products_clear_search_label', 'Hapus pencarian')}
                     className="absolute right-3 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-xl text-(--text-muted) hover:bg-(--surface-hover)"
                   >
                     <X size={17} />
@@ -646,14 +711,14 @@ export default function ProductsPage() {
 
               <div className="product-toolbar-actions">
                 <label className="product-page-size">
-                  <span>Tampilkan</span>
+                  <span>{getContent('products_show_label', 'Tampilkan')}</span>
                   <select
                     value={pageSize}
                     onChange={(event) => {
                       setPageSize(Number(event.target.value));
                       setCurrentPage(1);
                     }}
-                    aria-label="Jumlah produk per halaman"
+                    aria-label={getContent('products_page_size_label', 'Jumlah produk per halaman')}
                   >
                     <option value={12}>12</option>
                     <option value={24}>24</option>
@@ -661,14 +726,17 @@ export default function ProductsPage() {
                   </select>
                 </label>
                 <div className="result-count">
-                  <ListFilter size={14} /> {filtered.length} hasil
+                  <ListFilter size={14} />
+                  {filtered.length} {getContent('products_results_label', 'hasil')}
                 </div>
               </div>
             </div>
 
             <div className="product-active-path" data-aos="fade-up" data-aos-delay="80">
               <div className="product-active-path-copy">
-                <span className="product-active-label">Pilihan aktif</span>
+                <span className="product-active-label">
+                  {getContent('products_active_selection_label', 'Pilihan aktif')}
+                </span>
                 <div className="product-breadcrumbs">
                   {activePath.map((item, index) => (
                     <span key={`${item}-${index}`}>
@@ -681,14 +749,19 @@ export default function ProductsPage() {
 
               {(selectedMain !== 'Semua' || search) && (
                 <button type="button" className="product-reset-button" onClick={resetFilters}>
-                  <RotateCcw size={14} /> Reset
+                  <RotateCcw size={14} />
+
+                  {getContent('products_reset_label', 'Reset')}
                 </button>
               )}
             </div>
 
             {error && (
-              <div className="site-card mb-5 border-(--danger)/20 p-4 text-sm text-(--danger)">
-                Data online belum dapat dimuat. Katalog contoh tetap ditampilkan.
+              <div className="rounded-2xl border border-(--danger)/20 p-4 text-sm text-(--danger)">
+                {getContent(
+                  'products_load_error',
+                  'Data online belum dapat dimuat. Silakan coba kembali.',
+                )}
               </div>
             )}
 
@@ -706,17 +779,23 @@ export default function ProductsPage() {
                 <div className="empty-state-icon">
                   <PackageOpen size={27} />
                 </div>
-                <h2 className="text-xl font-bold">Produk tidak ditemukan</h2>
-                <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-(--text-secondary)">
-                  Tidak ada produk pada kombinasi kategori atau kata kunci tersebut. Coba pilih
-                  tingkat kategori lain.
+                <h2 className="text-xl font-bold">
+                  {getContent('products_empty_title', 'Produk tidak ditemukan')}
+                </h2>
+                <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[var(--text-secondary)]">
+                  {getContent(
+                    'products_empty_description',
+                    'Tidak ada produk pada kombinasi kategori atau kata kunci tersebut. Coba pilih tingkat kategori lain.',
+                  )}
                 </p>
                 <button
                   type="button"
-                  className="site-button site-button-secondary mt-5"
                   onClick={resetFilters}
+                  className="site-button site-button-secondary"
                 >
-                  <RotateCcw size={16} /> Reset filter
+                  <RotateCcw size={16} />
+
+                  {getContent('products_reset_label', 'Reset')}
                 </button>
               </div>
             ) : (
@@ -742,7 +821,7 @@ export default function ProductsPage() {
                         <div className="product-card-badges">
                           {isTruthy(product.isBestSeller) && (
                             <span className="site-chip product-badge product-best-badge">
-                              Terlaris
+                              {getContent('products_best_seller_badge', 'Terlaris')}
                             </span>
                           )}
                           <span className="site-chip product-badge product-main-badge">
@@ -752,7 +831,10 @@ export default function ProductsPage() {
                         {product.imageUrl ? (
                           <Image
                             src={product.imageUrl}
-                            alt={product.name || 'Produk teknik'}
+                            alt={
+                              product.name ||
+                              getContent('products_product_image_alt', 'Produk teknik')
+                            }
                             fill
                             sizes="(max-width: 760px) 100vw, (max-width: 1040px) 50vw, 34vw"
                             loading={index === 0 ? 'eager' : 'lazy'}
@@ -776,10 +858,16 @@ export default function ProductsPage() {
                           <span>{cleanCategory(product.subCategory)}</span>
                         </div>
                         <h2 className="product-card-title">
-                          {product.name || 'Produk Teknik Profesional'}
+                          {product.name ||
+                            getContent(
+                              'products_default_product_name',
+                              'Produk Teknik Profesional',
+                            )}
                         </h2>
                         <div className="product-card-meta">
-                          <span>Professional equipment</span>
+                          <span>
+                            {getContent('products_card_meta_label', 'Professional equipment')}
+                          </span>
                           <span className="inline-flex items-center gap-1 text-amber-500">
                             <Star size={13} fill="currentColor" /> {product.rating || '5'}
                           </span>
@@ -792,11 +880,17 @@ export default function ProductsPage() {
                             <div className="mt-1 min-h-20.5">
                               <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                                 <strong className="text-xl font-bold tracking-tight text-red-500">
-                                  {formatCurrency(product.discountPrice)}
+                                  {formatCurrency(
+                                    product.discountPrice,
+                                    getContent('products_contact_price_label', 'Hubungi kami'),
+                                  )}
                                 </strong>
 
                                 <span className="text-xs text-(--text-muted) line-through">
-                                  {formatCurrency(product.price)}
+                                  {formatCurrency(
+                                    product.price,
+                                    getContent('products_contact_price_label', 'Hubungi kami'),
+                                  )}
                                 </span>
 
                                 <span className="rounded-md border border-red-500/20 bg-red-500/10 px-1.5 py-0.5 text-[10px] font-bold text-red-500">
@@ -806,23 +900,35 @@ export default function ProductsPage() {
 
                               <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2">
                                 <span className="inline-flex items-center rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[10px] font-semibold text-emerald-600">
-                                  Garansi Harga Terbaik
+                                  {getContent(
+                                    'products_best_price_guarantee',
+                                    'Garansi Harga Terbaik',
+                                  )}
                                 </span>
 
                                 <span className="text-xs font-medium text-(--text-muted)">
-                                  {formatSoldCount(product.soldCount)}
+                                  {formatSoldCount(
+                                    product.soldCount,
+                                    getContent('products_sold_label', 'terjual'),
+                                  )}
                                 </span>
                               </div>
                             </div>
                           ) : (
                             <div className="mt-1 min-h-20.5">
                               <strong className="text-xl font-bold tracking-tight text-(--text-primary)">
-                                {formatCurrency(product.price)}
+                                {formatCurrency(
+                                  product.price,
+                                  getContent('products_contact_price_label', 'Hubungi kami'),
+                                )}
                               </strong>
 
                               <div className="mt-2">
                                 <span className="text-xs font-medium text-(--text-muted)">
-                                  {formatSoldCount(product.soldCount)}
+                                  {formatSoldCount(
+                                    product.soldCount,
+                                    getContent('products_sold_label', 'terjual'),
+                                  )}
                                 </span>
                               </div>
                             </div>
@@ -834,10 +940,10 @@ export default function ProductsPage() {
                             className="site-button site-button-secondary"
                             onClick={() => setSelected(product)}
                           >
-                            Detail
+                            {getContent('products_detail_button', 'Detail')}
                           </button>
                           <Link href="/contact" className="site-button site-button-primary">
-                            Penawaran
+                            {getContent('products_offer_button', 'Penawaran')}
                           </Link>
                         </div>
                       </div>
@@ -850,7 +956,7 @@ export default function ProductsPage() {
             {!loading && filtered.length > 0 && totalPages > 1 && (
               <nav
                 className="product-pagination"
-                aria-label="Navigasi halaman produk"
+                aria-label={getContent('products_pagination_label', 'Navigasi halaman produk')}
                 data-aos="fade-up"
               >
                 <button
@@ -858,7 +964,7 @@ export default function ProductsPage() {
                   className="product-page-button product-page-arrow"
                   onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
                   disabled={safeCurrentPage === 1}
-                  aria-label="Halaman sebelumnya"
+                  aria-label={getContent('products_previous_page_label', 'Halaman sebelumnya')}
                 >
                   <ChevronLeft size={16} />
                 </button>
@@ -908,14 +1014,15 @@ export default function ProductsPage() {
                   className="product-page-button product-page-arrow"
                   onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
                   disabled={safeCurrentPage === totalPages}
-                  aria-label="Halaman berikutnya"
+                  aria-label={getContent('products_next_page_label', 'Halaman berikutnya')}
                 >
                   <ChevronRight size={16} />
                 </button>
 
                 <span className="product-page-summary">
                   {(safeCurrentPage - 1) * pageSize + 1}–
-                  {Math.min(safeCurrentPage * pageSize, filtered.length)} dari {filtered.length}
+                  {Math.min(safeCurrentPage * pageSize, filtered.length)}{' '}
+                  {getContent('products_pagination_of_label', 'dari')} {filtered.length}
                 </span>
               </nav>
             )}
@@ -969,7 +1076,7 @@ export default function ProductsPage() {
                 type="button"
                 className="modal-close"
                 onClick={() => setSelected(null)}
-                aria-label="Tutup detail"
+                aria-label={getContent('products_close_detail_label', 'Tutup detail')}
               >
                 <X size={19} />
               </button>
@@ -977,7 +1084,7 @@ export default function ProductsPage() {
                 {selected.imageUrl ? (
                   <Image
                     src={selected.imageUrl}
-                    alt={selected.name || 'Produk'}
+                    alt={selected.name || getContent('products_product_image_short_alt', 'Produk')}
                     fill
                     sizes="(max-width: 760px) 100vw, 45vw"
                     className="object-contain p-10"
@@ -989,15 +1096,23 @@ export default function ProductsPage() {
                 )}
               </div>
               <div className="product-modal-content">
-                <span className="site-chip">{selected.mainCategory || 'Peralatan'}</span>
+                <span className="site-chip">
+                  {selected.mainCategory ||
+                    getContent('products_default_category_label', 'Peralatan')}
+                </span>
                 <h2 className="mt-6 text-3xl font-black tracking-[-0.04em]">{selected.name}</h2>
                 <p className="whitespace-pre-line text-(--text-secondary)">
                   {selected.description?.trim() ||
-                    'Detail produk belum tersedia. Silakan hubungi kami untuk mendapatkan informasi lengkap produk ini.'}
+                    getContent(
+                      'products_detail_fallback',
+                      'Detail produk belum tersedia. Silakan hubungi kami untuk mendapatkan informasi lengkap produk ini.',
+                    )}
                 </p>
                 <div className="mt-7 grid grid-cols-1 gap-3 sm:grid-cols-[0.7fr_1.3fr]">
                   <div className="site-card p-4">
-                    <span className="text-xs text-(--text-muted)">Rating Produk</span>
+                    <span className="text-xs text-(--text-muted)">
+                      {getContent('products_rating_label', 'Rating Produk')}
+                    </span>
 
                     <strong className="mt-2 flex items-center gap-2 text-lg">
                       <Star size={17} fill="currentColor" className="text-amber-500" />
@@ -1007,7 +1122,9 @@ export default function ProductsPage() {
                   </div>
 
                   <div className="site-card p-4">
-                    <span className="text-xs text-(--text-muted)">Harga Produk</span>
+                    <span className="text-xs text-(--text-muted)">
+                      {getContent('products_price_label', 'Harga Produk')}
+                    </span>
 
                     {isTruthy(selected.hasDiscount) &&
                     getNumericPrice(selected.discountPrice) > 0 &&
@@ -1015,11 +1132,17 @@ export default function ProductsPage() {
                       <div className="mt-2">
                         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                           <strong className="text-2xl font-bold tracking-tight text-red-500">
-                            {formatCurrency(selected.discountPrice)}
+                            {formatCurrency(
+                              selected.discountPrice,
+                              getContent('products_contact_price_label', 'Hubungi kami'),
+                            )}
                           </strong>
 
                           <span className="text-sm text-(--text-muted) line-through">
-                            {formatCurrency(selected.price)}
+                            {formatCurrency(
+                              selected.price,
+                              getContent('products_contact_price_label', 'Hubungi kami'),
+                            )}
                           </span>
 
                           <span className="rounded-md border border-red-500/20 bg-red-500/10 px-2 py-1 text-xs font-bold text-red-500">
@@ -1029,12 +1152,15 @@ export default function ProductsPage() {
 
                         <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
                           <span className="inline-flex items-center rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-600">
-                            Garansi Harga Terbaik
+                            {getContent('products_best_price_guarantee', 'Garansi Harga Terbaik')}
                           </span>
 
                           {getNumericPrice(selected.soldCount) > 0 && (
                             <span className="text-xs font-medium text-(--text-muted)">
-                              {formatSoldCount(selected.soldCount)}
+                              {formatSoldCount(
+                                selected.soldCount,
+                                getContent('products_sold_label', 'terjual'),
+                              )}
                             </span>
                           )}
                         </div>
@@ -1042,12 +1168,18 @@ export default function ProductsPage() {
                     ) : (
                       <div className="mt-2">
                         <strong className="block text-2xl font-bold tracking-tight text-(--text-primary)">
-                          {formatCurrency(selected.price)}
+                          {formatCurrency(
+                            selected.price,
+                            getContent('products_contact_price_label', 'Hubungi kami'),
+                          )}
                         </strong>
 
                         {getNumericPrice(selected.soldCount) > 0 && (
                           <span className="mt-2 block text-xs font-medium text-(--text-muted)">
-                            {formatSoldCount(selected.soldCount)}
+                            {formatSoldCount(
+                              selected.soldCount,
+                              getContent('products_sold_label', 'terjual'),
+                            )}
                           </span>
                         )}
                       </div>
@@ -1055,7 +1187,8 @@ export default function ProductsPage() {
                   </div>
                 </div>
                 <Link href="/contact" className="site-button site-button-primary mt-7 w-full">
-                  Minta Penawaran <ArrowRight size={17} />
+                  {getContent('products_request_offer_button', 'Minta Penawaran')}{' '}
+                  <ArrowRight size={17} />
                 </Link>
               </div>
             </motion.div>

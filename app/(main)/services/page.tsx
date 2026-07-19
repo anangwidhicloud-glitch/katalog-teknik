@@ -12,8 +12,15 @@ import {
   Wrench,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect, useMemo } from 'react';
+import { useSheetData } from '../../hooks/useSheetData';
 import PageHero from '../components/PageHero';
 import SectionHeading from '../components/SectionHeading';
+
+type SettingRow = {
+  key: string;
+  value?: string | null;
+};
 
 const services = [
   {
@@ -59,37 +66,65 @@ const workflow = [
 ];
 
 export default function ServicesPage() {
+  const { data: settingRows, refresh: refreshSettings } = useSheetData<SettingRow>('Settings');
+
+  const content = useMemo<Record<string, string>>(() => {
+    return settingRows.reduce<Record<string, string>>((result, setting) => {
+      result[setting.key] = setting.value ?? '';
+      return result;
+    }, {});
+  }, [settingRows]);
+
+  const getContent = (key: string, fallback: string) => {
+    return content[key]?.trim() || fallback;
+  };
+
+  useEffect(() => {
+    void refreshSettings();
+  }, [refreshSettings]);
+
   return (
     <main>
       <PageHero
-        eyebrow="Layanan profesional"
+        eyebrow={getContent('services_hero_eyebrow', 'Layanan profesional')}
         title={
           <>
-            Dukungan teknis yang <span className="gradient-text">menyeluruh.</span>
+            {getContent('services_hero_title', 'Dukungan teknis yang')}{' '}
+            <span className="gradient-text">
+              {getContent('services_hero_title_highlight', 'menyeluruh.')}
+            </span>
           </>
         }
-        description="Kami mendampingi proses dari konsultasi hingga purna jual agar setiap peralatan dapat digunakan secara aman, efektif, dan konsisten."
+        description={getContent(
+          'services_hero_description',
+          'Kami mendampingi proses dari konsultasi hingga purna jual agar setiap peralatan dapat digunakan secara aman, efektif, dan konsisten.',
+        )}
       >
         <div className="mt-8 flex flex-wrap gap-3">
           <span className="site-chip">
-            <ShieldCheck size={14} /> Prosedur terukur
+            <ShieldCheck size={14} /> {getContent('services_hero_chip_1', 'Prosedur terukur')}
           </span>
           <span className="site-chip">
-            <Headphones size={14} /> Dukungan responsif
+            <Headphones size={14} /> {getContent('services_hero_chip_2', 'Dukungan responsif')}
           </span>
           <span className="site-chip">
-            <CheckCircle2 size={14} /> Fokus hasil
+            <CheckCircle2 size={14} /> {getContent('services_hero_chip_3', 'Fokus hasil')}
           </span>
         </div>
       </PageHero>
 
       <section className="section-block section-shell pt-0">
         <SectionHeading
-          eyebrow="Cakupan layanan"
-          title="Satu partner untuk berbagai kebutuhan teknis."
-          description="Layanan dirancang untuk membantu pengambilan keputusan, implementasi, dan keberlanjutan operasional peralatan Anda."
+          eyebrow={getContent('services_scope_eyebrow', 'Cakupan layanan')}
+          title={getContent(
+            'services_scope_title',
+            'Satu partner untuk berbagai kebutuhan teknis.',
+          )}
+          description={getContent(
+            'services_scope_description',
+            'Layanan dirancang untuk membantu pengambilan keputusan, implementasi, dan keberlanjutan operasional peralatan Anda.',
+          )}
         />
-
         <div className="service-grid">
           {services.map((service, index) => {
             const Icon = service.icon;
@@ -105,10 +140,11 @@ export default function ServicesPage() {
                 <div className="service-card-icon">
                   <Icon size={24} />
                 </div>
-                <h3>{service.title}</h3>
-                <p>{service.description}</p>
+                <h3>{getContent(`services_item_${index + 1}_title`, service.title)}</h3>
+                <p>{getContent(`services_item_${index + 1}_description`, service.description)}</p>
                 <Link href="/contact" className="site-button site-button-ghost mt-7">
-                  Diskusikan layanan <ArrowRight size={16} />
+                  {getContent('services_item_button', 'Diskusikan layanan')}{' '}
+                  <ArrowRight size={16} />
                 </Link>
                 <div className="service-card-glow" />
               </motion.article>
@@ -121,15 +157,21 @@ export default function ServicesPage() {
         <div className="grid gap-14 lg:grid-cols-[.85fr_1.15fr] lg:items-start">
           <div data-aos="fade-right">
             <SectionHeading
-              eyebrow="Cara kami bekerja"
-              title="Terstruktur, transparan, dan mudah dipahami."
-              description="Setiap tahap memiliki tujuan yang jelas sehingga Anda dapat mengikuti proses dan mengambil keputusan dengan lebih percaya diri."
+              eyebrow={getContent('services_workflow_eyebrow', 'Cara kami bekerja')}
+              title={getContent(
+                'services_workflow_title',
+                'Terstruktur, transparan, dan mudah dipahami.',
+              )}
+              description={getContent(
+                'services_workflow_description',
+                'Setiap tahap memiliki tujuan yang jelas sehingga Anda dapat mengikuti proses dan mengambil keputusan dengan lebih percaya diri.',
+              )}
             />
             <Link href="/contact" className="site-button site-button-primary mt-8">
-              Jadwalkan konsultasi <ArrowRight size={17} />
+              {getContent('services_workflow_button', 'Jadwalkan konsultasi')}{' '}
+              <ArrowRight size={17} />
             </Link>
           </div>
-
           <div className="timeline">
             {workflow.map((item, index) => (
               <div
@@ -140,8 +182,8 @@ export default function ServicesPage() {
               >
                 <div className="timeline-dot">0{index + 1}</div>
                 <div className="timeline-copy">
-                  <h3>{item.title}</h3>
-                  <p>{item.text}</p>
+                  <h3>{getContent(`services_workflow_${index + 1}_title`, item.title)}</h3>
+                  <p>{getContent(`services_workflow_${index + 1}_text`, item.text)}</p>
                 </div>
               </div>
             ))}
@@ -153,16 +195,24 @@ export default function ServicesPage() {
         <div className="site-card overflow-hidden p-8 sm:p-12" data-aos="zoom-in">
           <div className="grid gap-10 lg:grid-cols-[1fr_auto] lg:items-center">
             <div>
-              <div className="site-eyebrow">Technical support</div>
+              <div className="site-eyebrow">
+                {getContent('services_cta_eyebrow', 'Technical support')}
+              </div>
               <h2 className="section-title max-w-3xl">
-                Pastikan investasi peralatan Anda bekerja maksimal.
+                {getContent(
+                  'services_cta_title',
+                  'Pastikan investasi peralatan Anda bekerja maksimal.',
+                )}
               </h2>
               <p className="section-description max-w-2xl">
-                Konsultasikan kebutuhan instalasi, perawatan, atau kendala teknis bersama tim kami.
+                {getContent(
+                  'services_cta_description',
+                  'Konsultasikan kebutuhan instalasi, perawatan, atau kendala teknis bersama tim kami.',
+                )}
               </p>
             </div>
             <Link href="/contact" className="site-button site-button-primary">
-              Hubungi Tim Kami <ArrowRight size={18} />
+              {getContent('services_cta_button', 'Hubungi Tim Kami')} <ArrowRight size={18} />
             </Link>
           </div>
         </div>

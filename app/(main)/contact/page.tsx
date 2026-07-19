@@ -20,6 +20,10 @@ export default function ContactPage() {
     [settings],
   );
 
+  const getContent = (key: string, fallback: string) => {
+    return content[key]?.trim() || fallback;
+  };
+
   const phone = content.footer_phone || '0856 4010 0044';
   const email = content.footer_email || 'anang.widhi.p@gmail.com';
   const address =
@@ -39,23 +43,35 @@ export default function ContactPage() {
     setSubmitted(true);
   };
 
+  const infoItems = [
+    getContent('contact_help_item_1', 'Jenis peralatan atau layanan yang dibutuhkan.'),
+    getContent('contact_help_item_2', 'Kondisi lokasi dan ruang pemasangan.'),
+    getContent('contact_help_item_3', 'Estimasi waktu implementasi yang diharapkan.'),
+  ];
+
   return (
     <main>
       <PageHero
-        eyebrow="Kontak kami"
+        eyebrow={getContent('contact_hero_eyebrow', 'Kontak kami')}
         title={
           <>
-            Mari diskusikan kebutuhan <span className="gradient-text">teknis Anda.</span>
+            {getContent('contact_hero_title', 'Mari diskusikan kebutuhan')}{' '}
+            <span className="gradient-text">
+              {getContent('contact_hero_title_highlight', 'teknis Anda.')}
+            </span>
           </>
         }
-        description="Ceritakan kebutuhan produk, instalasi, atau layanan yang sedang Anda rencanakan. Tim kami akan membantu menyiapkan langkah selanjutnya."
+        description={getContent(
+          'contact_hero_description',
+          'Ceritakan kebutuhan produk, instalasi, atau layanan yang sedang Anda rencanakan. Tim kami akan membantu menyiapkan langkah selanjutnya.',
+        )}
       >
         <div className="mt-8 flex flex-wrap gap-3">
           <span className="site-chip">
-            <Clock3 size={14} /> Respon pada jam kerja
+            <Clock3 size={14} /> {getContent('contact_hero_chip_1', 'Respon pada jam kerja')}
           </span>
           <span className="site-chip">
-            <MessageCircle size={14} /> Konsultasi awal
+            <MessageCircle size={14} /> {getContent('contact_hero_chip_2', 'Konsultasi awal')}
           </span>
         </div>
       </PageHero>
@@ -72,7 +88,7 @@ export default function ContactPage() {
                 <Mail size={20} />
               </div>
               <div>
-                <h3>Email</h3>
+                <h3>{getContent('contact_email_label', 'Email')}</h3>
                 <a href={`mailto:${email}`}>{email}</a>
               </div>
             </motion.div>
@@ -87,7 +103,7 @@ export default function ContactPage() {
                 <Phone size={20} />
               </div>
               <div>
-                <h3>Telepon</h3>
+                <h3>{getContent('contact_phone_label', 'Telepon')}</h3>
                 <a href={`tel:${phone.replace(/[^+\d]/g, '')}`}>{phone}</a>
               </div>
             </motion.div>
@@ -102,21 +118,20 @@ export default function ContactPage() {
                 <MapPin size={20} />
               </div>
               <div>
-                <h3>Alamat</h3>
+                <h3>{getContent('contact_address_label', 'Alamat')}</h3>
                 <p>{address}</p>
               </div>
             </motion.div>
 
             <div className="site-card p-6" data-aos="fade-up" data-aos-delay="220">
               <h3 className="text-sm font-bold">
-                Informasi yang membantu kami merespons lebih cepat
+                {getContent(
+                  'contact_help_title',
+                  'Informasi yang membantu kami merespons lebih cepat',
+                )}
               </h3>
               <ul className="mt-4 grid gap-3 text-sm leading-6 text-[var(--text-secondary)]">
-                {[
-                  'Jenis peralatan atau layanan yang dibutuhkan.',
-                  'Kondisi lokasi dan ruang pemasangan.',
-                  'Estimasi waktu implementasi yang diharapkan.',
-                ].map((item) => (
+                {infoItems.map((item) => (
                   <li key={item} className="flex items-start gap-2">
                     <CheckCircle2 size={16} className="mt-1 shrink-0 text-[var(--success)]" />
                     {item}
@@ -129,13 +144,17 @@ export default function ContactPage() {
           <motion.div className="site-card contact-form" data-aos="fade-left">
             <div className="flex items-start justify-between gap-6">
               <div>
-                <div className="site-eyebrow">Kirim pesan</div>
+                <div className="site-eyebrow">
+                  {getContent('contact_form_eyebrow', 'Kirim pesan')}
+                </div>
                 <h2 className="text-3xl font-black tracking-[-0.04em]">
-                  Ceritakan kebutuhan Anda.
+                  {getContent('contact_form_title', 'Ceritakan kebutuhan Anda.')}
                 </h2>
                 <p className="mt-3 text-sm leading-6 text-[var(--text-secondary)]">
-                  Lengkapi form berikut. Data hanya digunakan untuk komunikasi terkait permintaan
-                  Anda.
+                  {getContent(
+                    'contact_form_description',
+                    'Lengkapi form berikut. Data hanya digunakan untuk komunikasi terkait permintaan Anda.',
+                  )}
                 </p>
               </div>
               <span className="contact-icon hidden sm:grid">
@@ -145,55 +164,71 @@ export default function ContactPage() {
 
             <form className="form-grid" onSubmit={handleSubmit}>
               <div className="form-field">
-                <label htmlFor="name">Nama</label>
+                <label htmlFor="name">{getContent('contact_form_name_label', 'Nama')}</label>
                 <input
                   id="name"
                   name="name"
                   required
                   className="site-input"
-                  placeholder="Nama lengkap"
+                  placeholder={getContent('contact_form_name_placeholder', 'Nama lengkap')}
                 />
               </div>
               <div className="form-field">
-                <label htmlFor="email">Email</label>
+                <label htmlFor="email">{getContent('contact_form_email_label', 'Email')}</label>
                 <input
                   id="email"
                   name="email"
                   type="email"
                   required
                   className="site-input"
-                  placeholder="nama@email.com"
+                  placeholder={getContent('contact_form_email_placeholder', 'nama@email.com')}
                 />
               </div>
               <div className="form-field form-field-full">
-                <label htmlFor="phone">Nomor telepon</label>
-                <input id="phone" name="phone" className="site-input" placeholder="+62 ..." />
+                <label htmlFor="phone">
+                  {getContent('contact_form_phone_label', 'Nomor telepon')}
+                </label>
+                <input
+                  id="phone"
+                  name="phone"
+                  className="site-input"
+                  placeholder={getContent('contact_form_phone_placeholder', '+62 ...')}
+                />
               </div>
               <div className="form-field form-field-full">
-                <label htmlFor="message">Pesan</label>
+                <label htmlFor="message">{getContent('contact_form_message_label', 'Pesan')}</label>
                 <textarea
                   id="message"
                   name="message"
                   rows={6}
                   required
                   className="site-input resize-none"
-                  placeholder="Jelaskan produk, layanan, atau kebutuhan teknis Anda..."
+                  placeholder={getContent(
+                    'contact_form_message_placeholder',
+                    'Jelaskan produk, layanan, atau kebutuhan teknis Anda...',
+                  )}
                 />
               </div>
               <div className="form-field-full flex flex-col gap-4 sm:flex-row sm:items-center">
                 <button type="submit" className="site-button site-button-primary">
-                  Kirim Pesan <Send size={17} />
+                  {getContent('contact_form_submit_button', 'Kirim Pesan')} <Send size={17} />
                 </button>
                 <span className="text-xs leading-5 text-[var(--text-muted)]">
-                  Kami akan menghubungi Anda kembali pada jam operasional.
+                  {getContent(
+                    'contact_form_note',
+                    'Kami akan menghubungi Anda kembali pada jam operasional.',
+                  )}
                 </span>
               </div>
             </form>
 
             {submitted && (
               <div className="form-success" role="status">
-                <CheckCircle2 size={17} /> Pesan sudah dicatat pada tampilan. Hubungkan form ke
-                layanan email/API untuk pengiriman otomatis.
+                <CheckCircle2 size={17} />{' '}
+                {getContent(
+                  'contact_form_success',
+                  'Pesan sudah dicatat pada tampilan. Hubungkan form ke layanan email/API untuk pengiriman otomatis.',
+                )}
               </div>
             )}
           </motion.div>
@@ -202,7 +237,7 @@ export default function ContactPage() {
         <div className="site-card map-card" data-aos="fade-up">
           <iframe
             src={mapUrl}
-            title="Lokasi MP Katalog Teknik"
+            title={getContent('contact_map_title', 'Lokasi MP Katalog Teknik')}
             allowFullScreen
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"

@@ -4,6 +4,8 @@ import { getDatabase } from '../../../lib/database/neon';
 
 const DEFAULT_WA_NUMBER = '+6285640100044';
 const DEFAULT_WA_MESSAGE = 'Halo, saya ingin bertanya tentang produk Anda.';
+const DEFAULT_WA_ARIA_LABEL = 'Chat WhatsApp';
+const DEFAULT_WA_SCREEN_READER_LABEL = 'Buka chat WhatsApp';
 
 function normalizeWhatsAppNumber(rawNumber: string) {
   const trimmed = rawNumber.trim();
@@ -36,6 +38,8 @@ export default async function FloatingWhatsApp() {
   let whatsappEnabled = true;
   let whatsappNumber = DEFAULT_WA_NUMBER;
   let whatsappMessage = DEFAULT_WA_MESSAGE;
+  let whatsappAriaLabel = DEFAULT_WA_ARIA_LABEL;
+  let whatsappScreenReaderLabel = DEFAULT_WA_SCREEN_READER_LABEL;
 
   try {
     const sql = getDatabase();
@@ -43,7 +47,13 @@ export default async function FloatingWhatsApp() {
     const rows = (await sql`
       SELECT key, value
       FROM settings
-      WHERE key IN ('whatsapp_enabled', 'whatsapp_number', 'whatsapp_message')
+      WHERE key IN (
+        'whatsapp_enabled',
+        'whatsapp_number',
+        'whatsapp_message',
+        'whatsapp_aria_label',
+        'whatsapp_screen_reader_label'
+      )
     `) as Array<{ key: string; value: string | null }>;
 
     const map = rows.reduce<Record<string, string>>((accumulator, row) => {
@@ -65,6 +75,16 @@ export default async function FloatingWhatsApp() {
       map.whatsapp_message && map.whatsapp_message.trim().length > 0
         ? map.whatsapp_message
         : DEFAULT_WA_MESSAGE;
+
+    whatsappAriaLabel =
+      map.whatsapp_aria_label && map.whatsapp_aria_label.trim().length > 0
+        ? map.whatsapp_aria_label
+        : DEFAULT_WA_ARIA_LABEL;
+
+    whatsappScreenReaderLabel =
+      map.whatsapp_screen_reader_label && map.whatsapp_screen_reader_label.trim().length > 0
+        ? map.whatsapp_screen_reader_label
+        : DEFAULT_WA_SCREEN_READER_LABEL;
   } catch (error) {
     console.error('Gagal memuat pengaturan WhatsApp:', error);
   }
@@ -81,11 +101,11 @@ export default async function FloatingWhatsApp() {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="Chat WhatsApp"
+      aria-label={whatsappAriaLabel}
       className="fixed bottom-5 right-5 z-[90] inline-flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_10px_25px_rgba(37,211,102,0.45)] transition hover:scale-[1.04] hover:bg-[#1fb85a] focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:ring-offset-2 focus:ring-offset-slate-950 md:bottom-7 md:right-7"
     >
       <MessageCircleMore className="h-7 w-7" />
-      <span className="sr-only">Buka chat WhatsApp</span>
+      <span className="sr-only">{whatsappScreenReaderLabel}</span>
     </a>
   );
 }

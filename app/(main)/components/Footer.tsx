@@ -52,11 +52,11 @@ function SocialGlyph({ kind }: { kind: 'tiktok' | 'facebook' | 'youtube' | 'inst
 }
 
 const quickLinks = [
-  { href: '/', label: 'Beranda' },
-  { href: '/products', label: 'Produk' },
-  { href: '/services', label: 'Layanan' },
-  { href: '/gallery', label: 'Galeri' },
-  { href: '/contact', label: 'Kontak' },
+  { href: '/', key: 'footer_link_home', fallback: 'Beranda' },
+  { href: '/products', key: 'footer_link_products', fallback: 'Produk' },
+  { href: '/services', key: 'footer_link_services', fallback: 'Layanan' },
+  { href: '/gallery', key: 'footer_link_gallery', fallback: 'Galeri' },
+  { href: '/contact', key: 'footer_link_contact', fallback: 'Kontak' },
 ];
 
 export default function Footer() {
@@ -106,6 +106,10 @@ export default function Footer() {
     [settings],
   );
 
+  const getContent = (key: string, fallback: string) => {
+    return settingsMap[key]?.trim() || fallback;
+  };
+
   const socialLinks = [
     { label: 'TikTok', href: settingsMap.link_tiktok, kind: 'tiktok' as const },
     { label: 'Facebook', href: settingsMap.link_fb, kind: 'facebook' as const },
@@ -124,29 +128,38 @@ export default function Footer() {
       <div className="section-shell">
         <div className="footer-cta" data-aos="zoom-in">
           <div>
-            <div className="site-eyebrow">Mari berkolaborasi</div>
-            <h2>Butuh solusi peralatan yang tepat?</h2>
-            <p>Diskusikan kebutuhan workshop dan operasional Anda bersama tim kami.</p>
+            <div className="site-eyebrow">
+              {getContent('footer_cta_eyebrow', 'Mari berkolaborasi')}
+            </div>
+            <h2>{getContent('footer_cta_title', 'Butuh solusi peralatan yang tepat?')}</h2>
+            <p>
+              {getContent(
+                'footer_cta_description',
+                'Diskusikan kebutuhan workshop dan operasional Anda bersama tim kami.',
+              )}
+            </p>
           </div>
 
           <Link href="/contact" className="site-button site-button-primary">
-            Mulai Konsultasi <ArrowUpRight size={18} />
+            {getContent('footer_cta_button', 'Mulai Konsultasi')} <ArrowUpRight size={18} />
           </Link>
         </div>
 
         <div className="footer-grid">
           <div className="footer-brand" data-aos="fade-up">
             <Link href="/" className="brand-mark">
-              <span className="brand-symbol">MP</span>
+              <span className="brand-symbol">{getContent('footer_brand_initials', 'MP')}</span>
               <span className="brand-copy">
-                <strong>Katalog Teknik</strong>
-                <small>Professional Equipment</small>
+                <strong>{getContent('footer_brand_name', 'Katalog Teknik')}</strong>
+                <small>{getContent('footer_brand_tagline', 'Professional Equipment')}</small>
               </span>
             </Link>
 
             <p>
-              Mitra penyedia peralatan otomotif, hidraulis, dan perlengkapan teknik dengan fokus
-              pada kualitas, presisi, dan layanan purna jual.
+              {getContent(
+                'footer_brand_description',
+                'Mitra penyedia peralatan otomotif, hidraulis, dan perlengkapan teknik dengan fokus pada kualitas, presisi, dan layanan purna jual.',
+              )}
             </p>
 
             <div className="footer-socials">
@@ -166,19 +179,19 @@ export default function Footer() {
           </div>
 
           <div data-aos="fade-up" data-aos-delay="80">
-            <h3 className="footer-title">Jelajahi</h3>
+            <h3 className="footer-title">{getContent('footer_navigation_title', 'Jelajahi')}</h3>
 
             <ul className="footer-links">
               {quickLinks.map((item) => (
                 <li key={item.href}>
-                  <Link href={item.href}>{item.label}</Link>
+                  <Link href={item.href}>{getContent(item.key, item.fallback)}</Link>
                 </li>
               ))}
             </ul>
           </div>
 
           <div data-aos="fade-up" data-aos-delay="160">
-            <h3 className="footer-title">Hubungi</h3>
+            <h3 className="footer-title">{getContent('footer_contact_title', 'Hubungi')}</h3>
 
             <ul className="footer-contact-list">
               <li>
@@ -199,32 +212,37 @@ export default function Footer() {
           </div>
 
           <div data-aos="fade-up" data-aos-delay="240">
-            <h3 className="footer-title">Jam Operasional</h3>
+            <h3 className="footer-title">{getContent('footer_hours_title', 'Jam Operasional')}</h3>
 
             <div className="footer-hours">
               <p>
-                <span>Senin – Jumat</span>
-                <strong>09.00 – 16.30</strong>
+                <span>{getContent('footer_hours_weekday_label', 'Senin – Jumat')}</span>
+                <strong>{getContent('footer_hours_weekday_value', '09.00 – 16.30')}</strong>
               </p>
 
               <p>
-                <span>Sabtu</span>
-                <strong>09.00 – 15.00</strong>
+                <span>{getContent('footer_hours_saturday_label', 'Sabtu')}</span>
+                <strong>{getContent('footer_hours_saturday_value', '09.00 – 15.00')}</strong>
               </p>
 
               <p>
-                <span>Minggu</span>
-                <strong className="footer-closed">Libur</strong>
+                <span>{getContent('footer_hours_sunday_label', 'Minggu')}</span>
+                <strong className="footer-closed">
+                  {getContent('footer_hours_sunday_value', 'Libur')}
+                </strong>
               </p>
             </div>
           </div>
         </div>
 
         <div className="footer-bottom">
-          <p>© {new Date().getFullYear()} MP Katalog Teknik. All rights reserved.</p>
+          <p>
+            © {new Date().getFullYear()}{' '}
+            {getContent('footer_copyright', 'MP Katalog Teknik. All rights reserved.')}
+          </p>
 
           <div>
-            <span>Built for precision</span>
+            <span>{getContent('footer_bottom_tagline', 'Built for precision')}</span>
             <span className="footer-pulse" />
           </div>
         </div>

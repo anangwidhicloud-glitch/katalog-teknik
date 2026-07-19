@@ -20,6 +20,11 @@ type GalleryRow = {
   imageUrl?: string | null;
 };
 
+type SettingRow = {
+  key: string;
+  value?: string | null;
+};
+
 const fallbackItems: GalleryRow[] = [
   {
     id: 'g1',
@@ -74,6 +79,19 @@ const fallbackItems: GalleryRow[] = [
 export default function GalleryPage() {
   const { data, error, refresh } = useSheetData<GalleryRow>('Gallery');
 
+  const { data: settingRows, refresh: refreshSettings } = useSheetData<SettingRow>('Settings');
+
+  const content = useMemo<Record<string, string>>(() => {
+    return settingRows.reduce<Record<string, string>>((result, setting) => {
+      result[setting.key] = setting.value ?? '';
+      return result;
+    }, {});
+  }, [settingRows]);
+
+  const getContent = (key: string, fallback: string) => {
+    return content[key]?.trim() || fallback;
+  };
+
   const rows = data.length > 0 ? data : fallbackItems;
 
   const [category, setCategory] = useState('Semua');
@@ -92,7 +110,8 @@ export default function GalleryPage() {
 
   useEffect(() => {
     void refresh();
-  }, [refresh]);
+    void refreshSettings();
+  }, [refresh, refreshSettings]);
 
   useEffect(() => {
     if (!selectedItem) {
@@ -121,21 +140,28 @@ export default function GalleryPage() {
   return (
     <main>
       <PageHero
-        eyebrow="Galeri proyek"
+        eyebrow={getContent('gallery_hero_eyebrow', 'Galeri proyek')}
         title={
           <>
-            Lihat bagaimana solusi kami <span className="gradient-text">bekerja nyata.</span>
+            {getContent('gallery_hero_title', 'Lihat bagaimana solusi kami')}{' '}
+            <span className="gradient-text">
+              {getContent('gallery_hero_title_highlight', 'bekerja nyata.')}
+            </span>
           </>
         }
-        description="Dokumentasi produk, instalasi, dan konfigurasi workshop yang menunjukkan detail, skala, dan kualitas implementasi."
+        description={getContent(
+          'gallery_hero_description',
+          'Dokumentasi produk, instalasi, dan konfigurasi workshop yang menunjukkan detail, skala, dan kualitas implementasi.',
+        )}
       >
         <div className="mt-8 flex flex-wrap gap-3">
           <span className="site-chip">
-            <Images size={14} /> {rows.length} dokumentasi
+            <Images size={14} /> {rows.length}{' '}
+            {getContent('gallery_documentation_label', 'dokumentasi')}
           </span>
 
           <span className="site-chip">
-            <Sparkles size={14} /> Workshop-ready
+            <Sparkles size={14} /> {getContent('gallery_workshop_ready_label', 'Workshop-ready')}
           </span>
         </div>
       </PageHero>
@@ -153,19 +179,22 @@ export default function GalleryPage() {
                 onClick={() => setCategory(item)}
                 className={`filter-button ${category === item ? 'is-active' : ''}`}
               >
-                {item}
+                {item === 'Semua' ? getContent('gallery_all_category_label', 'Semua') : item}
               </button>
             ))}
           </div>
 
           <span className="text-xs font-bold uppercase tracking-[.12em] text-[var(--text-muted)]">
-            {filtered.length} item
+            {filtered.length} {getContent('gallery_item_label', 'item')}
           </span>
         </div>
 
         {error && data.length === 0 && (
           <p className="mt-5 text-sm text-[var(--text-muted)]">
-            Galeri online belum dapat dimuat. Dokumentasi contoh ditampilkan.
+            {getContent(
+              'gallery_load_error',
+              'Galeri online belum dapat dimuat. Dokumentasi contoh ditampilkan.',
+            )}
           </p>
         )}
 
@@ -238,13 +267,13 @@ export default function GalleryPage() {
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="site-chip border-white/20 bg-black/20 text-white/80">
-                        {item.category || 'Workshop'}
+                        {item.category || getContent('gallery_default_category', 'Workshop')}
                       </span>
 
                       {item.mediaType === 'youtube' && (
                         <span className="site-chip border-red-300/20 bg-red-600/80 text-white">
                           <Video size={13} />
-                          Video
+                          {getContent('gallery_video_label', 'Video')}
                         </span>
                       )}
                     </div>
@@ -263,11 +292,13 @@ export default function GalleryPage() {
                   </div>
 
                   <div>
-                    <h2 className="gallery-card-title">{item.title || 'Workshop Project'}</h2>
+                    <h2 className="gallery-card-title">
+                      {item.title || getContent('gallery_default_title', 'Workshop Project')}
+                    </h2>
 
                     <p className="gallery-card-location">
                       <MapPin size={13} className="mr-1 inline" />{' '}
-                      {item.location || 'Workshop Area'}
+                      {item.location || getContent('gallery_default_location', 'Workshop Area')}
                     </p>
                   </div>
                 </div>
@@ -280,19 +311,19 @@ export default function GalleryPage() {
           {[
             {
               value: `${rows.length}+`,
-              label: 'Dokumentasi',
+              label: getContent('gallery_stat_1_label', 'Dokumentasi'),
             },
             {
               value: `${Math.max(categories.length - 1, 1)}`,
-              label: 'Kategori proyek',
+              label: getContent('gallery_stat_2_label', 'Kategori proyek'),
             },
             {
-              value: 'Real',
-              label: 'Workshop setup',
+              value: getContent('gallery_stat_3_value', 'Real'),
+              label: getContent('gallery_stat_3_label', 'Workshop setup'),
             },
             {
-              value: 'Ready',
-              label: 'Operational use',
+              value: getContent('gallery_stat_4_value', 'Ready'),
+              label: getContent('gallery_stat_4_label', 'Operational use'),
             },
           ].map((item, index) => (
             <div
@@ -394,19 +425,21 @@ export default function GalleryPage() {
                         <span className="site-chip self-start border-sky-300/20 bg-sky-400/10 text-sky-200">
                           <Sparkles size={13} />
 
-                          {selectedItem.category || 'Dokumentasi'}
+                          {selectedItem.category ||
+                            getContent('gallery_modal_default_category', 'Dokumentasi')}
                         </span>
 
                         {selectedItem.mediaType === 'youtube' && (
                           <span className="site-chip border-red-300/20 bg-red-500/10 text-red-200">
                             <Video size={13} />
-                            Video YouTube
+                            {getContent('gallery_youtube_label', 'Video YouTube')}
                           </span>
                         )}
                       </div>
 
                       <h2 className="mt-6 text-3xl font-black tracking-[-0.045em] text-white sm:text-4xl">
-                        {selectedItem.title || 'Detail Pekerjaan'}
+                        {selectedItem.title ||
+                          getContent('gallery_modal_default_title', 'Detail Pekerjaan')}
                       </h2>
 
                       <div className="mt-5 flex items-start gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.035] p-4 text-sm text-slate-300">
@@ -416,23 +449,27 @@ export default function GalleryPage() {
 
                         <div>
                           <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">
-                            Lokasi pekerjaan
+                            {getContent('gallery_location_label', 'Lokasi pekerjaan')}
                           </p>
 
                           <p className="mt-1 leading-6">
-                            {selectedItem.location || 'Lokasi tidak dicantumkan'}
+                            {selectedItem.location ||
+                              getContent('gallery_location_empty', 'Lokasi tidak dicantumkan')}
                           </p>
                         </div>
                       </div>
 
                       <div className="mt-7 border-t border-white/10 pt-6">
                         <p className="text-xs font-bold uppercase tracking-[0.15em] text-slate-500">
-                          Detail pekerjaan
+                          {getContent('gallery_detail_label', 'Detail pekerjaan')}
                         </p>
 
                         <p className="mt-4 whitespace-pre-line text-sm leading-7 text-slate-300 sm:text-[15px]">
                           {selectedItem.description ||
-                            'Belum ada detail pekerjaan untuk dokumentasi ini.'}
+                            getContent(
+                              'gallery_detail_empty',
+                              'Belum ada detail pekerjaan untuk dokumentasi ini.',
+                            )}
                         </p>
                       </div>
 
@@ -442,7 +479,7 @@ export default function GalleryPage() {
                           onClick={() => setSelectedItem(null)}
                           className="site-button site-button-secondary"
                         >
-                          Tutup Detail
+                          {getContent('gallery_close_button', 'Tutup Detail')}
                         </button>
                       </div>
                     </div>
