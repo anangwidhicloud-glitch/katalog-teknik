@@ -3,10 +3,7 @@ import { cookies } from 'next/headers';
 
 import { db } from '@/db';
 import { admins } from '@/db/schema';
-import {
-  ADMIN_SESSION_COOKIE,
-  verifyAdminSession,
-} from '@/lib/auth/admin-session';
+import { ADMIN_SESSION_COOKIE, verifyAdminSession } from '@/lib/auth/admin-session';
 import { env } from '@/lib/env';
 
 export async function isAdminAuthenticated() {
@@ -32,12 +29,7 @@ export async function isAdminAuthenticated() {
   const [admin] = await db
     .select({ id: admins.id })
     .from(admins)
-    .where(
-      and(
-        eq(admins.email, email),
-        eq(admins.isActive, true),
-      ),
-    )
+    .where(and(eq(admins.email, email), eq(admins.isActive, true)))
     .limit(1);
 
   return Boolean(admin);

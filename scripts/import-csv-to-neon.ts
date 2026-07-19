@@ -13,28 +13,19 @@ if (!databaseUrl) {
 }
 
 const sql = neon(databaseUrl);
-const dataDirectory = path.resolve(
-  process.cwd(),
-  'migration-data',
-);
+const dataDirectory = path.resolve(process.cwd(), 'migration-data');
 
 type CsvRow = Record<string, string>;
 
 function readCsv(filename: string): CsvRow[] {
-  const filePath = path.join(
-    dataDirectory,
-    filename,
-  );
+  const filePath = path.join(dataDirectory, filename);
 
   if (!fs.existsSync(filePath)) {
     console.log(`Lewati ${filename}: file tidak ada.`);
     return [];
   }
 
-  const content = fs.readFileSync(
-    filePath,
-    'utf8',
-  );
+  const content = fs.readFileSync(filePath, 'utf8');
 
   return parse(content, {
     columns: true,
@@ -44,21 +35,14 @@ function readCsv(filename: string): CsvRow[] {
   }) as CsvRow[];
 }
 
-function toNumber(
-  value: string | undefined,
-  fallback = 0,
-) {
+function toNumber(value: string | undefined, fallback = 0) {
   if (!value) return fallback;
 
-  const normalized = value
-    .replace(/[^\d,.-]/g, '')
-    .replace(',', '.');
+  const normalized = value.replace(/[^\d,.-]/g, '').replace(',', '.');
 
   const result = Number(normalized);
 
-  return Number.isFinite(result)
-    ? result
-    : fallback;
+  return Number.isFinite(result) ? result : fallback;
 }
 
 function toBoolean(value: string | undefined) {
@@ -118,9 +102,7 @@ async function importProducts() {
     `;
   }
 
-  console.log(
-    `Products selesai: ${rows.length} baris.`,
-  );
+  console.log(`Products selesai: ${rows.length} baris.`);
 }
 
 async function importSettings() {
@@ -147,9 +129,7 @@ async function importSettings() {
     `;
   }
 
-  console.log(
-    `Settings selesai: ${rows.length} baris.`,
-  );
+  console.log(`Settings selesai: ${rows.length} baris.`);
 }
 
 async function importGallery() {
@@ -188,9 +168,7 @@ async function importGallery() {
     `;
   }
 
-  console.log(
-    `Gallery selesai: ${rows.length} baris.`,
-  );
+  console.log(`Gallery selesai: ${rows.length} baris.`);
 }
 
 async function importServices() {
@@ -226,17 +204,14 @@ async function importServices() {
     `;
   }
 
-  console.log(
-    `Services selesai: ${rows.length} baris.`,
-  );
+  console.log(`Services selesai: ${rows.length} baris.`);
 }
 
 async function importCustomers() {
   const rows = readCsv('Customers.csv');
 
   for (const [index, row] of rows.entries()) {
-    const name =
-      row.Nama_Customer?.trim();
+    const name = row.Nama_Customer?.trim();
 
     if (!name) continue;
 
@@ -261,9 +236,7 @@ async function importCustomers() {
     `;
   }
 
-  console.log(
-    `Customers selesai: ${rows.length} baris.`,
-  );
+  console.log(`Customers selesai: ${rows.length} baris.`);
 }
 
 async function main() {

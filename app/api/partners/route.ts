@@ -22,10 +22,7 @@ function normalizeLogoUrl(value: unknown) {
   try {
     const url = new URL(value.trim());
 
-    if (
-      url.protocol !== 'https:' ||
-      url.hostname !== 'res.cloudinary.com'
-    ) {
+    if (url.protocol !== 'https:' || url.hostname !== 'res.cloudinary.com') {
       return null;
     }
 
@@ -68,26 +65,17 @@ export async function GET() {
   } catch (error) {
     console.error('Gagal mengambil logo mitra:', error);
 
-    return NextResponse.json(
-      { message: 'Gagal mengambil logo mitra.' },
-      { status: 500 },
-    );
+    return NextResponse.json({ message: 'Gagal mengambil logo mitra.' }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   if (!(await isAdminAuthenticated())) {
-    return NextResponse.json(
-      { message: 'Tidak memiliki akses.' },
-      { status: 401 },
-    );
+    return NextResponse.json({ message: 'Tidak memiliki akses.' }, { status: 401 });
   }
 
   if (!isSameOrigin(request)) {
-    return NextResponse.json(
-      { message: 'Permintaan tidak valid.' },
-      { status: 403 },
-    );
+    return NextResponse.json({ message: 'Permintaan tidak valid.' }, { status: 403 });
   }
 
   try {
@@ -96,10 +84,7 @@ export async function POST(request: NextRequest) {
     const urlLogo = normalizeLogoUrl(body.urlLogo);
 
     if (!nama) {
-      return NextResponse.json(
-        { message: 'Nama mitra wajib diisi.' },
-        { status: 400 },
-      );
+      return NextResponse.json({ message: 'Nama mitra wajib diisi.' }, { status: 400 });
     }
 
     if (!urlLogo) {
@@ -123,9 +108,6 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Gagal menambah logo mitra:', error);
 
-    return NextResponse.json(
-      { message: 'Gagal menambah logo mitra.' },
-      { status: 500 },
-    );
+    return NextResponse.json({ message: 'Gagal menambah logo mitra.' }, { status: 500 });
   }
 }

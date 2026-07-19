@@ -29,8 +29,8 @@ const ShootingStar = ({ index }: { index: number }) => {
   // mismatch server/client tidak mungkin.
   const left = ((index + 1) * 9301 + 1 * 49297) % 10000;
   const top = ((index + 1) * 9301 + 2 * 49297) % 5000;
-  const repeatDelay = (((index + 1) * 9301 + 3 * 49297) % 5000) / 1000 * 5;
-  const duration = (((index + 1) * 9301 + 4 * 49297) % 5000) / 1000 * 2 + 2;
+  const repeatDelay = ((((index + 1) * 9301 + 3 * 49297) % 5000) / 1000) * 5;
+  const duration = ((((index + 1) * 9301 + 4 * 49297) % 5000) / 1000) * 2 + 2;
 
   return (
     <motion.div
@@ -45,4 +45,3 @@ const ShootingStar = ({ index }: { index: number }) => {
     />
   );
 };
-

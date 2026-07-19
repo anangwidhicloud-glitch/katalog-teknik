@@ -29,7 +29,6 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-
   return (
     <>
       <motion.div className="site-scroll-progress" style={{ scaleX: progress }} />
@@ -55,7 +54,11 @@ export default function Header() {
             {navItems.map((item) => {
               const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
               return (
-                <Link key={item.href} href={item.href} className={`site-nav-link ${active ? 'is-active' : ''}`}>
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`site-nav-link ${active ? 'is-active' : ''}`}
+                >
                   {item.label}
                   {active && <motion.span layoutId="nav-active" className="site-nav-active" />}
                 </Link>
@@ -99,7 +102,8 @@ export default function Header() {
             >
               <div className="mobile-menu-heading">Navigasi</div>
               {navItems.map((item, index) => {
-                const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
+                const active =
+                  item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
                 return (
                   <motion.div
                     key={item.href}
@@ -107,14 +111,22 @@ export default function Header() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.04 }}
                   >
-                    <Link href={item.href} onClick={() => setMenuOpen(false)} className={`mobile-menu-link ${active ? 'is-active' : ''}`}>
+                    <Link
+                      href={item.href}
+                      onClick={() => setMenuOpen(false)}
+                      className={`mobile-menu-link ${active ? 'is-active' : ''}`}
+                    >
                       <span>0{index + 1}</span>
                       {item.label}
                     </Link>
                   </motion.div>
                 );
               })}
-              <Link href="/contact" onClick={() => setMenuOpen(false)} className="site-button site-button-primary mt-4 w-full justify-center">
+              <Link
+                href="/contact"
+                onClick={() => setMenuOpen(false)}
+                className="site-button site-button-primary mt-4 w-full justify-center"
+              >
                 Hubungi Kami <ArrowUpRight size={17} />
               </Link>
               <div className="mt-4 flex items-center justify-between border-t border-[var(--border)] pt-4">

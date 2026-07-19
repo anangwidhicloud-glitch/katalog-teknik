@@ -6,11 +6,7 @@ import { isAdminAuthenticated } from '@/lib/require-admin';
 export const runtime = 'nodejs';
 
 const MAX_FILE_SIZE = 3 * 1024 * 1024;
-const ALLOWED_TYPES = [
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-];
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 function isSameOrigin(request: NextRequest) {
   const origin = request.headers.get('origin');
@@ -26,17 +22,11 @@ function isSameOrigin(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   if (!(await isAdminAuthenticated())) {
-    return NextResponse.json(
-      { message: 'Tidak memiliki akses.' },
-      { status: 401 },
-    );
+    return NextResponse.json({ message: 'Tidak memiliki akses.' }, { status: 401 });
   }
 
   if (!isSameOrigin(request)) {
-    return NextResponse.json(
-      { message: 'Permintaan tidak valid.' },
-      { status: 403 },
-    );
+    return NextResponse.json({ message: 'Permintaan tidak valid.' }, { status: 403 });
   }
 
   try {
@@ -44,10 +34,7 @@ export async function POST(request: NextRequest) {
     const file = formData.get('file');
 
     if (!(file instanceof File)) {
-      return NextResponse.json(
-        { message: 'File logo tidak ditemukan.' },
-        { status: 400 },
-      );
+      return NextResponse.json({ message: 'File logo tidak ditemukan.' }, { status: 400 });
     }
 
     if (!ALLOWED_TYPES.includes(file.type)) {
@@ -58,10 +45,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json(
-        { message: 'Ukuran logo maksimal 3MB.' },
-        { status: 400 },
-      );
+      return NextResponse.json({ message: 'Ukuran logo maksimal 3MB.' }, { status: 400 });
     }
 
     const bytes = await file.arrayBuffer();
@@ -115,9 +99,6 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Upload logo mitra gagal:', error);
 
-    return NextResponse.json(
-      { message: 'Gagal mengunggah logo mitra.' },
-      { status: 500 },
-    );
+    return NextResponse.json({ message: 'Gagal mengunggah logo mitra.' }, { status: 500 });
   }
 }

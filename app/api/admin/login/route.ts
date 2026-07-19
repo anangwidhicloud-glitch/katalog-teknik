@@ -28,20 +28,11 @@ export async function POST(request: Request) {
   try {
     body = (await request.json()) as LoginBody;
   } catch {
-    return NextResponse.json(
-      { message: 'Format request tidak valid.' },
-      { status: 400 },
-    );
+    return NextResponse.json({ message: 'Format request tidak valid.' }, { status: 400 });
   }
 
-  const email =
-    typeof body.email === 'string'
-      ? body.email.trim().toLowerCase()
-      : '';
-  const password =
-    typeof body.password === 'string'
-      ? body.password
-      : '';
+  const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
+  const password = typeof body.password === 'string' ? body.password : '';
 
   try {
     const superAdminEmail = env.ADMIN_EMAIL.trim().toLowerCase();
@@ -56,27 +47,19 @@ export async function POST(request: Request) {
             passwordHash: admins.passwordHash,
           })
           .from(admins)
-          .where(
-            and(
-              eq(admins.email, email),
-              eq(admins.isActive, true),
-            ),
-          )
+          .where(and(eq(admins.email, email), eq(admins.isActive, true)))
           .limit(1);
 
     const passwordHash = isSuperAdminEmail
       ? env.ADMIN_PASSWORD_HASH
-      : regularAdmin?.passwordHash ?? env.ADMIN_PASSWORD_HASH;
+      : (regularAdmin?.passwordHash ?? env.ADMIN_PASSWORD_HASH);
 
     const validPassword = await verifyPassword(password, passwordHash);
     const validAccount = isSuperAdminEmail || Boolean(regularAdmin);
 
     if (!validAccount || !validPassword) {
       await delay(650);
-      return NextResponse.json(
-        { message: 'Email atau password salah.' },
-        { status: 401 },
-      );
+      return NextResponse.json({ message: 'Email atau password salah.' }, { status: 401 });
     }
 
     if (regularAdmin) {
@@ -105,9 +88,6 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Gagal login admin:', error);
 
-    return NextResponse.json(
-      { message: 'Login gagal. Silakan coba kembali.' },
-      { status: 500 },
-    );
+    return NextResponse.json({ message: 'Login gagal. Silakan coba kembali.' }, { status: 500 });
   }
 }

@@ -57,9 +57,6 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error('Gagal menyimpan analytics:', error);
-    return NextResponse.json(
-      { message: 'Analytics tidak dapat disimpan.' },
-      { status: 400 },
-    );
+    return NextResponse.json({ message: 'Analytics tidak dapat disimpan.' }, { status: 400 });
   }
 }

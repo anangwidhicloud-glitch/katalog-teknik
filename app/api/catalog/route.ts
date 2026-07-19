@@ -5,14 +5,9 @@ import { getDatabase } from '@/lib/database/neon';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET(
-  request: NextRequest,
-) {
+export async function GET(request: NextRequest) {
   try {
-    const resource =
-      request.nextUrl.searchParams.get(
-        'resource',
-      );
+    const resource = request.nextUrl.searchParams.get('resource');
 
     const sql = getDatabase();
 
@@ -79,10 +74,7 @@ export async function GET(
       return NextResponse.json(services);
     }
 
-    if (
-      resource === 'Customers' ||
-      resource === 'Customer'
-    ) {
+    if (resource === 'Customers' || resource === 'Customer') {
       const customers = await sql`
         SELECT
           name AS "Nama_Customer",
@@ -96,21 +88,16 @@ export async function GET(
 
     return NextResponse.json(
       {
-        message:
-          'Resource tidak dikenal.',
+        message: 'Resource tidak dikenal.',
       },
       { status: 400 },
     );
   } catch (error) {
-    console.error(
-      'Gagal membaca Neon:',
-      error,
-    );
+    console.error('Gagal membaca Neon:', error);
 
     return NextResponse.json(
       {
-        message:
-          'Gagal membaca database.',
+        message: 'Gagal membaca database.',
       },
       { status: 500 },
     );

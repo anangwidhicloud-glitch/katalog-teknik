@@ -24,17 +24,9 @@ const themeScript = `
 })();
 `;
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="id"
-      suppressHydrationWarning
-      data-scroll-behavior="smooth"
-    >
+    <html lang="id" suppressHydrationWarning data-scroll-behavior="smooth">
       <body>
         <Script
           id="theme-init"

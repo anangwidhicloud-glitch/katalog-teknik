@@ -20,18 +20,12 @@ export default function AdminLoginPage() {
   const router = useRouter();
 
   const [email, setEmail] = useState('');
-  const [password, setPassword] =
-    useState('');
-  const [showPassword, setShowPassword] =
-    useState(false);
-  const [isSubmitting, setIsSubmitting] =
-    useState(false);
-  const [errorMessage, setErrorMessage] =
-    useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleSubmit = async (
-    event: FormEvent<HTMLFormElement>,
-  ) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (isSubmitting) {
@@ -42,39 +36,31 @@ export default function AdminLoginPage() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(
-        '/api/admin/login',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'same-origin',
-          body: JSON.stringify({
-            email,
-            password,
-          }),
+      const response = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-      );
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
 
       const result = (await response.json()) as {
         message?: string;
       };
 
       if (!response.ok) {
-        setErrorMessage(
-          result.message ||
-            'Login gagal. Silakan coba kembali.',
-        );
+        setErrorMessage(result.message || 'Login gagal. Silakan coba kembali.');
         return;
       }
 
       router.replace('/admin');
       router.refresh();
     } catch {
-      setErrorMessage(
-        'Tidak dapat terhubung ke server. Periksa koneksi lalu coba lagi.',
-      );
+      setErrorMessage('Tidak dapat terhubung ke server. Periksa koneksi lalu coba lagi.');
     } finally {
       setIsSubmitting(false);
     }
@@ -93,32 +79,19 @@ export default function AdminLoginPage() {
 
       <div className="relative mx-auto grid min-h-screen w-full max-w-7xl items-stretch lg:grid-cols-[1.08fr_0.92fr]">
         <section className="hidden min-h-screen flex-col justify-between border-r border-white/10 px-12 py-12 lg:flex xl:px-16">
-          <Link
-            href="/"
-            className="inline-flex w-fit items-center gap-3 text-white"
-          >
+          <Link href="/" className="inline-flex w-fit items-center gap-3 text-white">
             <span className="grid h-11 w-11 place-items-center rounded-2xl border border-blue-400/30 bg-blue-500/15 shadow-[0_0_40px_rgba(59,130,246,0.15)]">
-              <Wrench
-                size={22}
-                aria-hidden="true"
-              />
+              <Wrench size={22} aria-hidden="true" />
             </span>
             <span>
-              <span className="block text-sm font-bold tracking-[0.18em]">
-                KATALOG TEKNIK
-              </span>
-              <span className="block text-xs text-slate-400">
-                Administration System
-              </span>
+              <span className="block text-sm font-bold tracking-[0.18em]">KATALOG TEKNIK</span>
+              <span className="block text-xs text-slate-400">Administration System</span>
             </span>
           </Link>
 
           <div className="max-w-xl">
             <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-blue-400/20 bg-blue-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-blue-200">
-              <ShieldCheck
-                size={15}
-                aria-hidden="true"
-              />
+              <ShieldCheck size={15} aria-hidden="true" />
               Area pengelolaan terbatas
             </div>
 
@@ -130,10 +103,8 @@ export default function AdminLoginPage() {
             </h1>
 
             <p className="mt-6 max-w-lg text-base leading-8 text-slate-400">
-              Masuk untuk mengelola produk,
-              konten halaman, informasi kontak,
-              dan pengaturan website dari satu
-              dashboard.
+              Masuk untuk mengelola produk, konten halaman, informasi kontak, dan pengaturan website
+              dari satu dashboard.
             </p>
 
             <div className="mt-10 grid gap-4">
@@ -142,15 +113,8 @@ export default function AdminLoginPage() {
                 'Kredensial tidak dikirim ke browser',
                 'Sesi berakhir otomatis setelah 8 jam',
               ].map((item) => (
-                <div
-                  key={item}
-                  className="flex items-center gap-3 text-sm text-slate-300"
-                >
-                  <CheckCircle2
-                    size={18}
-                    className="text-sky-300"
-                    aria-hidden="true"
-                  />
+                <div key={item} className="flex items-center gap-3 text-sm text-slate-300">
+                  <CheckCircle2 size={18} className="text-sky-300" aria-hidden="true" />
                   {item}
                 </div>
               ))}
@@ -158,8 +122,7 @@ export default function AdminLoginPage() {
           </div>
 
           <p className="text-xs text-slate-500">
-            © {new Date().getFullYear()} Katalog
-            Teknik. Sistem internal perusahaan.
+            © {new Date().getFullYear()} Katalog Teknik. Sistem internal perusahaan.
           </p>
         </section>
 
@@ -171,10 +134,7 @@ export default function AdminLoginPage() {
                 className="inline-flex items-center gap-2 text-sm font-semibold text-white"
               >
                 <span className="grid h-10 w-10 place-items-center rounded-xl border border-blue-400/30 bg-blue-500/15">
-                  <Wrench
-                    size={19}
-                    aria-hidden="true"
-                  />
+                  <Wrench size={19} aria-hidden="true" />
                 </span>
                 Katalog Teknik
               </Link>
@@ -183,28 +143,17 @@ export default function AdminLoginPage() {
             <div className="rounded-[28px] border border-white/10 bg-white/[0.055] p-6 shadow-[0_30px_90px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:p-8">
               <div className="mb-8">
                 <div className="mb-5 grid h-12 w-12 place-items-center rounded-2xl border border-sky-400/25 bg-sky-400/10 text-sky-200">
-                  <LockKeyhole
-                    size={23}
-                    aria-hidden="true"
-                  />
+                  <LockKeyhole size={23} aria-hidden="true" />
                 </div>
 
-                <p className="text-sm font-medium text-sky-300">
-                  Selamat datang kembali
-                </p>
-                <h2 className="mt-2 text-3xl font-semibold tracking-tight">
-                  Masuk ke Admin Panel
-                </h2>
+                <p className="text-sm font-medium text-sky-300">Selamat datang kembali</p>
+                <h2 className="mt-2 text-3xl font-semibold tracking-tight">Masuk ke Admin Panel</h2>
                 <p className="mt-3 text-sm leading-6 text-slate-400">
-                  Gunakan akun administrator yang
-                  telah dikonfigurasi.
+                  Gunakan akun administrator yang telah dikonfigurasi.
                 </p>
               </div>
 
-              <form
-                onSubmit={handleSubmit}
-                className="space-y-5"
-              >
+              <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
                   <label
                     htmlFor="admin-email"
@@ -226,11 +175,7 @@ export default function AdminLoginPage() {
                       autoComplete="email"
                       required
                       value={email}
-                      onChange={(event) =>
-                        setEmail(
-                          event.target.value,
-                        )
-                      }
+                      onChange={(event) => setEmail(event.target.value)}
                       placeholder="admin@perusahaan.com"
                       className="h-[52px] w-full rounded-xl border border-white/10 bg-black/20 py-3.5 pl-12 pr-4 text-sm text-white outline-none transition placeholder:text-slate-600 hover:border-white/20 focus:border-sky-400/60 focus:ring-4 focus:ring-sky-400/10"
                     />
@@ -254,48 +199,25 @@ export default function AdminLoginPage() {
                     <input
                       id="admin-password"
                       name="password"
-                      type={
-                        showPassword
-                          ? 'text'
-                          : 'password'
-                      }
+                      type={showPassword ? 'text' : 'password'}
                       autoComplete="current-password"
                       required
                       value={password}
-                      onChange={(event) =>
-                        setPassword(
-                          event.target.value,
-                        )
-                      }
+                      onChange={(event) => setPassword(event.target.value)}
                       placeholder="Masukkan kata sandi"
                       className="h-[52px] w-full rounded-xl border border-white/10 bg-black/20 py-3.5 pl-12 pr-12 text-sm text-white outline-none transition placeholder:text-slate-600 hover:border-white/20 focus:border-sky-400/60 focus:ring-4 focus:ring-sky-400/10"
                     />
 
                     <button
                       type="button"
-                      onClick={() =>
-                        setShowPassword(
-                          (current) =>
-                            !current,
-                        )
-                      }
-                      aria-label={
-                        showPassword
-                          ? 'Sembunyikan kata sandi'
-                          : 'Tampilkan kata sandi'
-                      }
+                      onClick={() => setShowPassword((current) => !current)}
+                      aria-label={showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
                       className="absolute right-3 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-lg text-slate-500 transition hover:bg-white/5 hover:text-slate-200"
                     >
                       {showPassword ? (
-                        <EyeOff
-                          size={18}
-                          aria-hidden="true"
-                        />
+                        <EyeOff size={18} aria-hidden="true" />
                       ) : (
-                        <Eye
-                          size={18}
-                          aria-hidden="true"
-                        />
+                        <Eye size={18} aria-hidden="true" />
                       )}
                     </button>
                   </div>
@@ -317,20 +239,13 @@ export default function AdminLoginPage() {
                 >
                   {isSubmitting ? (
                     <>
-                      <LoaderCircle
-                        size={18}
-                        className="animate-spin"
-                        aria-hidden="true"
-                      />
+                      <LoaderCircle size={18} className="animate-spin" aria-hidden="true" />
                       Memverifikasi...
                     </>
                   ) : (
                     <>
                       Masuk ke Dashboard
-                      <ShieldCheck
-                        size={18}
-                        aria-hidden="true"
-                      />
+                      <ShieldCheck size={18} aria-hidden="true" />
                     </>
                   )}
                 </button>
@@ -341,18 +256,14 @@ export default function AdminLoginPage() {
                   href="/"
                   className="inline-flex items-center gap-2 text-sm text-slate-400 transition hover:text-white"
                 >
-                  <ArrowLeft
-                    size={16}
-                    aria-hidden="true"
-                  />
+                  <ArrowLeft size={16} aria-hidden="true" />
                   Kembali ke beranda
                 </Link>
               </div>
             </div>
 
             <p className="mt-6 text-center text-xs leading-5 text-slate-500">
-              Hanya pengguna berwenang yang
-              diperbolehkan mengakses halaman ini.
+              Hanya pengguna berwenang yang diperbolehkan mengakses halaman ini.
             </p>
           </div>
         </section>

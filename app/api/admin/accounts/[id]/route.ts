@@ -38,12 +38,7 @@ const adminSelection = {
 };
 
 function isUniqueViolation(error: unknown) {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'code' in error &&
-    error.code === '23505'
-  );
+  return typeof error === 'object' && error !== null && 'code' in error && error.code === '23505';
 }
 
 function parseAdminId(value: string) {
@@ -53,20 +48,14 @@ function parseAdminId(value: string) {
 
 export async function PUT(request: Request, context: RouteContext) {
   if (!(await requireSuperAdmin())) {
-    return NextResponse.json(
-      { message: 'Khusus super admin.' },
-      { status: 403 },
-    );
+    return NextResponse.json({ message: 'Khusus super admin.' }, { status: 403 });
   }
 
   const { id } = await context.params;
   const adminId = parseAdminId(id);
 
   if (!adminId) {
-    return NextResponse.json(
-      { message: 'ID admin tidak valid.' },
-      { status: 400 },
-    );
+    return NextResponse.json({ message: 'ID admin tidak valid.' }, { status: 400 });
   }
 
   try {
@@ -107,53 +96,35 @@ export async function PUT(request: Request, context: RouteContext) {
       .returning(adminSelection);
 
     if (!updatedAdmin) {
-      return NextResponse.json(
-        { message: 'Admin tidak ditemukan.' },
-        { status: 404 },
-      );
+      return NextResponse.json({ message: 'Admin tidak ditemukan.' }, { status: 404 });
     }
 
     return NextResponse.json(updatedAdmin);
   } catch (error) {
     if (error instanceof ZodError) {
-      return NextResponse.json(
-        { message: 'Data admin tidak valid.' },
-        { status: 400 },
-      );
+      return NextResponse.json({ message: 'Data admin tidak valid.' }, { status: 400 });
     }
 
     if (isUniqueViolation(error)) {
-      return NextResponse.json(
-        { message: 'Email admin sudah digunakan.' },
-        { status: 409 },
-      );
+      return NextResponse.json({ message: 'Email admin sudah digunakan.' }, { status: 409 });
     }
 
     console.error('Gagal memperbarui akun admin:', error);
 
-    return NextResponse.json(
-      { message: 'Gagal memperbarui akun admin.' },
-      { status: 500 },
-    );
+    return NextResponse.json({ message: 'Gagal memperbarui akun admin.' }, { status: 500 });
   }
 }
 
 export async function DELETE(_request: Request, context: RouteContext) {
   if (!(await requireSuperAdmin())) {
-    return NextResponse.json(
-      { message: 'Khusus super admin.' },
-      { status: 403 },
-    );
+    return NextResponse.json({ message: 'Khusus super admin.' }, { status: 403 });
   }
 
   const { id } = await context.params;
   const adminId = parseAdminId(id);
 
   if (!adminId) {
-    return NextResponse.json(
-      { message: 'ID admin tidak valid.' },
-      { status: 400 },
-    );
+    return NextResponse.json({ message: 'ID admin tidak valid.' }, { status: 400 });
   }
 
   try {
@@ -163,19 +134,13 @@ export async function DELETE(_request: Request, context: RouteContext) {
       .returning({ id: admins.id });
 
     if (!deletedAdmin) {
-      return NextResponse.json(
-        { message: 'Admin tidak ditemukan.' },
-        { status: 404 },
-      );
+      return NextResponse.json({ message: 'Admin tidak ditemukan.' }, { status: 404 });
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Gagal menghapus akun admin:', error);
 
-    return NextResponse.json(
-      { message: 'Gagal menghapus akun admin.' },
-      { status: 500 },
-    );
+    return NextResponse.json({ message: 'Gagal menghapus akun admin.' }, { status: 500 });
   }
 }

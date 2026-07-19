@@ -1,12 +1,7 @@
 declare module '@tabler/icons-react' {
-  import type {
-    ComponentType,
-    SVGProps,
-  } from 'react';
+  import type { ComponentType, SVGProps } from 'react';
 
-  type IconComponent = ComponentType<
-    SVGProps<SVGSVGElement>
-  >;
+  type IconComponent = ComponentType<SVGProps<SVGSVGElement>>;
 
   export const IconBasket: IconComponent;
   export const IconCalendar: IconComponent;
@@ -19,4 +14,3 @@ declare module '@tabler/icons-react' {
   const _default: Record<string, IconComponent>;
   export default _default;
 }
-

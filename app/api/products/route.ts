@@ -16,25 +16,16 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     if (error instanceof ZodError) {
-      return NextResponse.json(
-        { message: 'Parameter pencarian tidak valid.' },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: 'Parameter pencarian tidak valid.' }, { status: 400 });
     }
 
-    return NextResponse.json(
-      { message: 'Gagal mengambil data produk.' },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: 'Gagal mengambil data produk.' }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   if (!(await isAdminAuthenticated())) {
-    return NextResponse.json(
-      { message: 'Tidak memiliki akses.' },
-      { status: 401 }
-    );
+    return NextResponse.json({ message: 'Tidak memiliki akses.' }, { status: 401 });
   }
 
   try {
@@ -42,19 +33,13 @@ export async function POST(request: NextRequest) {
     const product = await createProduct(body);
 
     return NextResponse.json(product, { status: 201 });
-} catch (error) {
-  console.error("POST /api/products error:", error);
+  } catch (error) {
+    console.error('POST /api/products error:', error);
 
-  if (error instanceof ZodError) {
-    return NextResponse.json(
-      { message: "Data produk tidak valid." },
-      { status: 400 }
-    );
+    if (error instanceof ZodError) {
+      return NextResponse.json({ message: 'Data produk tidak valid.' }, { status: 400 });
+    }
+
+    return NextResponse.json({ message: 'Gagal membuat produk.' }, { status: 500 });
   }
-
-  return NextResponse.json(
-    { message: "Gagal membuat produk." },
-    { status: 500 }
-  );
-}
 }

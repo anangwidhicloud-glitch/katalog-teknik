@@ -1,14 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import {
-  ArrowRight,
-  BadgeCheck,
-  Crosshair,
-  Handshake,
-  Lightbulb,
-  ShieldCheck,
-} from 'lucide-react';
+import { ArrowRight, BadgeCheck, Crosshair, Handshake, Lightbulb, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import PageHero from '../components/PageHero';
 import SectionHeading from '../components/SectionHeading';
@@ -17,17 +10,20 @@ const values = [
   {
     icon: Crosshair,
     title: 'Presisi',
-    description: 'Kami memperhatikan detail teknis agar rekomendasi dan implementasi sesuai kebutuhan nyata.',
+    description:
+      'Kami memperhatikan detail teknis agar rekomendasi dan implementasi sesuai kebutuhan nyata.',
   },
   {
     icon: Handshake,
     title: 'Kolaborasi',
-    description: 'Komunikasi terbuka membantu kami membangun solusi bersama, bukan sekadar menawarkan produk.',
+    description:
+      'Komunikasi terbuka membantu kami membangun solusi bersama, bukan sekadar menawarkan produk.',
   },
   {
     icon: Lightbulb,
     title: 'Perbaikan Berkelanjutan',
-    description: 'Kami terus mengevaluasi cara kerja dan pilihan teknologi untuk menghasilkan layanan yang lebih efektif.',
+    description:
+      'Kami terus mengevaluasi cara kerja dan pilihan teknologi untuk menghasilkan layanan yang lebih efektif.',
   },
 ];
 
@@ -36,20 +32,32 @@ export default function AboutPage() {
     <main>
       <PageHero
         eyebrow="Tentang kami"
-        title={<>Dedikasi pada <span className="gradient-text">presisi.</span></>}
+        title={
+          <>
+            Dedikasi pada <span className="gradient-text">presisi.</span>
+          </>
+        }
         description="Kami membantu bisnis dan workshop menemukan peralatan yang relevan, memahami penerapannya, dan menjaga performanya untuk jangka panjang."
       >
         <div className="mt-8 flex flex-wrap gap-3">
-          <span className="site-chip"><BadgeCheck size={14} /> Kualitas terkurasi</span>
-          <span className="site-chip"><ShieldCheck size={14} /> Layanan terpercaya</span>
+          <span className="site-chip">
+            <BadgeCheck size={14} /> Kualitas terkurasi
+          </span>
+          <span className="site-chip">
+            <ShieldCheck size={14} /> Layanan terpercaya
+          </span>
         </div>
       </PageHero>
 
       <section className="section-block section-shell pt-0">
         <div className="about-manifesto">
-          <div className="about-manifesto-label" data-aos="fade-right">01 / Manifesto</div>
+          <div className="about-manifesto-label" data-aos="fade-right">
+            01 / Manifesto
+          </div>
           <p className="about-manifesto-copy" data-aos="blur-in">
-            Kami percaya peralatan yang baik bukan hanya soal spesifikasi. Ia harus <span className="gradient-text">sesuai kebutuhan</span>, mudah dioperasikan, dan didukung oleh layanan yang bertanggung jawab.
+            Kami percaya peralatan yang baik bukan hanya soal spesifikasi. Ia harus{' '}
+            <span className="gradient-text">sesuai kebutuhan</span>, mudah dioperasikan, dan
+            didukung oleh layanan yang bertanggung jawab.
           </p>
         </div>
       </section>
@@ -72,7 +80,9 @@ export default function AboutPage() {
                 data-aos-delay={String(index * 100)}
                 whileHover={{ y: -8 }}
               >
-                <div className="value-card-icon"><Icon size={23} /></div>
+                <div className="value-card-icon">
+                  <Icon size={23} />
+                </div>
                 <h3>{value.title}</h3>
                 <p>{value.description}</p>
               </motion.article>
@@ -90,7 +100,9 @@ export default function AboutPage() {
               MP
             </div>
             <div className="absolute bottom-8 left-8 right-8 flex items-center justify-between rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4 backdrop-blur-xl">
-              <span className="text-xs font-bold uppercase tracking-[.12em] text-[var(--text-muted)]">Precision in motion</span>
+              <span className="text-xs font-bold uppercase tracking-[.12em] text-[var(--text-muted)]">
+                Precision in motion
+              </span>
               <span className="h-2 w-2 rounded-full bg-[var(--success)] shadow-[0_0_14px_var(--success)]" />
             </div>
           </div>
@@ -108,8 +120,13 @@ export default function AboutPage() {
                 'Pendampingan teknis untuk implementasi yang lebih aman.',
                 'Hubungan jangka panjang yang dibangun melalui kepercayaan.',
               ].map((item) => (
-                <div key={item} className="flex items-start gap-3 text-sm leading-7 text-[var(--text-secondary)]">
-                  <span className="mt-1 grid h-6 w-6 shrink-0 place-items-center rounded-lg border border-[var(--border-strong)] text-[var(--accent-blue)]"><BadgeCheck size={14} /></span>
+                <div
+                  key={item}
+                  className="flex items-start gap-3 text-sm leading-7 text-[var(--text-secondary)]"
+                >
+                  <span className="mt-1 grid h-6 w-6 shrink-0 place-items-center rounded-lg border border-[var(--border-strong)] text-[var(--accent-blue)]">
+                    <BadgeCheck size={14} />
+                  </span>
                   {item}
                 </div>
               ))}
@@ -129,7 +146,12 @@ export default function AboutPage() {
             { value: '100%', label: 'Fokus kualitas' },
             { value: 'Long-term', label: 'Orientasi kemitraan' },
           ].map((item, index) => (
-            <div key={item.label} className="site-card stat-card" data-aos="zoom-in" data-aos-delay={String(index * 80)}>
+            <div
+              key={item.label}
+              className="site-card stat-card"
+              data-aos="zoom-in"
+              data-aos-delay={String(index * 80)}
+            >
               <strong>{item.value}</strong>
               <span>{item.label}</span>
             </div>

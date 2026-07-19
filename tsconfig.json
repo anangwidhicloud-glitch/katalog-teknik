@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -22,32 +18,16 @@
         "name": "next"
       }
     ],
-"paths": {
-  "@/*": ["./*"],
-      "@/components/*": [
-        "./components/*"
-      ],
-      "@/hooks/*": [
-        "./hooks/*"
-      ],
-      "@/locales/*": [
-        "./app/locales/*"
-      ],
-      "@/models/*": [
-        "./app/models/*"
-      ],
-      "@/styles/*": [
-        "./app/styles/*"
-      ],
-      "@/themes/*": [
-        "./app/themes/*"
-      ],
-      "@/utils/*": [
-        "./app/utils/*"
-      ],
-      "@/types/*": [
-        "./app/types/*"
-      ]
+    "paths": {
+      "@/*": ["./*"],
+      "@/components/*": ["./components/*"],
+      "@/hooks/*": ["./hooks/*"],
+      "@/locales/*": ["./app/locales/*"],
+      "@/models/*": ["./app/models/*"],
+      "@/styles/*": ["./app/styles/*"],
+      "@/themes/*": ["./app/themes/*"],
+      "@/utils/*": ["./app/utils/*"],
+      "@/types/*": ["./app/types/*"]
     }
   },
   "include": [

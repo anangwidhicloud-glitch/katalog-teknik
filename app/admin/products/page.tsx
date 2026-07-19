@@ -47,7 +47,9 @@ function isTruthy(value?: boolean | string | null) {
   if (typeof value === 'boolean') return value;
 
   return ['true', 'ya', 'yes', '1'].includes(
-    String(value ?? '').trim().toLowerCase(),
+    String(value ?? '')
+      .trim()
+      .toLowerCase(),
   );
 }
 
@@ -57,53 +59,29 @@ export default function ProductsPage() {
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('Semua kategori');
-async function handleDelete(id: number) {
-  const confirmDelete = window.confirm(
-    'Apakah Anda yakin ingin menghapus produk ini?'
-  );
+  async function handleDelete(id: number) {
+    const confirmDelete = window.confirm('Apakah Anda yakin ingin menghapus produk ini?');
 
-  if (!confirmDelete) {
-    return;
-  }
-
-
-  try {
-    const response = await fetch(
-      `/api/products/${id}`,
-      {
-        method: 'DELETE',
-      },
-    );
-
-
-    const result = await response.json();
-
-
-    if (!response.ok) {
-      throw new Error(
-        result.message ||
-        'Gagal menghapus produk.',
-      );
+    if (!confirmDelete) {
+      return;
     }
 
+    try {
+      const response = await fetch(`/api/products/${id}`, {
+        method: 'DELETE',
+      });
 
-    setProducts((prev) =>
-      prev.filter(
-        (product) => product.id !== id,
-      ),
-    );
+      const result = await response.json();
 
+      if (!response.ok) {
+        throw new Error(result.message || 'Gagal menghapus produk.');
+      }
 
-  } catch (error) {
-
-    alert(
-      error instanceof Error
-        ? error.message
-        : 'Terjadi kesalahan.',
-    );
-
+      setProducts((prev) => prev.filter((product) => product.id !== id));
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Terjadi kesalahan.');
+    }
   }
-}
   useEffect(() => {
     const controller = new AbortController();
 
@@ -131,7 +109,11 @@ async function handleDelete(id: number) {
         if (requestError instanceof DOMException && requestError.name === 'AbortError') return;
 
         console.error('Gagal memuat produk dari Neon:', requestError);
-        setError(requestError instanceof Error ? requestError.message : 'Terjadi kesalahan saat memuat produk.');
+        setError(
+          requestError instanceof Error
+            ? requestError.message
+            : 'Terjadi kesalahan saat memuat produk.',
+        );
       } finally {
         setLoading(false);
       }
@@ -175,38 +157,49 @@ async function handleDelete(id: number) {
   return (
     <div className="space-y-6">
       <section className="admin-panel relative overflow-hidden rounded-[26px] px-6 py-7 sm:px-8">
-        <div aria-hidden="true" className="absolute -right-16 -top-20 h-52 w-52 rounded-full bg-blue-500/10 blur-3xl" />
+        <div
+          aria-hidden="true"
+          className="absolute -right-16 -top-20 h-52 w-52 rounded-full bg-blue-500/10 blur-3xl"
+        />
         <div className="relative flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
-<div>
-  <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-blue-300/15 bg-blue-400/[0.07] px-3 py-1.5 text-xs font-semibold text-blue-200">
-    <Boxes className="h-3.5 w-3.5" />
-    Data katalog
-  </div>
+          <div>
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-blue-300/15 bg-blue-400/[0.07] px-3 py-1.5 text-xs font-semibold text-blue-200">
+              <Boxes className="h-3.5 w-3.5" />
+              Data katalog
+            </div>
 
-  <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
-    Manajemen Produk
-  </h2>
+            <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+              Manajemen Produk
+            </h2>
 
-  <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
-    Telusuri produk yang tersimpan langsung di Neon PostgreSQL.
-  </p>
-</div>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
+              Telusuri produk yang tersimpan langsung di Neon PostgreSQL.
+            </p>
+          </div>
 
-<Link
-  href="/admin/products/add"
-  className="inline-flex h-11 items-center justify-center rounded-xl bg-sky-500 px-5 text-sm font-semibold text-white transition hover:bg-sky-400"
->
-  Tambah Produk
-</Link>
+          <Link
+            href="/admin/products/add"
+            className="inline-flex h-11 items-center justify-center rounded-xl bg-sky-500 px-5 text-sm font-semibold text-white transition hover:bg-sky-400"
+          >
+            Tambah Produk
+          </Link>
 
           <div className="grid grid-cols-2 gap-3 sm:flex">
             <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] px-4 py-3">
-              <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-slate-600">Total produk</p>
-              <p className="mt-1 text-xl font-semibold text-white">{loading ? '—' : products.length}</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-slate-600">
+                Total produk
+              </p>
+              <p className="mt-1 text-xl font-semibold text-white">
+                {loading ? '—' : products.length}
+              </p>
             </div>
             <div className="rounded-2xl border border-amber-300/10 bg-amber-400/[0.045] px-4 py-3">
-              <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-amber-200/45">Terlaris</p>
-              <p className="mt-1 text-xl font-semibold text-amber-100">{loading ? '—' : bestSellerCount}</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-amber-200/45">
+                Terlaris
+              </p>
+              <p className="mt-1 text-xl font-semibold text-amber-100">
+                {loading ? '—' : bestSellerCount}
+              </p>
             </div>
           </div>
         </div>
@@ -254,7 +247,9 @@ async function handleDelete(id: number) {
 
         <div className="mt-4 flex items-center justify-between border-t border-white/[0.06] pt-4 text-xs text-slate-600">
           <span>
-            Menampilkan <strong className="font-semibold text-slate-400">{filteredProducts.length}</strong> dari {products.length} produk
+            Menampilkan{' '}
+            <strong className="font-semibold text-slate-400">{filteredProducts.length}</strong> dari{' '}
+            {products.length} produk
           </span>
           {(search || category !== 'Semua kategori') && (
             <button
@@ -304,12 +299,8 @@ async function handleDelete(id: number) {
                   <th className="px-4 py-4">Harga</th>
                   <th className="px-4 py-4">Rating</th>
                   <th className="px-4 py-4">Status</th>
-                  <th className="px-6 py-4 text-right">
-                      Nomor
-                  </th>
-                  <th className="px-6 py-4 text-right">
-                      Aksi
-                    </th>
+                  <th className="px-6 py-4 text-right">Nomor</th>
+                  <th className="px-6 py-4 text-right">Aksi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/[0.055]">
@@ -343,7 +334,9 @@ async function handleDelete(id: number) {
                               {product.name || 'Produk tanpa nama'}
                             </p>
                             <p className="mt-1 max-w-[300px] truncate text-xs text-slate-600">
-                              {[product.secondCategory, product.subCategory].filter(Boolean).join(' • ') || 'Detail kategori belum tersedia'}
+                              {[product.secondCategory, product.subCategory]
+                                .filter(Boolean)
+                                .join(' • ') || 'Detail kategori belum tersedia'}
                             </p>
                           </div>
                         </div>
@@ -353,7 +346,9 @@ async function handleDelete(id: number) {
                           {product.mainCategory || 'Tanpa kategori'}
                         </span>
                       </td>
-                      <td className="px-4 py-4 text-sm font-semibold text-sky-200">{formatCurrency(product.price)}</td>
+                      <td className="px-4 py-4 text-sm font-semibold text-sky-200">
+                        {formatCurrency(product.price)}
+                      </td>
                       <td className="px-4 py-4">
                         <span className="inline-flex items-center gap-1.5 text-sm text-amber-200">
                           <Star className="h-4 w-4 fill-amber-300 text-amber-300" />
@@ -370,33 +365,29 @@ async function handleDelete(id: number) {
                           <span className="text-xs text-slate-600">Reguler</span>
                         )}
                       </td>
-                      <td className="px-6 py-4 text-right text-xs font-medium text-slate-600">#{product.legacyNo || index + 1}</td>
+                      <td className="px-6 py-4 text-right text-xs font-medium text-slate-600">
+                        #{product.legacyNo || index + 1}
+                      </td>
                       <td className="px-6 py-4">
-  <div className="flex justify-end gap-2">
+                        <div className="flex justify-end gap-2">
+                          <Link
+                            href={`/admin/products/${product.id}/edit`}
+                            className="grid h-9 w-9 place-items-center rounded-lg border border-blue-300/10 bg-blue-400/[0.05] text-blue-200 transition hover:bg-blue-400/10"
+                            title="Edit produk"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Link>
 
-    <Link
-      href={`/admin/products/${product.id}/edit`}
-      className="grid h-9 w-9 place-items-center rounded-lg border border-blue-300/10 bg-blue-400/[0.05] text-blue-200 transition hover:bg-blue-400/10"
-      title="Edit produk"
-    >
-      <Pencil className="h-4 w-4" />
-    </Link>
-
-
-<button
-  type="button"
-  onClick={() =>
-    product.id &&
-    handleDelete(product.id)
-  }
-  className="grid h-9 w-9 place-items-center rounded-lg border border-red-300/10 bg-red-400/[0.05] text-red-200 transition hover:bg-red-400/10"
-  title="Hapus produk"
->
-  <Trash2 className="h-4 w-4" />
-</button>
-
-  </div>
-</td>
+                          <button
+                            type="button"
+                            onClick={() => product.id && handleDelete(product.id)}
+                            className="grid h-9 w-9 place-items-center rounded-lg border border-red-300/10 bg-red-400/[0.05] text-red-200 transition hover:bg-red-400/10"
+                            title="Hapus produk"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
                     </motion.tr>
                   ))}
                 </AnimatePresence>
@@ -407,7 +398,8 @@ async function handleDelete(id: number) {
       </section>
 
       <p className="text-center text-xs leading-5 text-slate-600">
-        Halaman ini membaca data langsung dari Neon PostgreSQL. Halaman ini membaca dan mengelola data langsung dari Neon PostgreSQL.
+        Halaman ini membaca data langsung dari Neon PostgreSQL. Halaman ini membaca dan mengelola
+        data langsung dari Neon PostgreSQL.
       </p>
     </div>
   );

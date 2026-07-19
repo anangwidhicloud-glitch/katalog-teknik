@@ -19,7 +19,6 @@ import {
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 
-
 type SettingRow = {
   key: string;
   value?: string;
@@ -50,9 +49,7 @@ const labelMap: Record<string, string> = {
 function formatLabel(key: string) {
   if (labelMap[key]) return labelMap[key];
 
-  return key
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  return key.replace(/_/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 function getGroup(key: string) {
@@ -115,9 +112,7 @@ export default function SettingsPage() {
         const result = await response.json();
 
         if (!response.ok) {
-          throw new Error(
-            result?.message || `Gagal memuat pengaturan (HTTP ${response.status}).`,
-          );
+          throw new Error(result?.message || `Gagal memuat pengaturan (HTTP ${response.status}).`);
         }
 
         if (!Array.isArray(result)) {
@@ -125,8 +120,7 @@ export default function SettingsPage() {
         }
 
         const rows = result.filter(
-          (item): item is SettingRow =>
-            typeof item?.key === 'string' && item.key.trim().length > 0,
+          (item): item is SettingRow => typeof item?.key === 'string' && item.key.trim().length > 0,
         );
 
         if (!cancelled) {
@@ -134,9 +128,7 @@ export default function SettingsPage() {
         }
       } catch (loadError) {
         const message =
-          loadError instanceof Error
-            ? loadError.message
-            : 'Gagal memuat pengaturan website.';
+          loadError instanceof Error ? loadError.message : 'Gagal memuat pengaturan website.';
 
         if (!cancelled) {
           setError(message);
@@ -202,70 +194,65 @@ export default function SettingsPage() {
     setSaveStatus((current) => ({ ...current, [key]: 'idle' }));
   };
 
-const handleSave = async (key: string) => {
-  if (saveStatus[key] === 'saving') return;
+  const handleSave = async (key: string) => {
+    if (saveStatus[key] === 'saving') return;
 
-  const savedValue = formState[key] ?? '';
-
-  setSaveStatus((current) => ({
-    ...current,
-    [key]: 'saving',
-  }));
-
-  try {
-    const response = await fetch('/api/settings', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        key,
-        value: savedValue,
-      }),
-    });
-
-    const result = (await response.json()) as {
-      message?: string;
-    };
-
-    if (!response.ok) {
-      throw new Error(
-        result.message ||
-          `Gagal memperbarui ${key}.`,
-      );
-    }
-
-    setOriginalState((current) => ({
-      ...current,
-      [key]: savedValue,
-    }));
-
-    setSettings((current) =>
-      current.map((item) =>
-        item.key === key ? { ...item, value: savedValue } : item,
-      ),
-    );
+    const savedValue = formState[key] ?? '';
 
     setSaveStatus((current) => ({
       ...current,
-      [key]: 'saved',
+      [key]: 'saving',
     }));
 
-    window.setTimeout(() => {
+    try {
+      const response = await fetch('/api/settings', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          key,
+          value: savedValue,
+        }),
+      });
+
+      const result = (await response.json()) as {
+        message?: string;
+      };
+
+      if (!response.ok) {
+        throw new Error(result.message || `Gagal memperbarui ${key}.`);
+      }
+
+      setOriginalState((current) => ({
+        ...current,
+        [key]: savedValue,
+      }));
+
+      setSettings((current) =>
+        current.map((item) => (item.key === key ? { ...item, value: savedValue } : item)),
+      );
+
       setSaveStatus((current) => ({
         ...current,
-        [key]: 'idle',
+        [key]: 'saved',
       }));
-    }, 2200);
-  } catch (saveError) {
-    console.error(saveError);
 
-    setSaveStatus((current) => ({
-      ...current,
-      [key]: 'error',
-    }));
-  }
-};
+      window.setTimeout(() => {
+        setSaveStatus((current) => ({
+          ...current,
+          [key]: 'idle',
+        }));
+      }, 2200);
+    } catch (saveError) {
+      console.error(saveError);
+
+      setSaveStatus((current) => ({
+        ...current,
+        [key]: 'error',
+      }));
+    }
+  };
 
   if (loading) {
     return (
@@ -279,16 +266,22 @@ const handleSave = async (key: string) => {
   return (
     <div className="space-y-6">
       <section className="admin-panel relative overflow-hidden rounded-[26px] px-6 py-7 sm:px-8">
-        <div aria-hidden="true" className="absolute -right-16 -top-24 h-56 w-56 rounded-full bg-violet-500/10 blur-3xl" />
+        <div
+          aria-hidden="true"
+          className="absolute -right-16 -top-24 h-56 w-56 rounded-full bg-violet-500/10 blur-3xl"
+        />
         <div className="relative flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
           <div>
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-violet-300/15 bg-violet-400/[0.07] px-3 py-1.5 text-xs font-semibold text-violet-200">
               <Sparkles className="h-3.5 w-3.5" />
               Content management
             </div>
-            <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">Pengaturan Teks Website</h2>
+            <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+              Pengaturan Teks Website
+            </h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
-              Edit tulisan website yang disimpan di Neon PostgreSQL. Setiap field tetap disimpan secara individual agar perubahan lebih aman.
+              Edit tulisan website yang disimpan di Neon PostgreSQL. Setiap field tetap disimpan
+              secara individual agar perubahan lebih aman.
             </p>
           </div>
 
@@ -386,10 +379,15 @@ const handleSave = async (key: string) => {
                   >
                     <div className="mb-3 flex items-start justify-between gap-4">
                       <div className="min-w-0">
-                        <label htmlFor={setting.key} className="block text-sm font-semibold text-slate-200">
+                        <label
+                          htmlFor={setting.key}
+                          className="block text-sm font-semibold text-slate-200"
+                        >
                           {formatLabel(setting.key)}
                         </label>
-                        <p className="mt-1 truncate font-mono text-[10px] text-slate-600">{setting.key}</p>
+                        <p className="mt-1 truncate font-mono text-[10px] text-slate-600">
+                          {setting.key}
+                        </p>
                       </div>
                       {changed && (
                         <span className="shrink-0 rounded-full border border-amber-300/10 bg-amber-400/[0.07] px-2 py-1 text-[9px] font-bold uppercase tracking-[0.1em] text-amber-200">
@@ -409,7 +407,13 @@ const handleSave = async (key: string) => {
                     ) : (
                       <input
                         id={setting.key}
-                        type={isRotationSpeed ? 'number' : setting.key.includes('email') ? 'email' : 'text'}
+                        type={
+                          isRotationSpeed
+                            ? 'number'
+                            : setting.key.includes('email')
+                              ? 'email'
+                              : 'text'
+                        }
                         min={isRotationSpeed ? 1000 : undefined}
                         step={isRotationSpeed ? 100 : undefined}
                         value={value}
@@ -460,13 +464,17 @@ const handleSave = async (key: string) => {
             <FileText className="h-7 w-7" />
           </span>
           <h3 className="mt-5 font-semibold text-slate-200">Field tidak ditemukan</h3>
-          <p className="mt-2 text-sm text-slate-500">Coba gunakan kata kunci pencarian yang berbeda.</p>
+          <p className="mt-2 text-sm text-slate-500">
+            Coba gunakan kata kunci pencarian yang berbeda.
+          </p>
         </section>
       )}
 
       <div className="flex items-start gap-3 rounded-2xl border border-sky-300/10 bg-sky-400/[0.045] p-4 text-xs leading-5 text-sky-100/65">
         <Link2 className="mt-0.5 h-4 w-4 shrink-0 text-sky-300" />
-        Perubahan disimpan langsung ke tabel <strong className="font-semibold text-sky-100">settings</strong> di Neon menggunakan key yang sama.
+        Perubahan disimpan langsung ke tabel{' '}
+        <strong className="font-semibold text-sky-100">settings</strong> di Neon menggunakan key
+        yang sama.
       </div>
     </div>
   );

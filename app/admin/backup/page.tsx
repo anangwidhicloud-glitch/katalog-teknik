@@ -93,16 +93,20 @@ export default function BackupRestorePage() {
   return (
     <main className="space-y-6">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-400">Super Admin</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-400">
+          Super Admin
+        </p>
         <h1 className="mt-2 text-3xl font-bold text-white">Backup & Restore Data</h1>
         <p className="mt-2 max-w-2xl text-sm text-slate-400">
-          Simpan data produk, galeri, konten website, sosial media, dan logo mitra dalam file Excel yang dapat dibuka dan diperiksa.
-          Akun admin dan kata sandi tidak ikut diekspor.
+          Simpan data produk, galeri, konten website, sosial media, dan logo mitra dalam file Excel
+          yang dapat dibuka dan diperiksa. Akun admin dan kata sandi tidak ikut diekspor.
         </p>
       </div>
 
       {(message || error) && (
-        <div className={`rounded-2xl border px-5 py-4 text-sm ${error ? 'border-red-500/30 bg-red-500/10 text-red-200' : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-200'}`}>
+        <div
+          className={`rounded-2xl border px-5 py-4 text-sm ${error ? 'border-red-500/30 bg-red-500/10 text-red-200' : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-200'}`}
+        >
           {error || message}
         </div>
       )}
@@ -114,7 +118,8 @@ export default function BackupRestorePage() {
           </div>
           <h2 className="mt-5 text-xl font-bold text-white">Buat Backup Excel</h2>
           <p className="mt-2 text-sm leading-6 text-slate-400">
-            Setiap tabel berada pada sheet terpisah agar mudah dibaca. File gambar tetap di Cloudinary; backup menyimpan URL dan public ID-nya.
+            Setiap tabel berada pada sheet terpisah agar mudah dibaca. File gambar tetap di
+            Cloudinary; backup menyimpan URL dan public ID-nya.
           </p>
           <button
             type="button"
@@ -133,7 +138,8 @@ export default function BackupRestorePage() {
           </div>
           <h2 className="mt-5 text-xl font-bold text-white">Restore Data</h2>
           <p className="mt-2 text-sm leading-6 text-slate-400">
-            Restore mengganti isi tabel yang terdapat dalam file backup. Gunakan file Excel asli yang dibuat oleh website ini.
+            Restore mengganti isi tabel yang terdapat dalam file backup. Gunakan file Excel asli
+            yang dibuat oleh website ini.
           </p>
 
           <input
@@ -150,7 +156,9 @@ export default function BackupRestorePage() {
               <ShieldAlert className="mt-0.5 shrink-0 text-amber-300" size={18} />
               <div>
                 <p className="text-sm font-semibold text-amber-200">Konfirmasi restore</p>
-                <p className="mt-1 text-xs text-slate-400">Ketik <strong className="text-white">RESTORE</strong> di bawah ini.</p>
+                <p className="mt-1 text-xs text-slate-400">
+                  Ketik <strong className="text-white">RESTORE</strong> di bawah ini.
+                </p>
               </div>
             </div>
             <input

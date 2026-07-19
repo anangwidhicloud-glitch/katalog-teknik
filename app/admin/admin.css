@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 .admin-shell {
   isolation: isolate;
@@ -83,7 +83,10 @@
   background: rgba(2, 8, 23, 0.48);
   color: #f8fafc;
   outline: none;
-  transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease,
+    box-shadow 180ms ease;
 }
 
 .admin-field:hover {
@@ -101,7 +104,8 @@
 }
 
 @keyframes admin-float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate3d(0, 0, 0) scale(1);
   }
   50% {

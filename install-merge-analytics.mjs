@@ -30,11 +30,11 @@ fs.writeFileSync(internalPath, internalSource, 'utf8');
 // Ambil analytics produk asli dari checkpoint Git yang masih lengkap.
 let productSource;
 try {
-  productSource = execFileSync(
-    'git',
-    ['show', 'b8ccf65:app/admin/analytics/page.tsx'],
-    { cwd: root, encoding: 'utf8', windowsHide: true },
-  );
+  productSource = execFileSync('git', ['show', 'b8ccf65:app/admin/analytics/page.tsx'], {
+    cwd: root,
+    encoding: 'utf8',
+    windowsHide: true,
+  });
 } catch {
   throw new Error(
     'Gagal mengambil analytics produk dari commit b8ccf65. Pastikan project ini repository Git katalog-teknik dan commit tersebut tersedia.',

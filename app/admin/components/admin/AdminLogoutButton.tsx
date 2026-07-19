@@ -4,11 +4,7 @@ import { LoaderCircle, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-export default function AdminLogoutButton({
-  compact = false,
-}: {
-  compact?: boolean;
-}) {
+export default function AdminLogoutButton({ compact = false }: { compact?: boolean }) {
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -45,9 +41,7 @@ export default function AdminLogoutButton({
         <LogOut className="h-[18px] w-[18px] shrink-0" />
       )}
       {!compact && (
-        <span className="text-sm font-semibold">
-          {isLoggingOut ? 'Keluar...' : 'Keluar'}
-        </span>
+        <span className="text-sm font-semibold">{isLoggingOut ? 'Keluar...' : 'Keluar'}</span>
       )}
     </button>
   );

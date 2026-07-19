@@ -32,14 +32,14 @@ type ProductRow = {
   mainCategory?: string | null;
   secondCategory?: string | null;
   subCategory?: string | null;
-price?: number | string | null;
-description?: string | null;
-hasDiscount?: boolean | string | null;
-discountPrice?: number | string | null;
-soldCount?: number | string | null;
-rating?: number | string | null;
-imageUrl?: string | null;
-isBestSeller?: boolean | string | null;
+  price?: number | string | null;
+  description?: string | null;
+  hasDiscount?: boolean | string | null;
+  discountPrice?: number | string | null;
+  soldCount?: number | string | null;
+  rating?: number | string | null;
+  imageUrl?: string | null;
+  isBestSeller?: boolean | string | null;
 };
 
 type SettingRow = {
@@ -67,12 +67,23 @@ const features = [
 ];
 
 const process = [
-  { title: 'Konsultasi', description: 'Kami memahami kebutuhan teknis, ruang, dan target operasional Anda.' },
-  { title: 'Rekomendasi', description: 'Tim menyusun pilihan produk dan konfigurasi yang paling relevan.' },
-  { title: 'Instalasi', description: 'Pemasangan dilakukan dengan prosedur kerja yang aman dan terukur.' },
-  { title: 'Pendampingan', description: 'Dukungan penggunaan dan perawatan menjaga investasi tetap optimal.' },
+  {
+    title: 'Konsultasi',
+    description: 'Kami memahami kebutuhan teknis, ruang, dan target operasional Anda.',
+  },
+  {
+    title: 'Rekomendasi',
+    description: 'Tim menyusun pilihan produk dan konfigurasi yang paling relevan.',
+  },
+  {
+    title: 'Instalasi',
+    description: 'Pemasangan dilakukan dengan prosedur kerja yang aman dan terukur.',
+  },
+  {
+    title: 'Pendampingan',
+    description: 'Dukungan penggunaan dan perawatan menjaga investasi tetap optimal.',
+  },
 ];
-
 
 function formatCurrency(value?: string | number | null) {
   const number = Number(String(value ?? '').replace(/[^0-9.-]/g, ''));
@@ -85,9 +96,7 @@ function formatCurrency(value?: string | number | null) {
   }).format(number);
 }
 
-function getNumericPrice(
-  value?: number | string | null,
-) {
+function getNumericPrice(value?: number | string | null) {
   return Number(value) || 0;
 }
 
@@ -98,41 +107,24 @@ function getDiscountPercent(
   const originalPrice = getNumericPrice(price);
   const finalPrice = getNumericPrice(discountPrice);
 
-  if (
-    originalPrice <= 0 ||
-    finalPrice <= 0 ||
-    finalPrice >= originalPrice
-  ) {
+  if (originalPrice <= 0 || finalPrice <= 0 || finalPrice >= originalPrice) {
     return 0;
   }
 
-  return Math.round(
-    ((originalPrice - finalPrice) / originalPrice) * 100,
-  );
+  return Math.round(((originalPrice - finalPrice) / originalPrice) * 100);
 }
 
-function formatSoldCount(
-  value?: number | string | null,
-) {
-  const soldCount = Math.max(
-    0,
-    Math.floor(Number(value) || 0),
-  );
+function formatSoldCount(value?: number | string | null) {
+  const soldCount = Math.max(0, Math.floor(Number(value) || 0));
 
   if (soldCount >= 1_000_000) {
-    const formatted = (soldCount / 1_000_000)
-      .toFixed(1)
-      .replace('.0', '')
-      .replace('.', ',');
+    const formatted = (soldCount / 1_000_000).toFixed(1).replace('.0', '').replace('.', ',');
 
     return `${formatted}JT+ terjual`;
   }
 
   if (soldCount >= 1_000) {
-    const formatted = (soldCount / 1_000)
-      .toFixed(1)
-      .replace('.0', '')
-      .replace('.', ',');
+    const formatted = (soldCount / 1_000).toFixed(1).replace('.0', '').replace('.', ',');
 
     return `${formatted}RB+ terjual`;
   }
@@ -140,22 +132,18 @@ function formatSoldCount(
   return `${soldCount.toLocaleString('id-ID')} terjual`;
 }
 
-function isTruthy(
-  value?: boolean | string | null,
-) {
+function isTruthy(value?: boolean | string | null) {
   if (typeof value === 'boolean') return value;
 
   return ['true', '1', 'yes', 'ya'].includes(
-    String(value ?? '').trim().toLowerCase(),
+    String(value ?? '')
+      .trim()
+      .toLowerCase(),
   );
 }
 
 function getProductCategory(product: ProductRow) {
-  return (
-    product.secondCategory?.trim() ||
-    product.mainCategory?.trim() ||
-    'Peralatan'
-  );
+  return product.secondCategory?.trim() || product.mainCategory?.trim() || 'Peralatan';
 }
 
 function getProductSoldCount(product: ProductRow) {
@@ -170,45 +158,39 @@ function getProductSoldCount(product: ProductRow) {
 
 function getTopSellingProducts(products: ProductRow[]) {
   return [...products]
-    .sort(
-      (left, right) =>
-        getProductSoldCount(right) -
-        getProductSoldCount(left),
-    )
+    .sort((left, right) => getProductSoldCount(right) - getProductSoldCount(left))
     .slice(0, 10);
 }
 
 export default function Home() {
   const [wordIndex, setWordIndex] = useState(0);
   const [activeCategory, setActiveCategory] = useState('Semua');
-const {
-  data: productRows,
-  loading: productsLoading,
-  refresh: refreshProducts,
-} = useSheetData<ProductRow>('Products');
+  const {
+    data: productRows,
+    loading: productsLoading,
+    refresh: refreshProducts,
+  } = useSheetData<ProductRow>('Products');
 
-const {
-  data: settingRows,
-  refresh: refreshSettings,
-} = useSheetData<SettingRow>('Settings');
+  const { data: settingRows, refresh: refreshSettings } = useSheetData<SettingRow>('Settings');
 
-const content = useMemo<
-  Record<string, string>
->(() => {
-  return settingRows.reduce<
-    Record<string, string>
-  >((result, item) => {
-    result[item.key] = item.value ?? '';
-    return result;
-  }, {});
-}, [settingRows]);
+  const content = useMemo<Record<string, string>>(() => {
+    return settingRows.reduce<Record<string, string>>((result, item) => {
+      result[item.key] = item.value ?? '';
+      return result;
+    }, {});
+  }, [settingRows]);
 
   useEffect(() => {
     void refreshProducts();
     void refreshSettings();
   }, [refreshProducts, refreshSettings]);
 
-  const defaultWords = ['Standar Dunia', 'Kualitas Premium', 'Daya Tahan Tinggi', 'Brand Terpercaya'];
+  const defaultWords = [
+    'Standar Dunia',
+    'Kualitas Premium',
+    'Daya Tahan Tinggi',
+    'Brand Terpercaya',
+  ];
   const sheetWords = [
     content.hero_word_1,
     content.hero_word_2,
@@ -220,7 +202,6 @@ const content = useMemo<
   const words = sheetWords.length > 0 ? sheetWords : defaultWords;
   const rotationSpeed = Math.max(Number(content.hero_rotation_speed) || 3000, 1000);
   const currentWord = words[wordIndex % words.length];
-
 
   useEffect(() => {
     if (words.length <= 1) return;
@@ -238,10 +219,7 @@ const content = useMemo<
     return rows.length > 0 ? rows : fallbackProducts;
   }, [productRows]);
 
-const bestSellerProducts = useMemo(
-  () => getTopSellingProducts(allProducts),
-  [allProducts],
-);
+  const bestSellerProducts = useMemo(() => getTopSellingProducts(allProducts), [allProducts]);
 
   const productCategories = useMemo(() => {
     const categories = Array.from(
@@ -264,7 +242,7 @@ const bestSellerProducts = useMemo(
   }, [resolvedActiveCategory, bestSellerProducts]);
 
   const heroProduct = bestSellerProducts[0] ?? allProducts[0] ?? fallbackProducts[0];
-return (
+  return (
     <main>
       <section className="hero-section section-shell">
         <div className="hero-grid">
@@ -274,7 +252,9 @@ return (
             animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
             transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="site-eyebrow">{content.hero_badge || 'Authorized Distributor Resmi'}</div>
+            <div className="site-eyebrow">
+              {content.hero_badge || 'Authorized Distributor Resmi'}
+            </div>
             <h1 className="hero-title">{content.hero_title || 'Temukan Solusi'}</h1>
 
             <motion.div className="hero-dynamic-row" layout aria-live="polite">
@@ -333,99 +313,95 @@ return (
           </motion.div>
 
           {heroProduct && (
-  <motion.div
-    className="hero-visual hero-visual-clean"
-    initial={{ opacity: 0, x: 42, scale: 0.96 }}
-    animate={{ opacity: 1, x: 0, scale: 1 }}
-    transition={{
-      duration: 1,
-      delay: 0.15,
-      ease: [0.22, 1, 0.36, 1],
-    }}
-  >
-    <div className="hero-visual-panel hero-visual-panel-clean">
-      <div className="hero-visual-grid" />
-      <MPBackground strong />
+            <motion.div
+              className="hero-visual hero-visual-clean"
+              initial={{ opacity: 0, x: 42, scale: 0.96 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              transition={{
+                duration: 1,
+                delay: 0.15,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+            >
+              <div className="hero-visual-panel hero-visual-panel-clean">
+                <div className="hero-visual-grid" />
+                <MPBackground strong />
 
-      <div className="hero-visual-topbar">
-        <span className="hero-live-status">
-          <span className="hero-live-dot" />
-          Equipment intelligence
-        </span>
+                <div className="hero-visual-topbar">
+                  <span className="hero-live-status">
+                    <span className="hero-live-dot" />
+                    Equipment intelligence
+                  </span>
 
-        <span className="hero-visual-code">MP / 01</span>
-      </div>
+                  <span className="hero-visual-code">MP / 01</span>
+                </div>
 
-      <div className="hero-product-stage">
-        <motion.div
-          className="hero-product-orbit"
-          animate={{ rotate: 360 }}
-          transition={{
-            duration: 24,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-        />
+                <div className="hero-product-stage">
+                  <motion.div
+                    className="hero-product-orbit"
+                    animate={{ rotate: 360 }}
+                    transition={{
+                      duration: 24,
+                      repeat: Infinity,
+                      ease: 'linear',
+                    }}
+                  />
 
-        <div className="hero-product-halo" />
+                  <div className="hero-product-halo" />
 
-        {heroProduct.imageUrl ? (
-          <motion.div
-            className="hero-product-image-wrap"
-            animate={{ y: [0, -8, 0] }}
-            transition={{
-              duration: 5.6,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          >
-            <Image
-              src={heroProduct.imageUrl}
-              alt={heroProduct.name || "Produk unggulan"}
-              fill
-              sizes="(max-width: 1040px) 72vw, 420px"
-              className="hero-product-image"
-            />
-          </motion.div>
-        ) : (
-          <Wrench
-            size={90}
-            strokeWidth={0.9}
-            className="hero-product-placeholder"
-          />
-        )}
-      </div>
+                  {heroProduct.imageUrl ? (
+                    <motion.div
+                      className="hero-product-image-wrap"
+                      animate={{ y: [0, -8, 0] }}
+                      transition={{
+                        duration: 5.6,
+                        repeat: Infinity,
+                        ease: 'easeInOut',
+                      }}
+                    >
+                      <Image
+                        src={heroProduct.imageUrl}
+                        alt={heroProduct.name || 'Produk unggulan'}
+                        fill
+                        sizes="(max-width: 1040px) 72vw, 420px"
+                        className="hero-product-image"
+                      />
+                    </motion.div>
+                  ) : (
+                    <Wrench size={90} strokeWidth={0.9} className="hero-product-placeholder" />
+                  )}
+                </div>
 
-      <div className="hero-visual-footer-clean">
-        <div className="hero-product-caption">
-          <span>Featured equipment</span>
-          <strong>{heroProduct.name || "Produk unggulan"}</strong>
-        </div>
+                <div className="hero-visual-footer-clean">
+                  <div className="hero-product-caption">
+                    <span>Featured equipment</span>
+                    <strong>{heroProduct.name || 'Produk unggulan'}</strong>
+                  </div>
 
-        <div className="hero-metric-row">
-          <div className="hero-metric-item">
-            <strong>{allProducts.length}</strong>
-            <span>Produk pilihan</span>
-          </div>
+                  <div className="hero-metric-row">
+                    <div className="hero-metric-item">
+                      <strong>{allProducts.length}</strong>
+                      <span>Produk pilihan</span>
+                    </div>
 
-          <div className="hero-metric-separator" />
+                    <div className="hero-metric-separator" />
 
-          <div className="hero-metric-item">
-            <strong>{heroProduct.rating || "-"}</strong>
-            <span>Quality rating</span>
-          </div>
+                    <div className="hero-metric-item">
+                      <strong>{heroProduct.rating || '-'}</strong>
+                      <span>Quality rating</span>
+                    </div>
 
-          <div className="hero-metric-separator" />
+                    <div className="hero-metric-separator" />
 
-          <div className="hero-metric-item">
-            <CheckCircle2 size={18} />
-            <span>Original</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </motion.div>
-)}
+                    <div className="hero-metric-item">
+                      <CheckCircle2 size={18} />
+                      <span>Original</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
         </div>
       </section>
 
@@ -447,7 +423,9 @@ return (
                 data-aos-delay={String(index * 90)}
               >
                 <span className="feature-number">0{index + 1}</span>
-                <div className="feature-icon"><Icon size={22} /></div>
+                <div className="feature-icon">
+                  <Icon size={22} />
+                </div>
                 <h3>{feature.title}</h3>
                 <p>{feature.description}</p>
               </article>
@@ -508,8 +486,8 @@ return (
                 <div className="product-image-wrap">
                   <div className="product-badge-stack">
                     <span className="site-chip product-badge product-badge-best">
-  <BadgeCheck size={13} /> Terlaris #{index + 1}
-</span>
+                      <BadgeCheck size={13} /> Terlaris #{index + 1}
+                    </span>
                     <span className="site-chip product-category-badge">
                       <Boxes size={13} /> {getProductCategory(product)}
                     </span>
@@ -523,106 +501,90 @@ return (
                       className="product-image"
                     />
                   ) : (
-                    <div className="product-image-placeholder"><Wrench size={46} strokeWidth={1.2} /></div>
+                    <div className="product-image-placeholder">
+                      <Wrench size={46} strokeWidth={1.2} />
+                    </div>
                   )}
                   <div className="product-image-shine" />
                 </div>
- <div className="product-card-content">
-  <div className="product-category-trail">
-    <span>
-      {product.mainCategory?.trim() || 'Peralatan'}
-    </span>
+                <div className="product-card-content">
+                  <div className="product-category-trail">
+                    <span>{product.mainCategory?.trim() || 'Peralatan'}</span>
 
-    <span aria-hidden="true">›</span>
+                    <span aria-hidden="true">›</span>
 
-    <span>
-      {product.secondCategory?.trim() || 'Kategori'}
-    </span>
+                    <span>{product.secondCategory?.trim() || 'Kategori'}</span>
 
-    <span aria-hidden="true">›</span>
+                    <span aria-hidden="true">›</span>
 
-    <span>
-      {product.subCategory?.trim() || 'Produk'}
-    </span>
-  </div>
+                    <span>{product.subCategory?.trim() || 'Produk'}</span>
+                  </div>
 
-  <h3 className="product-card-title">
-    {product.name || 'Produk Teknik Profesional'}
-  </h3>
+                  <h3 className="product-card-title">
+                    {product.name || 'Produk Teknik Profesional'}
+                  </h3>
 
-  <div className="product-card-meta">
-    <span>Professional equipment</span>
+                  <div className="product-card-meta">
+                    <span>Professional equipment</span>
 
-    <span className="inline-flex items-center gap-1 text-amber-500">
-      <Star size={13} fill="currentColor" />
-      {product.rating || '5'}
-    </span>
-  </div>
+                    <span className="inline-flex items-center gap-1 text-amber-500">
+                      <Star size={13} fill="currentColor" />
+                      {product.rating || '5'}
+                    </span>
+                  </div>
 
-  {isTruthy(product.hasDiscount) &&
-  getNumericPrice(product.discountPrice) > 0 &&
-  getNumericPrice(product.discountPrice) <
-    getNumericPrice(product.price) ? (
-    <div className="mt-1 min-h-20.5">
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-        <strong className="text-xl font-bold tracking-tight text-red-500">
-          {formatCurrency(product.discountPrice)}
-        </strong>
+                  {isTruthy(product.hasDiscount) &&
+                  getNumericPrice(product.discountPrice) > 0 &&
+                  getNumericPrice(product.discountPrice) < getNumericPrice(product.price) ? (
+                    <div className="mt-1 min-h-20.5">
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <strong className="text-xl font-bold tracking-tight text-red-500">
+                          {formatCurrency(product.discountPrice)}
+                        </strong>
 
-        <span className="text-xs text-(--text-muted) line-through">
-          {formatCurrency(product.price)}
-        </span>
+                        <span className="text-xs text-(--text-muted) line-through">
+                          {formatCurrency(product.price)}
+                        </span>
 
-        <span className="rounded-md border border-red-500/20 bg-red-500/10 px-1.5 py-0.5 text-[10px] font-bold text-red-500">
-          -
-          {getDiscountPercent(
-            product.price,
-            product.discountPrice,
-          )}
-          %
-        </span>
-      </div>
+                        <span className="rounded-md border border-red-500/20 bg-red-500/10 px-1.5 py-0.5 text-[10px] font-bold text-red-500">
+                          -{getDiscountPercent(product.price, product.discountPrice)}%
+                        </span>
+                      </div>
 
-      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2">
-        <span className="inline-flex items-center rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[10px] font-semibold text-emerald-600">
-          Garansi Harga Terbaik
-        </span>
+                      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2">
+                        <span className="inline-flex items-center rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[10px] font-semibold text-emerald-600">
+                          Garansi Harga Terbaik
+                        </span>
 
-        <span className="text-xs font-medium text-(--text-muted)">
-          {formatSoldCount(product.soldCount)}
-        </span>
-      </div>
-    </div>
-  ) : (
-    <div className="mt-1 min-h-20.5">
-      <strong className="text-xl font-bold tracking-tight text-(--text-primary)">
-        {formatCurrency(product.price)}
-      </strong>
+                        <span className="text-xs font-medium text-(--text-muted)">
+                          {formatSoldCount(product.soldCount)}
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mt-1 min-h-20.5">
+                      <strong className="text-xl font-bold tracking-tight text-(--text-primary)">
+                        {formatCurrency(product.price)}
+                      </strong>
 
-      <div className="mt-2">
-        <span className="text-xs font-medium text-(--text-muted)">
-          {formatSoldCount(product.soldCount)}
-        </span>
-      </div>
-    </div>
-  )}
+                      <div className="mt-2">
+                        <span className="text-xs font-medium text-(--text-muted)">
+                          {formatSoldCount(product.soldCount)}
+                        </span>
+                      </div>
+                    </div>
+                  )}
 
-  <div className="product-card-actions">
-    <Link
-      href="/products"
-      className="site-button site-button-secondary"
-    >
-      Detail
-    </Link>
+                  <div className="product-card-actions">
+                    <Link href="/products" className="site-button site-button-secondary">
+                      Detail
+                    </Link>
 
-    <Link
-      href="/contact"
-      className="site-button site-button-primary"
-    >
-      Penawaran
-    </Link>
-  </div>
-</div>
+                    <Link href="/contact" className="site-button site-button-primary">
+                      Penawaran
+                    </Link>
+                  </div>
+                </div>
               </motion.article>
             ))}
           </AnimatePresence>
@@ -636,12 +598,14 @@ return (
 
         {!productsLoading && visibleProducts.length === 0 && (
           <div className="site-card home-products-empty" data-aos="fade-up">
-            <div className="empty-state-icon"><BadgeCheck size={26} /></div>
+            <div className="empty-state-icon">
+              <BadgeCheck size={26} />
+            </div>
             <h3>Belum ada produk untuk ditampilkan</h3>
-<p>
-  Tambahkan produk dan isi jumlah terjual melalui dashboard admin.
-  Produk dengan penjualan tertinggi akan otomatis muncul di bagian ini.
-</p>
+            <p>
+              Tambahkan produk dan isi jumlah terjual melalui dashboard admin. Produk dengan
+              penjualan tertinggi akan otomatis muncul di bagian ini.
+            </p>
           </div>
         )}
       </section>
@@ -699,7 +663,12 @@ return (
           ].map((item, index) => {
             const Icon = item.icon;
             return (
-              <div key={item.label} className="site-card stat-card" data-aos="zoom-in" data-aos-delay={String(index * 70)}>
+              <div
+                key={item.label}
+                className="site-card stat-card"
+                data-aos="zoom-in"
+                data-aos-delay={String(index * 70)}
+              >
                 <Icon size={19} className="mx-auto mb-4 text-(--accent-blue)" />
                 <strong>{item.value}</strong>
                 <span>{item.label}</span>

@@ -60,18 +60,12 @@ function formatDate(value: string | null) {
 }
 
 async function readMessage(response: Response) {
-  const result = (await response.json().catch(() => null)) as
-    | { message?: string }
-    | null;
+  const result = (await response.json().catch(() => null)) as { message?: string } | null;
 
   return result?.message;
 }
 
-export default function AccountsManager({
-  superAdminEmail,
-}: {
-  superAdminEmail: string;
-}) {
+export default function AccountsManager({ superAdminEmail }: { superAdminEmail: string }) {
   const [admins, setAdmins] = useState<AdminItem[]>([]);
   const [form, setForm] = useState<AdminForm>(emptyForm);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -81,10 +75,7 @@ export default function AccountsManager({
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  const activeAdminCount = useMemo(
-    () => admins.filter((admin) => admin.isActive).length,
-    [admins],
-  );
+  const activeAdminCount = useMemo(() => admins.filter((admin) => admin.isActive).length, [admins]);
 
   const loadAdmins = useCallback(async () => {
     setIsLoading(true);
@@ -97,20 +88,13 @@ export default function AccountsManager({
       });
 
       if (!response.ok) {
-        throw new Error(
-          (await readMessage(response)) ||
-            'Gagal mengambil akun admin.',
-        );
+        throw new Error((await readMessage(response)) || 'Gagal mengambil akun admin.');
       }
 
       const data = (await response.json()) as AdminItem[];
       setAdmins(data);
     } catch (error) {
-      setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : 'Gagal mengambil akun admin.',
-      );
+      setErrorMessage(error instanceof Error ? error.message : 'Gagal mengambil akun admin.');
     } finally {
       setIsLoading(false);
     }
@@ -163,9 +147,7 @@ export default function AccountsManager({
     try {
       const isEditing = editingId !== null;
       const response = await fetch(
-        isEditing
-          ? `/api/admin/accounts/${editingId}`
-          : '/api/admin/accounts',
+        isEditing ? `/api/admin/accounts/${editingId}` : '/api/admin/accounts',
         {
           method: isEditing ? 'PUT' : 'POST',
           headers: {
@@ -177,25 +159,16 @@ export default function AccountsManager({
       );
 
       if (!response.ok) {
-        throw new Error(
-          (await readMessage(response)) ||
-            'Akun admin gagal disimpan.',
-        );
+        throw new Error((await readMessage(response)) || 'Akun admin gagal disimpan.');
       }
 
       setSuccessMessage(
-        isEditing
-          ? 'Akun admin berhasil diperbarui.'
-          : 'Akun admin berhasil ditambahkan.',
+        isEditing ? 'Akun admin berhasil diperbarui.' : 'Akun admin berhasil ditambahkan.',
       );
       resetForm();
       await loadAdmins();
     } catch (error) {
-      setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : 'Akun admin gagal disimpan.',
-      );
+      setErrorMessage(error instanceof Error ? error.message : 'Akun admin gagal disimpan.');
     } finally {
       setIsSaving(false);
     }
@@ -219,33 +192,20 @@ export default function AccountsManager({
       });
 
       if (!response.ok) {
-        throw new Error(
-          (await readMessage(response)) ||
-            'Status admin gagal diubah.',
-        );
+        throw new Error((await readMessage(response)) || 'Status admin gagal diubah.');
       }
 
-      setSuccessMessage(
-        admin.isActive
-          ? 'Akun admin dinonaktifkan.'
-          : 'Akun admin diaktifkan.',
-      );
+      setSuccessMessage(admin.isActive ? 'Akun admin dinonaktifkan.' : 'Akun admin diaktifkan.');
       await loadAdmins();
     } catch (error) {
-      setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : 'Status admin gagal diubah.',
-      );
+      setErrorMessage(error instanceof Error ? error.message : 'Status admin gagal diubah.');
     } finally {
       setBusyAdminId(null);
     }
   };
 
   const deleteAdmin = async (admin: AdminItem) => {
-    const confirmed = window.confirm(
-      `Hapus akun admin ${admin.name} (${admin.email})?`,
-    );
+    const confirmed = window.confirm(`Hapus akun admin ${admin.name} (${admin.email})?`);
 
     if (!confirmed) {
       return;
@@ -262,10 +222,7 @@ export default function AccountsManager({
       });
 
       if (!response.ok) {
-        throw new Error(
-          (await readMessage(response)) ||
-            'Akun admin gagal dihapus.',
-        );
+        throw new Error((await readMessage(response)) || 'Akun admin gagal dihapus.');
       }
 
       if (editingId === admin.id) {
@@ -275,11 +232,7 @@ export default function AccountsManager({
       setSuccessMessage('Akun admin berhasil dihapus.');
       await loadAdmins();
     } catch (error) {
-      setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : 'Akun admin gagal dihapus.',
-      );
+      setErrorMessage(error instanceof Error ? error.message : 'Akun admin gagal dihapus.');
     } finally {
       setBusyAdminId(null);
     }
@@ -302,8 +255,8 @@ export default function AccountsManager({
               Kelola Akun Admin
             </h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
-              Super admin tetap berasal dari ENV. Akun pada daftar ini adalah
-              admin biasa yang disimpan di NeonDB.
+              Super admin tetap berasal dari ENV. Akun pada daftar ini adalah admin biasa yang
+              disimpan di NeonDB.
             </p>
           </div>
 
@@ -312,17 +265,13 @@ export default function AccountsManager({
               <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-600">
                 Total admin
               </p>
-              <p className="mt-2 text-2xl font-semibold text-white">
-                {admins.length}
-              </p>
+              <p className="mt-2 text-2xl font-semibold text-white">{admins.length}</p>
             </div>
             <div className="rounded-2xl border border-white/[0.07] bg-black/15 p-4">
               <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-600">
                 Aktif
               </p>
-              <p className="mt-2 text-2xl font-semibold text-emerald-200">
-                {activeAdminCount}
-              </p>
+              <p className="mt-2 text-2xl font-semibold text-emerald-200">{activeAdminCount}</p>
             </div>
           </div>
         </div>
@@ -356,21 +305,15 @@ export default function AccountsManager({
                 <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-amber-200/60">
                   Super admin ENV
                 </p>
-                <p className="mt-1 truncate text-sm font-semibold text-white">
-                  {superAdminEmail}
-                </p>
+                <p className="mt-1 truncate text-sm font-semibold text-white">{superAdminEmail}</p>
                 <p className="mt-2 text-xs leading-5 text-slate-500">
-                  Tidak disimpan di tabel admins dan tidak dapat dihapus dari
-                  halaman ini.
+                  Tidak disimpan di tabel admins dan tidak dapat dihapus dari halaman ini.
                 </p>
               </div>
             </div>
           </div>
 
-          <form
-            onSubmit={handleSubmit}
-            className="admin-panel rounded-[24px] p-5 sm:p-6"
-          >
+          <form onSubmit={handleSubmit} className="admin-panel rounded-[24px] p-5 sm:p-6">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h3 className="flex items-center gap-2 font-semibold text-white">
@@ -402,9 +345,7 @@ export default function AccountsManager({
 
             <div className="mt-6 space-y-4">
               <label className="block">
-                <span className="mb-2 block text-xs font-medium text-slate-300">
-                  Nama admin
-                </span>
+                <span className="mb-2 block text-xs font-medium text-slate-300">Nama admin</span>
                 <input
                   value={form.name}
                   onChange={(event) =>
@@ -422,9 +363,7 @@ export default function AccountsManager({
               </label>
 
               <label className="block">
-                <span className="mb-2 block text-xs font-medium text-slate-300">
-                  Email login
-                </span>
+                <span className="mb-2 block text-xs font-medium text-slate-300">Email login</span>
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-600" />
                   <input
@@ -462,11 +401,7 @@ export default function AccountsManager({
                     required={!editingId}
                     minLength={form.password || !editingId ? 8 : undefined}
                     maxLength={128}
-                    placeholder={
-                      editingId
-                        ? 'Kosongkan jika tetap'
-                        : 'Minimal 8 karakter'
-                    }
+                    placeholder={editingId ? 'Kosongkan jika tetap' : 'Minimal 8 karakter'}
                     className="h-12 w-full rounded-xl border border-white/10 bg-black/20 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-sky-400/50 focus:ring-4 focus:ring-sky-400/10"
                   />
                 </div>
@@ -474,9 +409,7 @@ export default function AccountsManager({
 
               <label className="flex cursor-pointer items-center justify-between rounded-2xl border border-white/[0.07] bg-black/15 px-4 py-3">
                 <span>
-                  <span className="block text-sm font-medium text-slate-200">
-                    Akun aktif
-                  </span>
+                  <span className="block text-sm font-medium text-slate-200">Akun aktif</span>
                   <span className="mt-0.5 block text-xs text-slate-600">
                     Admin dapat login dan menggunakan dashboard.
                   </span>
@@ -507,11 +440,7 @@ export default function AccountsManager({
               ) : (
                 <UserPlus className="h-4 w-4" />
               )}
-              {isSaving
-                ? 'Menyimpan...'
-                : editingId
-                  ? 'Simpan perubahan'
-                  : 'Tambah admin'}
+              {isSaving ? 'Menyimpan...' : editingId ? 'Simpan perubahan' : 'Tambah admin'}
             </button>
           </form>
         </div>
@@ -534,9 +463,7 @@ export default function AccountsManager({
               disabled={isLoading}
               className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-white/10 px-3.5 text-xs font-semibold text-slate-300 transition hover:bg-white/5 hover:text-white disabled:opacity-50"
             >
-              <RefreshCw
-                className={`h-3.5 w-3.5 ${isLoading ? 'animate-spin' : ''}`}
-              />
+              <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? 'animate-spin' : ''}`} />
               Muat ulang
             </button>
           </div>
@@ -545,9 +472,7 @@ export default function AccountsManager({
             <div className="grid min-h-[280px] place-items-center px-6 py-12">
               <div className="text-center">
                 <LoaderCircle className="mx-auto h-7 w-7 animate-spin text-sky-300" />
-                <p className="mt-3 text-sm text-slate-500">
-                  Memuat akun admin...
-                </p>
+                <p className="mt-3 text-sm text-slate-500">Memuat akun admin...</p>
               </div>
             </div>
           ) : admins.length === 0 ? (
@@ -556,9 +481,7 @@ export default function AccountsManager({
                 <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl border border-white/[0.07] bg-white/[0.03] text-slate-500">
                   <Users className="h-6 w-6" />
                 </span>
-                <p className="mt-4 text-sm font-medium text-slate-300">
-                  Belum ada admin biasa
-                </p>
+                <p className="mt-4 text-sm font-medium text-slate-300">Belum ada admin biasa</p>
                 <p className="mt-1 text-xs text-slate-600">
                   Tambahkan admin melalui formulir di samping.
                 </p>
@@ -570,10 +493,7 @@ export default function AccountsManager({
                 const isBusy = busyAdminId === admin.id;
 
                 return (
-                  <article
-                    key={admin.id}
-                    className="px-5 py-5 sm:px-6"
-                  >
+                  <article key={admin.id} className="px-5 py-5 sm:px-6">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                       <div className="flex min-w-0 items-start gap-3.5">
                         <span
@@ -601,9 +521,7 @@ export default function AccountsManager({
                               {admin.isActive ? 'Aktif' : 'Nonaktif'}
                             </span>
                           </div>
-                          <p className="mt-1 truncate text-xs text-sky-200/80">
-                            {admin.email}
-                          </p>
+                          <p className="mt-1 truncate text-xs text-sky-200/80">{admin.email}</p>
                           <p className="mt-2 text-[11px] text-slate-600">
                             Login terakhir: {formatDate(admin.lastLoginAt)}
                           </p>
@@ -628,9 +546,7 @@ export default function AccountsManager({
                           disabled={isBusy}
                           className="grid h-9 w-9 place-items-center rounded-xl border border-amber-300/10 bg-amber-400/[0.05] text-amber-200 transition hover:bg-amber-400/10 disabled:opacity-50"
                           aria-label={
-                            admin.isActive
-                              ? `Nonaktifkan ${admin.name}`
-                              : `Aktifkan ${admin.name}`
+                            admin.isActive ? `Nonaktifkan ${admin.name}` : `Aktifkan ${admin.name}`
                           }
                           title={admin.isActive ? 'Nonaktifkan' : 'Aktifkan'}
                         >

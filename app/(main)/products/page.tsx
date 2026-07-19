@@ -33,12 +33,12 @@ type ProductRow = {
   mainCategory?: string | null;
   secondCategory?: string | null;
   subCategory?: string | null;
-price?: number | string | null;
-description?: string | null;
-hasDiscount?: boolean | string | null;
-discountPrice?: number | string | null;
-soldCount?: number | string | null;
-rating?: number | string | null;
+  price?: number | string | null;
+  description?: string | null;
+  hasDiscount?: boolean | string | null;
+  discountPrice?: number | string | null;
+  soldCount?: number | string | null;
+  rating?: number | string | null;
   imageUrl?: string | null;
   isBestSeller?: boolean | null;
 };
@@ -78,12 +78,63 @@ type CategorySidebarProps = {
 };
 
 const fallbackProducts: ProductRow[] = [
-  { legacyNo: 1, name: 'Blue-point BWA 200 Imaging Wheel Alignment', mainCategory: 'Otomotif', secondCategory: 'Wheel', subCategory: 'Alignment', price: '12000000', rating: '5', isBestSeller: true },
-  { legacyNo: 2, name: 'Blue-point Pyramid2 Imaging Wheel Alignment', mainCategory: 'Otomotif', secondCategory: 'Wheel', subCategory: 'Alignment', price: '6000000', rating: '5' },
-  { legacyNo: 3, name: 'Blue-point Swing-Arm Tire Changer', mainCategory: 'Otomotif', secondCategory: 'Tire', subCategory: 'Changer', price: '8500000', rating: '5', isBestSeller: true },
-  { legacyNo: 4, name: 'Blue-point Two-Post Lift', mainCategory: 'Hidraulis', secondCategory: 'Lift', subCategory: '4 Ton', price: '25000000', rating: '4', isBestSeller: true },
-  { legacyNo: 5, name: 'Blue-point Brake Fluid Changer', mainCategory: 'Perlengkapan', secondCategory: 'Fluid', subCategory: 'Brake', price: '3000000', rating: '4' },
-  { legacyNo: 6, name: 'Blue-point Hydraulic Jack', mainCategory: 'Hidraulis', secondCategory: 'Jack', subCategory: 'Manual', price: '888800000', rating: '5' },
+  {
+    legacyNo: 1,
+    name: 'Blue-point BWA 200 Imaging Wheel Alignment',
+    mainCategory: 'Otomotif',
+    secondCategory: 'Wheel',
+    subCategory: 'Alignment',
+    price: '12000000',
+    rating: '5',
+    isBestSeller: true,
+  },
+  {
+    legacyNo: 2,
+    name: 'Blue-point Pyramid2 Imaging Wheel Alignment',
+    mainCategory: 'Otomotif',
+    secondCategory: 'Wheel',
+    subCategory: 'Alignment',
+    price: '6000000',
+    rating: '5',
+  },
+  {
+    legacyNo: 3,
+    name: 'Blue-point Swing-Arm Tire Changer',
+    mainCategory: 'Otomotif',
+    secondCategory: 'Tire',
+    subCategory: 'Changer',
+    price: '8500000',
+    rating: '5',
+    isBestSeller: true,
+  },
+  {
+    legacyNo: 4,
+    name: 'Blue-point Two-Post Lift',
+    mainCategory: 'Hidraulis',
+    secondCategory: 'Lift',
+    subCategory: '4 Ton',
+    price: '25000000',
+    rating: '4',
+    isBestSeller: true,
+  },
+  {
+    legacyNo: 5,
+    name: 'Blue-point Brake Fluid Changer',
+    mainCategory: 'Perlengkapan',
+    secondCategory: 'Fluid',
+    subCategory: 'Brake',
+    price: '3000000',
+    rating: '4',
+  },
+  {
+    legacyNo: 6,
+    name: 'Blue-point Hydraulic Jack',
+    mainCategory: 'Hidraulis',
+    secondCategory: 'Jack',
+    subCategory: 'Manual',
+    price: '888800000',
+    rating: '5',
+  },
 ];
 
 function formatCurrency(value?: string | number | null) {
@@ -97,9 +148,7 @@ function formatCurrency(value?: string | number | null) {
   }).format(number);
 }
 
-function getNumericPrice(
-  value?: number | string | null,
-) {
+function getNumericPrice(value?: number | string | null) {
   return Number(value) || 0;
 }
 
@@ -110,41 +159,24 @@ function getDiscountPercent(
   const originalPrice = getNumericPrice(price);
   const finalPrice = getNumericPrice(discountPrice);
 
-  if (
-    originalPrice <= 0 ||
-    finalPrice <= 0 ||
-    finalPrice >= originalPrice
-  ) {
+  if (originalPrice <= 0 || finalPrice <= 0 || finalPrice >= originalPrice) {
     return 0;
   }
 
-  return Math.round(
-    ((originalPrice - finalPrice) / originalPrice) * 100,
-  );
+  return Math.round(((originalPrice - finalPrice) / originalPrice) * 100);
 }
 
-function formatSoldCount(
-  value?: number | string | null,
-) {
-  const soldCount = Math.max(
-    0,
-    Math.floor(Number(value) || 0),
-  );
+function formatSoldCount(value?: number | string | null) {
+  const soldCount = Math.max(0, Math.floor(Number(value) || 0));
 
   if (soldCount >= 1_000_000) {
-    const formatted = (soldCount / 1_000_000)
-      .toFixed(1)
-      .replace('.0', '')
-      .replace('.', ',');
+    const formatted = (soldCount / 1_000_000).toFixed(1).replace('.0', '').replace('.', ',');
 
     return `${formatted}JT+ terjual`;
   }
 
   if (soldCount >= 1_000) {
-    const formatted = (soldCount / 1_000)
-      .toFixed(1)
-      .replace('.0', '')
-      .replace('.', ',');
+    const formatted = (soldCount / 1_000).toFixed(1).replace('.0', '').replace('.', ',');
 
     return `${formatted}RB+ terjual`;
   }
@@ -156,7 +188,9 @@ function isTruthy(value?: boolean | string | null) {
   if (typeof value === 'boolean') return value;
 
   return ['true', '1', 'yes', 'ya'].includes(
-    String(value ?? '').trim().toLowerCase(),
+    String(value ?? '')
+      .trim()
+      .toLowerCase(),
   );
 }
 
@@ -233,7 +267,12 @@ function CategorySidebar({
           <h2>Jelajahi Kategori</h2>
         </div>
         {onClose && (
-          <button type="button" className="category-panel-close" onClick={onClose} aria-label="Tutup kategori">
+          <button
+            type="button"
+            className="category-panel-close"
+            onClick={onClose}
+            aria-label="Tutup kategori"
+          >
             <X size={18} />
           </button>
         )}
@@ -247,7 +286,9 @@ function CategorySidebar({
           onClose?.();
         }}
       >
-        <span className="category-node-icon"><Boxes size={17} /></span>
+        <span className="category-node-icon">
+          <Boxes size={17} />
+        </span>
         <span className="category-node-copy">
           <strong>Semua Produk</strong>
           <small>Katalog lengkap</small>
@@ -278,7 +319,9 @@ function CategorySidebar({
                   className="category-main-select"
                   onClick={() => onSelectMain(mainNode.name)}
                 >
-                  <span className="category-node-icon"><Layers3 size={17} /></span>
+                  <span className="category-node-icon">
+                    <Layers3 size={17} />
+                  </span>
                   <span className="category-node-copy">
                     <strong>{mainNode.name}</strong>
                     <small>Kategori utama</small>
@@ -291,7 +334,10 @@ function CategorySidebar({
                   onClick={() => onToggleMain(mainNode.name)}
                   aria-label={`${mainOpen ? 'Tutup' : 'Buka'} kategori ${mainNode.name}`}
                 >
-                  <motion.span animate={{ rotate: mainOpen ? 90 : 0 }} transition={{ duration: 0.2 }}>
+                  <motion.span
+                    animate={{ rotate: mainOpen ? 90 : 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
                     <ChevronRight size={16} />
                   </motion.span>
                 </button>
@@ -312,7 +358,13 @@ function CategorySidebar({
                       const secondOpen = expandedSecond.has(secondKey);
 
                       return (
-                        <div key={secondKey} className="category-second-group" role="treeitem" aria-expanded={secondOpen} aria-selected={secondActive}>
+                        <div
+                          key={secondKey}
+                          className="category-second-group"
+                          role="treeitem"
+                          aria-expanded={secondOpen}
+                          aria-selected={secondActive}
+                        >
                           <div className={`category-second-row ${secondActive ? 'is-active' : ''}`}>
                             <button
                               type="button"
@@ -332,7 +384,10 @@ function CategorySidebar({
                               onClick={() => onToggleSecond(mainNode.name, secondNode.name)}
                               aria-label={`${secondOpen ? 'Tutup' : 'Buka'} kategori ${secondNode.name}`}
                             >
-                              <motion.span animate={{ rotate: secondOpen ? 90 : 0 }} transition={{ duration: 0.2 }}>
+                              <motion.span
+                                animate={{ rotate: secondOpen ? 90 : 0 }}
+                                transition={{ duration: 0.2 }}
+                              >
                                 <ChevronRight size={14} />
                               </motion.span>
                             </button>
@@ -418,15 +473,7 @@ export default function ProductsPage() {
       const mainMatch = selectedMain === 'Semua' || main === selectedMain;
       const secondMatch = !selectedSecond || second === selectedSecond;
       const subMatch = !selectedSub || sub === selectedSub;
-      const searchable = [
-        product.name,
-        main,
-        second,
-        sub,
-      ]
-        .filter(Boolean)
-        .join(' ')
-        .toLowerCase();
+      const searchable = [product.name, main, second, sub].filter(Boolean).join(' ').toLowerCase();
 
       return mainMatch && secondMatch && subMatch && (!keyword || searchable.includes(keyword));
     });
@@ -528,22 +575,34 @@ export default function ProductsPage() {
     <main>
       <PageHero
         eyebrow="Katalog produk"
-        title={<>Peralatan yang siap <span className="gradient-text">bekerja keras.</span></>}
+        title={
+          <>
+            Peralatan yang siap <span className="gradient-text">bekerja keras.</span>
+          </>
+        }
         description="Telusuri produk melalui struktur kategori tiga tingkat yang mengikuti database: kategori utama, kategori kedua, hingga subkategori paling spesifik."
       >
         <div className="mt-8 flex flex-wrap gap-3">
-          <span className="site-chip"><Boxes size={14} /> {products.length} produk tersedia</span>
-          <span className="site-chip"><Layers3 size={14} /> {categoryTree.length} kategori utama</span>
           <span className="site-chip">
-  <Star size={14} />
-  {products.filter((item) => item.isBestSeller).length} produk terlaris
-</span>
+            <Boxes size={14} /> {products.length} produk tersedia
+          </span>
+          <span className="site-chip">
+            <Layers3 size={14} /> {categoryTree.length} kategori utama
+          </span>
+          <span className="site-chip">
+            <Star size={14} />
+            {products.filter((item) => item.isBestSeller).length} produk terlaris
+          </span>
         </div>
       </PageHero>
 
       <section className="section-shell pb-28">
         <div className="product-catalog-layout">
-          <aside className="product-category-sidebar site-card" data-aos="fade-right" data-aos-duration="720">
+          <aside
+            className="product-category-sidebar site-card"
+            data-aos="fade-right"
+            data-aos-duration="720"
+          >
             <CategorySidebar {...sidebarProps} />
           </aside>
 
@@ -573,7 +632,10 @@ export default function ProductsPage() {
                 {search && (
                   <button
                     type="button"
-                    onClick={() => { setSearch(''); setCurrentPage(1); }}
+                    onClick={() => {
+                      setSearch('');
+                      setCurrentPage(1);
+                    }}
                     aria-label="Hapus pencarian"
                     className="absolute right-3 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-xl text-(--text-muted) hover:bg-(--surface-hover)"
                   >
@@ -598,7 +660,9 @@ export default function ProductsPage() {
                     <option value={48}>48</option>
                   </select>
                 </label>
-                <div className="result-count"><ListFilter size={14} /> {filtered.length} hasil</div>
+                <div className="result-count">
+                  <ListFilter size={14} /> {filtered.length} hasil
+                </div>
               </div>
             </div>
 
@@ -631,17 +695,27 @@ export default function ProductsPage() {
             {loading && data.length === 0 ? (
               <div className="product-grid product-catalog-grid">
                 {Array.from({ length: 6 }).map((_, index) => (
-                  <div key={index} className="site-card min-h-107.5 animate-pulse bg-(--surface-soft)" />
+                  <div
+                    key={index}
+                    className="site-card min-h-107.5 animate-pulse bg-(--surface-soft)"
+                  />
                 ))}
               </div>
             ) : filtered.length === 0 ? (
               <div className="site-card empty-state" data-aos="zoom-in">
-                <div className="empty-state-icon"><PackageOpen size={27} /></div>
+                <div className="empty-state-icon">
+                  <PackageOpen size={27} />
+                </div>
                 <h2 className="text-xl font-bold">Produk tidak ditemukan</h2>
                 <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-(--text-secondary)">
-                  Tidak ada produk pada kombinasi kategori atau kata kunci tersebut. Coba pilih tingkat kategori lain.
+                  Tidak ada produk pada kombinasi kategori atau kata kunci tersebut. Coba pilih
+                  tingkat kategori lain.
                 </p>
-                <button type="button" className="site-button site-button-secondary mt-5" onClick={resetFilters}>
+                <button
+                  type="button"
+                  className="site-button site-button-secondary mt-5"
+                  onClick={resetFilters}
+                >
                   <RotateCcw size={16} /> Reset filter
                 </button>
               </div>
@@ -655,28 +729,40 @@ export default function ProductsPage() {
                       initial={{ opacity: 0, scale: 0.94, y: 24 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.92, y: 14 }}
-                      transition={{ duration: 0.42, delay: Math.min(index * 0.045, 0.24), ease: [0.22, 1, 0.36, 1] }}
+                      transition={{
+                        duration: 0.42,
+                        delay: Math.min(index * 0.045, 0.24),
+                        ease: [0.22, 1, 0.36, 1],
+                      }}
                       whileHover={{ y: -9 }}
                       className="site-card product-card product-catalog-card"
                     >
                       <div className="product-card-ambient" />
                       <div className="product-image-wrap">
                         <div className="product-card-badges">
-                          {isTruthy(product.isBestSeller) && <span className="site-chip product-badge product-best-badge">Terlaris</span>}
-                          <span className="site-chip product-badge product-main-badge">{cleanCategory(product.mainCategory)}</span>
+                          {isTruthy(product.isBestSeller) && (
+                            <span className="site-chip product-badge product-best-badge">
+                              Terlaris
+                            </span>
+                          )}
+                          <span className="site-chip product-badge product-main-badge">
+                            {cleanCategory(product.mainCategory)}
+                          </span>
                         </div>
                         {product.imageUrl ? (
                           <Image
-  src={product.imageUrl}
-  alt={product.name || 'Produk teknik'}
-  fill
-  sizes="(max-width: 760px) 100vw, (max-width: 1040px) 50vw, 34vw"
-  loading={index === 0 ? 'eager' : 'lazy'}
-  fetchPriority={index === 0 ? 'high' : 'auto'}
-  className="product-image"
-/>
+                            src={product.imageUrl}
+                            alt={product.name || 'Produk teknik'}
+                            fill
+                            sizes="(max-width: 760px) 100vw, (max-width: 1040px) 50vw, 34vw"
+                            loading={index === 0 ? 'eager' : 'lazy'}
+                            fetchPriority={index === 0 ? 'high' : 'auto'}
+                            className="product-image"
+                          />
                         ) : (
-                          <div className="product-image-placeholder"><Wrench size={48} strokeWidth={1.2} /></div>
+                          <div className="product-image-placeholder">
+                            <Wrench size={48} strokeWidth={1.2} />
+                          </div>
                         )}
                         <span className="product-image-scan" aria-hidden="true" />
                       </div>
@@ -689,64 +775,70 @@ export default function ProductsPage() {
                           <ChevronRight size={11} />
                           <span>{cleanCategory(product.subCategory)}</span>
                         </div>
-                        <h2 className="product-card-title">{product.name || 'Produk Teknik Profesional'}</h2>
+                        <h2 className="product-card-title">
+                          {product.name || 'Produk Teknik Profesional'}
+                        </h2>
                         <div className="product-card-meta">
                           <span>Professional equipment</span>
-                          <span className="inline-flex items-center gap-1 text-amber-500"><Star size={13} fill="currentColor" /> {product.rating || '5'}</span>
+                          <span className="inline-flex items-center gap-1 text-amber-500">
+                            <Star size={13} fill="currentColor" /> {product.rating || '5'}
+                          </span>
                         </div>
                         <div className="product-price">
                           {isTruthy(product.hasDiscount) &&
-getNumericPrice(product.discountPrice) > 0 &&
-getNumericPrice(product.discountPrice) <
-  getNumericPrice(product.price) ? (
-  <div className="mt-1 min-h-20.5">
-    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-      <strong className="text-xl font-bold tracking-tight text-red-500">
-        {formatCurrency(product.discountPrice)}
-      </strong>
+                          getNumericPrice(product.discountPrice) > 0 &&
+                          getNumericPrice(product.discountPrice) <
+                            getNumericPrice(product.price) ? (
+                            <div className="mt-1 min-h-20.5">
+                              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                                <strong className="text-xl font-bold tracking-tight text-red-500">
+                                  {formatCurrency(product.discountPrice)}
+                                </strong>
 
-      <span className="text-xs text-(--text-muted) line-through">
-        {formatCurrency(product.price)}
-      </span>
+                                <span className="text-xs text-(--text-muted) line-through">
+                                  {formatCurrency(product.price)}
+                                </span>
 
-      <span className="rounded-md border border-red-500/20 bg-red-500/10 px-1.5 py-0.5 text-[10px] font-bold text-red-500">
-        -{getDiscountPercent(
-          product.price,
-          product.discountPrice,
-        )}
-        %
-      </span>
-    </div>
+                                <span className="rounded-md border border-red-500/20 bg-red-500/10 px-1.5 py-0.5 text-[10px] font-bold text-red-500">
+                                  -{getDiscountPercent(product.price, product.discountPrice)}%
+                                </span>
+                              </div>
 
-    <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2">
-      <span className="inline-flex items-center rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[10px] font-semibold text-emerald-600">
-        Garansi Harga Terbaik
-      </span>
+                              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2">
+                                <span className="inline-flex items-center rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[10px] font-semibold text-emerald-600">
+                                  Garansi Harga Terbaik
+                                </span>
 
-      <span className="text-xs font-medium text-(--text-muted)">
-        {formatSoldCount(product.soldCount)}
-      </span>
-    </div>
-  </div>
-) : (
-  <div className="mt-1 min-h-20.5">
-    <strong className="text-xl font-bold tracking-tight text-(--text-primary)">
-      {formatCurrency(product.price)}
-    </strong>
+                                <span className="text-xs font-medium text-(--text-muted)">
+                                  {formatSoldCount(product.soldCount)}
+                                </span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="mt-1 min-h-20.5">
+                              <strong className="text-xl font-bold tracking-tight text-(--text-primary)">
+                                {formatCurrency(product.price)}
+                              </strong>
 
-    <div className="mt-2">
-      <span className="text-xs font-medium text-(--text-muted)">
-        {formatSoldCount(product.soldCount)}
-      </span>
-    </div>
-  </div>
-)}
-</div>
+                              <div className="mt-2">
+                                <span className="text-xs font-medium text-(--text-muted)">
+                                  {formatSoldCount(product.soldCount)}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                         <div className="product-card-actions">
-                          <button type="button" className="site-button site-button-secondary" onClick={() => setSelected(product)}>
+                          <button
+                            type="button"
+                            className="site-button site-button-secondary"
+                            onClick={() => setSelected(product)}
+                          >
                             Detail
                           </button>
-                          <Link href="/contact" className="site-button site-button-primary">Penawaran</Link>
+                          <Link href="/contact" className="site-button site-button-primary">
+                            Penawaran
+                          </Link>
                         </div>
                       </div>
                     </motion.article>
@@ -756,7 +848,11 @@ getNumericPrice(product.discountPrice) <
             )}
 
             {!loading && filtered.length > 0 && totalPages > 1 && (
-              <nav className="product-pagination" aria-label="Navigasi halaman produk" data-aos="fade-up">
+              <nav
+                className="product-pagination"
+                aria-label="Navigasi halaman produk"
+                data-aos="fade-up"
+              >
                 <button
                   type="button"
                   className="product-page-button product-page-arrow"
@@ -769,7 +865,13 @@ getNumericPrice(product.discountPrice) <
 
                 {visiblePageNumbers[0] > 1 && (
                   <>
-                    <button type="button" className="product-page-button" onClick={() => setCurrentPage(1)}>1</button>
+                    <button
+                      type="button"
+                      className="product-page-button"
+                      onClick={() => setCurrentPage(1)}
+                    >
+                      1
+                    </button>
                     {visiblePageNumbers[0] > 2 && <span className="product-page-ellipsis">…</span>}
                   </>
                 )}
@@ -788,8 +890,16 @@ getNumericPrice(product.discountPrice) <
 
                 {visiblePageNumbers.at(-1)! < totalPages && (
                   <>
-                    {visiblePageNumbers.at(-1)! < totalPages - 1 && <span className="product-page-ellipsis">…</span>}
-                    <button type="button" className="product-page-button" onClick={() => setCurrentPage(totalPages)}>{totalPages}</button>
+                    {visiblePageNumbers.at(-1)! < totalPages - 1 && (
+                      <span className="product-page-ellipsis">…</span>
+                    )}
+                    <button
+                      type="button"
+                      className="product-page-button"
+                      onClick={() => setCurrentPage(totalPages)}
+                    >
+                      {totalPages}
+                    </button>
                   </>
                 )}
 
@@ -804,7 +914,8 @@ getNumericPrice(product.discountPrice) <
                 </button>
 
                 <span className="product-page-summary">
-                  {(safeCurrentPage - 1) * pageSize + 1}–{Math.min(safeCurrentPage * pageSize, filtered.length)} dari {filtered.length}
+                  {(safeCurrentPage - 1) * pageSize + 1}–
+                  {Math.min(safeCurrentPage * pageSize, filtered.length)} dari {filtered.length}
                 </span>
               </nav>
             )}
@@ -854,7 +965,12 @@ getNumericPrice(product.discountPrice) <
               exit={{ opacity: 0, y: 20, scale: 0.96 }}
               transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
             >
-              <button type="button" className="modal-close" onClick={() => setSelected(null)} aria-label="Tutup detail">
+              <button
+                type="button"
+                className="modal-close"
+                onClick={() => setSelected(null)}
+                aria-label="Tutup detail"
+              >
                 <X size={19} />
               </button>
               <div className="product-modal-image">
@@ -867,88 +983,77 @@ getNumericPrice(product.discountPrice) <
                     className="object-contain p-10"
                   />
                 ) : (
-                  <div className="product-image-placeholder"><Wrench size={70} strokeWidth={1} /></div>
+                  <div className="product-image-placeholder">
+                    <Wrench size={70} strokeWidth={1} />
+                  </div>
                 )}
               </div>
               <div className="product-modal-content">
                 <span className="site-chip">{selected.mainCategory || 'Peralatan'}</span>
                 <h2 className="mt-6 text-3xl font-black tracking-[-0.04em]">{selected.name}</h2>
                 <p className="whitespace-pre-line text-(--text-secondary)">
-  {selected.description?.trim() ||
-    'Detail produk belum tersedia. Silakan hubungi kami untuk mendapatkan informasi lengkap produk ini.'}
-</p>
+                  {selected.description?.trim() ||
+                    'Detail produk belum tersedia. Silakan hubungi kami untuk mendapatkan informasi lengkap produk ini.'}
+                </p>
                 <div className="mt-7 grid grid-cols-1 gap-3 sm:grid-cols-[0.7fr_1.3fr]">
-  <div className="site-card p-4">
-    <span className="text-xs text-(--text-muted)">
-      Rating Produk
-    </span>
+                  <div className="site-card p-4">
+                    <span className="text-xs text-(--text-muted)">Rating Produk</span>
 
-    <strong className="mt-2 flex items-center gap-2 text-lg">
-      <Star
-        size={17}
-        fill="currentColor"
-        className="text-amber-500"
-      />
+                    <strong className="mt-2 flex items-center gap-2 text-lg">
+                      <Star size={17} fill="currentColor" className="text-amber-500" />
 
-      {selected.rating || '5'}
-    </strong>
-  </div>
+                      {selected.rating || '5'}
+                    </strong>
+                  </div>
 
-  <div className="site-card p-4">
-    <span className="text-xs text-(--text-muted)">
-      Harga Produk
-    </span>
+                  <div className="site-card p-4">
+                    <span className="text-xs text-(--text-muted)">Harga Produk</span>
 
-    {isTruthy(selected.hasDiscount) &&
-    getNumericPrice(selected.discountPrice) > 0 &&
-    getNumericPrice(selected.discountPrice) <
-      getNumericPrice(selected.price) ? (
-      <div className="mt-2">
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-          <strong className="text-2xl font-bold tracking-tight text-red-500">
-            {formatCurrency(selected.discountPrice)}
-          </strong>
+                    {isTruthy(selected.hasDiscount) &&
+                    getNumericPrice(selected.discountPrice) > 0 &&
+                    getNumericPrice(selected.discountPrice) < getNumericPrice(selected.price) ? (
+                      <div className="mt-2">
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                          <strong className="text-2xl font-bold tracking-tight text-red-500">
+                            {formatCurrency(selected.discountPrice)}
+                          </strong>
 
-          <span className="text-sm text-(--text-muted) line-through">
-            {formatCurrency(selected.price)}
-          </span>
+                          <span className="text-sm text-(--text-muted) line-through">
+                            {formatCurrency(selected.price)}
+                          </span>
 
-          <span className="rounded-md border border-red-500/20 bg-red-500/10 px-2 py-1 text-xs font-bold text-red-500">
-            -{getDiscountPercent(
-              selected.price,
-              selected.discountPrice,
-            )}
-            %
-          </span>
-        </div>
+                          <span className="rounded-md border border-red-500/20 bg-red-500/10 px-2 py-1 text-xs font-bold text-red-500">
+                            -{getDiscountPercent(selected.price, selected.discountPrice)}%
+                          </span>
+                        </div>
 
-        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
-          <span className="inline-flex items-center rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-600">
-            Garansi Harga Terbaik
-          </span>
+                        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+                          <span className="inline-flex items-center rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-600">
+                            Garansi Harga Terbaik
+                          </span>
 
-          {getNumericPrice(selected.soldCount) > 0 && (
-            <span className="text-xs font-medium text-(--text-muted)">
-              {formatSoldCount(selected.soldCount)}
-            </span>
-          )}
-        </div>
-      </div>
-    ) : (
-      <div className="mt-2">
-        <strong className="block text-2xl font-bold tracking-tight text-(--text-primary)">
-          {formatCurrency(selected.price)}
-        </strong>
+                          {getNumericPrice(selected.soldCount) > 0 && (
+                            <span className="text-xs font-medium text-(--text-muted)">
+                              {formatSoldCount(selected.soldCount)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="mt-2">
+                        <strong className="block text-2xl font-bold tracking-tight text-(--text-primary)">
+                          {formatCurrency(selected.price)}
+                        </strong>
 
-        {getNumericPrice(selected.soldCount) > 0 && (
-          <span className="mt-2 block text-xs font-medium text-(--text-muted)">
-            {formatSoldCount(selected.soldCount)}
-          </span>
-        )}
-      </div>
-    )}
-  </div>
-</div>
+                        {getNumericPrice(selected.soldCount) > 0 && (
+                          <span className="mt-2 block text-xs font-medium text-(--text-muted)">
+                            {formatSoldCount(selected.soldCount)}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
                 <Link href="/contact" className="site-button site-button-primary mt-7 w-full">
                   Minta Penawaran <ArrowRight size={17} />
                 </Link>

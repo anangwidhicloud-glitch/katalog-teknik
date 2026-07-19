@@ -14,12 +14,7 @@ import {
   X,
 } from 'lucide-react';
 import type { ChangeEvent, FormEvent } from 'react';
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 type PartnerRow = {
   id: string;
@@ -71,11 +66,7 @@ export default function PartnersPage() {
 
       setPartners(result as PartnerRow[]);
     } catch (loadError) {
-      setError(
-        loadError instanceof Error
-          ? loadError.message
-          : 'Logo mitra gagal dimuat.',
-      );
+      setError(loadError instanceof Error ? loadError.message : 'Logo mitra gagal dimuat.');
     } finally {
       setLoading(false);
     }
@@ -181,23 +172,18 @@ export default function PartnersPage() {
     setError('');
 
     try {
-      const urlLogo = file
-        ? await uploadLogo(file)
-        : form.urlLogo;
+      const urlLogo = file ? await uploadLogo(file) : form.urlLogo;
       const isEdit = Boolean(form.id);
-      const response = await fetch(
-        isEdit ? `/api/partners/${form.id}` : '/api/partners',
-        {
-          method: isEdit ? 'PUT' : 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            nama,
-            urlLogo,
-          }),
+      const response = await fetch(isEdit ? `/api/partners/${form.id}` : '/api/partners', {
+        method: isEdit ? 'PUT' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-      );
+        body: JSON.stringify({
+          nama,
+          urlLogo,
+        }),
+      });
       const result = await response.json();
 
       if (!response.ok) {
@@ -207,20 +193,14 @@ export default function PartnersPage() {
       resetForm();
       await loadPartners();
     } catch (submitError) {
-      setError(
-        submitError instanceof Error
-          ? submitError.message
-          : 'Data mitra gagal disimpan.',
-      );
+      setError(submitError instanceof Error ? submitError.message : 'Data mitra gagal disimpan.');
     } finally {
       setSaving(false);
     }
   }
 
   async function handleDelete(partner: PartnerRow) {
-    const confirmed = window.confirm(
-      `Hapus logo mitra “${partner.nama}”?`,
-    );
+    const confirmed = window.confirm(`Hapus logo mitra “${partner.nama}”?`);
 
     if (!confirmed) return;
 
@@ -237,15 +217,9 @@ export default function PartnersPage() {
         throw new Error(result.message || 'Logo mitra gagal dihapus.');
       }
 
-      setPartners((current) =>
-        current.filter((item) => item.id !== partner.id),
-      );
+      setPartners((current) => current.filter((item) => item.id !== partner.id));
     } catch (deleteError) {
-      setError(
-        deleteError instanceof Error
-          ? deleteError.message
-          : 'Logo mitra gagal dihapus.',
-      );
+      setError(deleteError instanceof Error ? deleteError.message : 'Logo mitra gagal dihapus.');
     } finally {
       setDeletingId(null);
     }
@@ -259,12 +233,10 @@ export default function PartnersPage() {
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-sky-300/15 bg-sky-400/[0.06] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-sky-300">
               <Handshake size={14} /> Logo Mitra
             </div>
-            <h1 className="text-2xl font-bold text-white sm:text-3xl">
-              Manajemen Logo Mitra
-            </h1>
+            <h1 className="text-2xl font-bold text-white sm:text-3xl">Manajemen Logo Mitra</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
-              Nama digunakan untuk identitas internal dan teks alternatif.
-              Halaman publik hanya menampilkan logo dengan ukuran yang seragam.
+              Nama digunakan untuk identitas internal dan teks alternatif. Halaman publik hanya
+              menampilkan logo dengan ukuran yang seragam.
             </p>
           </div>
 
@@ -301,8 +273,7 @@ export default function PartnersPage() {
                 {form.id ? 'Edit Logo Mitra' : 'Tambah Logo Mitra'}
               </h2>
               <p className="mt-1 text-sm text-slate-500">
-                File otomatis dirapikan saat diunggah dan ditampilkan dengan
-                mode object-contain.
+                File otomatis dirapikan saat diunggah dan ditampilkan dengan mode object-contain.
               </p>
             </div>
             <button
@@ -316,10 +287,7 @@ export default function PartnersPage() {
             </button>
           </div>
 
-          <form
-            onSubmit={handleSubmit}
-            className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_280px]"
-          >
+          <form onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">
             <div className="space-y-5">
               <label className="block">
                 <span className="mb-2 block text-xs font-bold uppercase tracking-[0.14em] text-slate-400">
@@ -370,11 +338,7 @@ export default function PartnersPage() {
                 disabled={saving}
                 className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-violet-500 px-5 text-sm font-bold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
               >
-                {saving ? (
-                  <LoaderCircle size={18} className="animate-spin" />
-                ) : (
-                  <Save size={18} />
-                )}
+                {saving ? <LoaderCircle size={18} className="animate-spin" /> : <Save size={18} />}
                 {saving ? 'Menyimpan...' : 'Simpan Mitra'}
               </button>
             </div>
@@ -406,9 +370,7 @@ export default function PartnersPage() {
         <div className="flex items-center justify-between border-b border-white/[0.07] px-6 py-5">
           <div>
             <h2 className="font-bold text-white">Daftar Mitra</h2>
-            <p className="mt-1 text-xs text-slate-500">
-              {partners.length} logo tersimpan
-            </p>
+            <p className="mt-1 text-xs text-slate-500">{partners.length} logo tersimpan</p>
           </div>
         </div>
 
@@ -420,9 +382,7 @@ export default function PartnersPage() {
           <div className="grid min-h-64 place-items-center px-6 text-center">
             <div>
               <Handshake className="mx-auto mb-3 text-slate-600" size={34} />
-              <h3 className="font-semibold text-slate-300">
-                Belum ada logo mitra
-              </h3>
+              <h3 className="font-semibold text-slate-300">Belum ada logo mitra</h3>
               <p className="mt-1 text-sm text-slate-500">
                 Tambahkan logo pertama melalui tombol Tambah Mitra.
               </p>
@@ -447,12 +407,8 @@ export default function PartnersPage() {
 
                 <div className="mt-4 flex items-center justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-bold text-white">
-                      {partner.nama}
-                    </p>
-                    <p className="mt-1 text-xs text-slate-600">
-                      Hanya logo tampil di website
-                    </p>
+                    <p className="truncate text-sm font-bold text-white">{partner.nama}</p>
+                    <p className="mt-1 text-xs text-slate-600">Hanya logo tampil di website</p>
                   </div>
 
                   <div className="flex shrink-0 gap-2">

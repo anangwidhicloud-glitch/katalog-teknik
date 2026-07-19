@@ -6,13 +6,7 @@ import { requireSuperAdmin } from '@/lib/require-super-admin';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const BACKUP_TABLES = [
-  'products',
-  'gallery',
-  'settings',
-  'social_media',
-  'partners',
-] as const;
+const BACKUP_TABLES = ['products', 'gallery', 'settings', 'social_media', 'partners'] as const;
 
 type BackupTable = (typeof BACKUP_TABLES)[number];
 
@@ -36,12 +30,12 @@ function isBackupFile(value: unknown): value is BackupFile {
 
 async function existingTables() {
   const sql = getDatabase();
-  const rows = await sql`
+  const rows = (await sql`
     SELECT table_name
     FROM information_schema.tables
     WHERE table_schema = 'public'
       AND table_name = ANY(${BACKUP_TABLES as unknown as string[]})
-  ` as unknown as Array<{ table_name: BackupTable }>;
+  `) as unknown as Array<{ table_name: BackupTable }>;
 
   return new Set(rows.map((row) => row.table_name));
 }
@@ -65,9 +59,12 @@ function createWorkbook(backup: BackupFile) {
 
   for (const table of BACKUP_TABLES) {
     const rows = backup.tables[table] ?? [];
-    const sheet = rows.length > 0
-      ? XLSX.utils.json_to_sheet(rows as Record<string, unknown>[], { dateNF: 'yyyy-mm-dd hh:mm:ss' })
-      : XLSX.utils.aoa_to_sheet([['Tidak ada data']]);
+    const sheet =
+      rows.length > 0
+        ? XLSX.utils.json_to_sheet(rows as Record<string, unknown>[], {
+            dateNF: 'yyyy-mm-dd hh:mm:ss',
+          })
+        : XLSX.utils.aoa_to_sheet([['Tidak ada data']]);
 
     const range = XLSX.utils.decode_range(sheet['!ref'] || 'A1:A1');
     const widths: Array<{ wch: number }> = [];
@@ -192,10 +189,12 @@ export async function POST(request: NextRequest) {
       await sql.transaction([
         sql.query(`DELETE FROM "${table}"`, []),
         ...(rows.length > 0
-          ? [sql.query(
-              `INSERT INTO "${table}" SELECT * FROM json_populate_recordset(NULL::"${table}", $1::json)`,
-              [json],
-            )]
+          ? [
+              sql.query(
+                `INSERT INTO "${table}" SELECT * FROM json_populate_recordset(NULL::"${table}", $1::json)`,
+                [json],
+              ),
+            ]
           : []),
       ]);
 

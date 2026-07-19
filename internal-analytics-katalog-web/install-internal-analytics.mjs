@@ -38,9 +38,10 @@ if (!fs.existsSync(layoutPath)) {
 let layout = fs.readFileSync(layoutPath, 'utf8');
 fs.copyFileSync(layoutPath, `${layoutPath}.bak-before-internal-analytics`);
 
-if (!layout.includes("InternalAnalyticsTracker")) {
-  const importLine = "import InternalAnalyticsTracker from './components/InternalAnalyticsTracker';\n";
-  const lastImportIndex = layout.lastIndexOf("import ");
+if (!layout.includes('InternalAnalyticsTracker')) {
+  const importLine =
+    "import InternalAnalyticsTracker from './components/InternalAnalyticsTracker';\n";
+  const lastImportIndex = layout.lastIndexOf('import ');
   const importEnd = layout.indexOf('\n', lastImportIndex) + 1;
   layout = layout.slice(0, importEnd) + importLine + layout.slice(importEnd);
 

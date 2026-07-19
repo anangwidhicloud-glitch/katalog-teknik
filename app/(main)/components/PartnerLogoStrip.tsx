@@ -30,10 +30,7 @@ export default function PartnerLogoStrip() {
           setPartners(result as PartnerRow[]);
         }
       } catch (error) {
-        if (
-          error instanceof DOMException &&
-          error.name === 'AbortError'
-        ) {
+        if (error instanceof DOMException && error.name === 'AbortError') {
           return;
         }
 
@@ -49,18 +46,13 @@ export default function PartnerLogoStrip() {
   const repeatedPartners = useMemo(() => {
     if (partners.length === 0) return [];
 
-    const repeatCount = Math.max(
-      2,
-      Math.ceil(10 / partners.length),
-    );
+    const repeatCount = Math.max(2, Math.ceil(10 / partners.length));
 
-    return Array.from(
-      { length: repeatCount },
-      (_, repeatIndex) =>
-        partners.map((partner) => ({
-          ...partner,
-          repeatIndex,
-        })),
+    return Array.from({ length: repeatCount }, (_, repeatIndex) =>
+      partners.map((partner) => ({
+        ...partner,
+        repeatIndex,
+      })),
     ).flat();
   }, [partners]);
 

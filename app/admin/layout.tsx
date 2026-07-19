@@ -11,9 +11,5 @@ export default async function AdminLayout({
 }>) {
   const isSuperAdmin = await requireSuperAdmin();
 
-  return (
-    <AdminShell isSuperAdmin={isSuperAdmin}>
-      {children}
-    </AdminShell>
-  );
+  return <AdminShell isSuperAdmin={isSuperAdmin}>{children}</AdminShell>;
 }

@@ -18,31 +18,44 @@ import SectionHeading from '../components/SectionHeading';
 const services = [
   {
     title: 'Konsultasi Teknis',
-    description: 'Analisis kebutuhan, ruang kerja, kapasitas, dan target operasional untuk menentukan solusi yang tepat.',
+    description:
+      'Analisis kebutuhan, ruang kerja, kapasitas, dan target operasional untuk menentukan solusi yang tepat.',
     icon: Users,
   },
   {
     title: 'Instalasi & Setup',
-    description: 'Pemasangan unit, penyesuaian posisi, pengujian fungsi, dan pengecekan keamanan sebelum digunakan.',
+    description:
+      'Pemasangan unit, penyesuaian posisi, pengujian fungsi, dan pengecekan keamanan sebelum digunakan.',
     icon: Settings2,
   },
   {
     title: 'Perawatan Berkala',
-    description: 'Perawatan terjadwal untuk menjaga akurasi, daya tahan, serta mencegah gangguan operasional.',
+    description:
+      'Perawatan terjadwal untuk menjaga akurasi, daya tahan, serta mencegah gangguan operasional.',
     icon: Clock3,
   },
   {
     title: 'Dukungan & Perbaikan',
-    description: 'Respons teknis untuk membantu identifikasi kendala, perbaikan, dan pemulihan fungsi peralatan.',
+    description:
+      'Respons teknis untuk membantu identifikasi kendala, perbaikan, dan pemulihan fungsi peralatan.',
     icon: Wrench,
   },
 ];
 
 const workflow = [
-  { title: 'Pemetaan kebutuhan', text: 'Kami mempelajari kondisi lapangan dan kebutuhan utama operasional.' },
-  { title: 'Rancangan solusi', text: 'Rekomendasi disusun berdasarkan fungsi, anggaran, dan skala penggunaan.' },
+  {
+    title: 'Pemetaan kebutuhan',
+    text: 'Kami mempelajari kondisi lapangan dan kebutuhan utama operasional.',
+  },
+  {
+    title: 'Rancangan solusi',
+    text: 'Rekomendasi disusun berdasarkan fungsi, anggaran, dan skala penggunaan.',
+  },
   { title: 'Pelaksanaan', text: 'Instalasi dan pengujian dilakukan dengan alur kerja yang jelas.' },
-  { title: 'Serah terima', text: 'Tim memberikan panduan penggunaan, pengecekan, dan langkah perawatan.' },
+  {
+    title: 'Serah terima',
+    text: 'Tim memberikan panduan penggunaan, pengecekan, dan langkah perawatan.',
+  },
 ];
 
 export default function ServicesPage() {
@@ -50,13 +63,23 @@ export default function ServicesPage() {
     <main>
       <PageHero
         eyebrow="Layanan profesional"
-        title={<>Dukungan teknis yang <span className="gradient-text">menyeluruh.</span></>}
+        title={
+          <>
+            Dukungan teknis yang <span className="gradient-text">menyeluruh.</span>
+          </>
+        }
         description="Kami mendampingi proses dari konsultasi hingga purna jual agar setiap peralatan dapat digunakan secara aman, efektif, dan konsisten."
       >
         <div className="mt-8 flex flex-wrap gap-3">
-          <span className="site-chip"><ShieldCheck size={14} /> Prosedur terukur</span>
-          <span className="site-chip"><Headphones size={14} /> Dukungan responsif</span>
-          <span className="site-chip"><CheckCircle2 size={14} /> Fokus hasil</span>
+          <span className="site-chip">
+            <ShieldCheck size={14} /> Prosedur terukur
+          </span>
+          <span className="site-chip">
+            <Headphones size={14} /> Dukungan responsif
+          </span>
+          <span className="site-chip">
+            <CheckCircle2 size={14} /> Fokus hasil
+          </span>
         </div>
       </PageHero>
 
@@ -79,7 +102,9 @@ export default function ServicesPage() {
                 whileHover={{ y: -8 }}
               >
                 <span className="service-card-index">0{index + 1}</span>
-                <div className="service-card-icon"><Icon size={24} /></div>
+                <div className="service-card-icon">
+                  <Icon size={24} />
+                </div>
                 <h3>{service.title}</h3>
                 <p>{service.description}</p>
                 <Link href="/contact" className="site-button site-button-ghost mt-7">
@@ -107,7 +132,12 @@ export default function ServicesPage() {
 
           <div className="timeline">
             {workflow.map((item, index) => (
-              <div key={item.title} className="timeline-item" data-aos="fade-up" data-aos-delay={String(index * 80)}>
+              <div
+                key={item.title}
+                className="timeline-item"
+                data-aos="fade-up"
+                data-aos-delay={String(index * 80)}
+              >
                 <div className="timeline-dot">0{index + 1}</div>
                 <div className="timeline-copy">
                   <h3>{item.title}</h3>
@@ -124,7 +154,9 @@ export default function ServicesPage() {
           <div className="grid gap-10 lg:grid-cols-[1fr_auto] lg:items-center">
             <div>
               <div className="site-eyebrow">Technical support</div>
-              <h2 className="section-title max-w-3xl">Pastikan investasi peralatan Anda bekerja maksimal.</h2>
+              <h2 className="section-title max-w-3xl">
+                Pastikan investasi peralatan Anda bekerja maksimal.
+              </h2>
               <p className="section-description max-w-2xl">
                 Konsultasikan kebutuhan instalasi, perawatan, atau kendala teknis bersama tim kami.
               </p>

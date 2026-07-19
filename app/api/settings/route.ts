@@ -1,7 +1,4 @@
-import {
-  NextRequest,
-  NextResponse,
-} from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { getDatabase } from '../../../lib/database/neon';
@@ -15,9 +12,7 @@ const updateSettingSchema = z.object({
     .trim()
     .min(1, 'Key pengaturan wajib diisi.')
     .max(100, 'Key pengaturan terlalu panjang.'),
-  value: z
-    .string()
-    .max(10000, 'Nilai pengaturan terlalu panjang.'),
+  value: z.string().max(10000, 'Nilai pengaturan terlalu panjang.'),
 });
 
 export async function GET() {
@@ -38,29 +33,22 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error(
-      'Gagal memuat pengaturan Neon:',
-      error,
-    );
+    console.error('Gagal memuat pengaturan Neon:', error);
 
     return NextResponse.json(
       {
-        message:
-          'Database gagal memuat pengaturan.',
+        message: 'Database gagal memuat pengaturan.',
       },
       { status: 500 },
     );
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-) {
+export async function PUT(request: NextRequest) {
   if (!(await isAdminAuthenticated())) {
     return NextResponse.json(
       {
-        message:
-          'Sesi admin tidak valid atau sudah berakhir.',
+        message: 'Sesi admin tidak valid atau sudah berakhir.',
       },
       { status: 401 },
     );
@@ -69,15 +57,12 @@ export async function PUT(
   try {
     const body = await request.json();
 
-    const parsed =
-      updateSettingSchema.safeParse(body);
+    const parsed = updateSettingSchema.safeParse(body);
 
     if (!parsed.success) {
       return NextResponse.json(
         {
-          message:
-            parsed.error.issues[0]?.message ||
-            'Data pengaturan tidak valid.',
+          message: parsed.error.issues[0]?.message || 'Data pengaturan tidak valid.',
         },
         { status: 400 },
       );
@@ -108,15 +93,11 @@ export async function PUT(
       key,
     });
   } catch (error) {
-    console.error(
-      'Gagal menyimpan pengaturan Neon:',
-      error,
-    );
+    console.error('Gagal menyimpan pengaturan Neon:', error);
 
     return NextResponse.json(
       {
-        message:
-          'Database gagal menyimpan pengaturan.',
+        message: 'Database gagal menyimpan pengaturan.',
       },
       { status: 500 },
     );

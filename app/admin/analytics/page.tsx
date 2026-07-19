@@ -57,25 +57,13 @@ const palette = [
   'rgba(20, 184, 166, 0.82)',
 ];
 
-function numericValue(
-  value?: number | string | null,
-) {
-  const parsed = Number(
-    String(value ?? '').replace(
-      /[^0-9.-]/g,
-      '',
-    ),
-  );
+function numericValue(value?: number | string | null) {
+  const parsed = Number(String(value ?? '').replace(/[^0-9.-]/g, ''));
 
-  return Number.isFinite(parsed)
-    ? parsed
-    : 0;
+  return Number.isFinite(parsed) ? parsed : 0;
 }
 
-function cleanLabel(
-  value?: string | null,
-  fallback = 'Lainnya',
-) {
+function cleanLabel(value?: string | null, fallback = 'Lainnya') {
   return value?.trim() || fallback;
 }
 
@@ -180,8 +168,7 @@ const doughnutOptions: ChartOptions<'doughnut'> = {
 };
 
 function ProductAnalytics() {
-  const { data, loading, error, refresh } =
-  useSheetData<ProductRow>('Products');
+  const { data, loading, error, refresh } = useSheetData<ProductRow>('Products');
   const products = data;
 
   useEffect(() => {
@@ -202,20 +189,15 @@ function ProductAnalytics() {
     let bestSellerCount = 0;
 
     products.forEach((product) => {
-const main =
-  cleanLabel(product.mainCategory);
+      const main = cleanLabel(product.mainCategory);
 
-const second =
-  cleanLabel(product.secondCategory);
+      const second = cleanLabel(product.secondCategory);
 
-const sub =
-  cleanLabel(product.subCategory);
+      const sub = cleanLabel(product.subCategory);
 
-const price =
-  numericValue(product.price);
+      const price = numericValue(product.price);
 
-const rating =
-  numericValue(product.rating);
+      const rating = numericValue(product.rating);
 
       mainCategoryMap.set(main, (mainCategoryMap.get(main) ?? 0) + 1);
       secondCategoryMap.set(second, (secondCategoryMap.get(second) ?? 0) + 1);
@@ -236,8 +218,8 @@ const rating =
       }
 
       if (product.isBestSeller) {
-  bestSellerCount += 1;
-}
+        bestSellerCount += 1;
+      }
     });
 
     const priceCategoryEntries = Array.from(priceByCategory.entries())
@@ -276,7 +258,9 @@ const rating =
       {
         label: 'Produk',
         data: analytics.categoryEntries.map((item) => item.value),
-        backgroundColor: analytics.categoryEntries.map((_, index) => palette[index % palette.length]),
+        backgroundColor: analytics.categoryEntries.map(
+          (_, index) => palette[index % palette.length],
+        ),
         borderRadius: 9,
         borderSkipped: false,
         maxBarThickness: 44,
@@ -335,7 +319,10 @@ const rating =
       ['Kategori utama', analytics.mainCategoryCount.toString()],
       ['Kategori kedua', analytics.secondCategoryCount.toString()],
       ['Subkategori', analytics.subCategoryCount.toString()],
-      ...analytics.categoryEntries.map((item) => [`Kategori: ${item.label}`, item.value.toString()]),
+      ...analytics.categoryEntries.map((item) => [
+        `Kategori: ${item.label}`,
+        item.value.toString(),
+      ]),
     ];
 
     const csv = rows
@@ -362,7 +349,10 @@ const rating =
     {
       label: 'Produk Terlaris',
       value: loading ? '—' : analytics.bestSellerCount.toString(),
-      detail: analytics.totalProducts > 0 ? `${Math.round((analytics.bestSellerCount / analytics.totalProducts) * 100)}% dari katalog` : 'Belum ada data',
+      detail:
+        analytics.totalProducts > 0
+          ? `${Math.round((analytics.bestSellerCount / analytics.totalProducts) * 100)}% dari katalog`
+          : 'Belum ada data',
       icon: Star,
       className: 'from-amber-500/22 to-amber-300/[0.04]',
       iconClass: 'border-amber-300/15 bg-amber-400/10 text-amber-200',
@@ -411,7 +401,8 @@ const rating =
               Analytics yang berubah mengikuti database.
             </h2>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-400 sm:text-base">
-              Pantau komposisi katalog, performa kategori, rating, harga, dan produk terlaris melalui visualisasi yang dihitung langsung dari spreadsheet.
+              Pantau komposisi katalog, performa kategori, rating, harga, dan produk terlaris
+              melalui visualisasi yang dihitung langsung dari spreadsheet.
             </p>
           </div>
 
@@ -447,11 +438,17 @@ const rating =
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
-                  <p className="text-xs font-semibold uppercase tracking-[0.13em] text-slate-500">{metric.label}</p>
-                  <p className="mt-3 truncate text-2xl font-semibold tracking-tight text-white">{metric.value}</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.13em] text-slate-500">
+                    {metric.label}
+                  </p>
+                  <p className="mt-3 truncate text-2xl font-semibold tracking-tight text-white">
+                    {metric.value}
+                  </p>
                   <p className="mt-2 text-xs text-slate-500">{metric.detail}</p>
                 </div>
-                <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-2xl border ${metric.iconClass}`}>
+                <span
+                  className={`grid h-11 w-11 shrink-0 place-items-center rounded-2xl border ${metric.iconClass}`}
+                >
                   <Icon className="h-5 w-5" />
                 </span>
               </div>
@@ -470,14 +467,20 @@ const rating =
           <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-5 sm:px-6">
             <div>
               <h3 className="font-semibold text-white">Distribusi kategori utama</h3>
-              <p className="mt-1 text-xs text-slate-500">Jumlah produk pada setiap kategori utama.</p>
+              <p className="mt-1 text-xs text-slate-500">
+                Jumlah produk pada setiap kategori utama.
+              </p>
             </div>
             <span className="grid h-10 w-10 place-items-center rounded-xl border border-sky-300/10 bg-sky-400/[0.07] text-sky-200">
               <BarChart3 className="h-5 w-5" />
             </span>
           </div>
           <div className="h-[330px] p-5 sm:p-6">
-            {loading ? <div className="h-full animate-pulse rounded-2xl bg-white/[0.035]" /> : <Bar data={categoryChart} options={barOptions} />}
+            {loading ? (
+              <div className="h-full animate-pulse rounded-2xl bg-white/[0.035]" />
+            ) : (
+              <Bar data={categoryChart} options={barOptions} />
+            )}
           </div>
         </motion.article>
 
@@ -490,7 +493,9 @@ const rating =
           <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-5 sm:px-6">
             <div>
               <h3 className="font-semibold text-white">Komposisi terlaris</h3>
-              <p className="mt-1 text-xs text-slate-500">Perbandingan produk unggulan dan reguler.</p>
+              <p className="mt-1 text-xs text-slate-500">
+                Perbandingan produk unggulan dan reguler.
+              </p>
             </div>
             <span className="grid h-10 w-10 place-items-center rounded-xl border border-amber-300/10 bg-amber-400/[0.07] text-amber-200">
               <Target className="h-5 w-5" />
@@ -503,8 +508,12 @@ const rating =
               <>
                 <Doughnut data={bestsellerChart} options={doughnutOptions} />
                 <div className="pointer-events-none absolute left-1/2 top-[45%] -translate-x-1/2 -translate-y-1/2 text-center">
-                  <span className="block text-3xl font-semibold text-white">{analytics.bestSellerCount}</span>
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">Terlaris</span>
+                  <span className="block text-3xl font-semibold text-white">
+                    {analytics.bestSellerCount}
+                  </span>
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+                    Terlaris
+                  </span>
                 </div>
               </>
             )}
@@ -522,12 +531,18 @@ const rating =
           <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-5 sm:px-6">
             <div>
               <h3 className="font-semibold text-white">Kategori kedua teratas</h3>
-              <p className="mt-1 text-xs text-slate-500">Tujuh kategori kedua dengan produk terbanyak.</p>
+              <p className="mt-1 text-xs text-slate-500">
+                Tujuh kategori kedua dengan produk terbanyak.
+              </p>
             </div>
             <Layers3 className="h-5 w-5 text-violet-300" />
           </div>
           <div className="h-[340px] p-5 sm:p-6">
-            {loading ? <div className="h-full animate-pulse rounded-2xl bg-white/[0.035]" /> : <Bar data={secondCategoryChart} options={horizontalBarOptions} />}
+            {loading ? (
+              <div className="h-full animate-pulse rounded-2xl bg-white/[0.035]" />
+            ) : (
+              <Bar data={secondCategoryChart} options={horizontalBarOptions} />
+            )}
           </div>
         </motion.article>
 
@@ -540,12 +555,18 @@ const rating =
           <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-5 sm:px-6">
             <div>
               <h3 className="font-semibold text-white">Sebaran rating produk</h3>
-              <p className="mt-1 text-xs text-slate-500">Jumlah produk berdasarkan rating yang dibulatkan.</p>
+              <p className="mt-1 text-xs text-slate-500">
+                Jumlah produk berdasarkan rating yang dibulatkan.
+              </p>
             </div>
             <LineChart className="h-5 w-5 text-emerald-300" />
           </div>
           <div className="h-[340px] p-5 sm:p-6">
-            {loading ? <div className="h-full animate-pulse rounded-2xl bg-white/[0.035]" /> : <Bar data={ratingChart} options={barOptions} />}
+            {loading ? (
+              <div className="h-full animate-pulse rounded-2xl bg-white/[0.035]" />
+            ) : (
+              <Bar data={ratingChart} options={barOptions} />
+            )}
           </div>
         </motion.article>
       </section>
@@ -563,16 +584,36 @@ const rating =
             </span>
             <div>
               <h3 className="font-semibold text-white">Insight otomatis</h3>
-              <p className="mt-1 text-xs text-slate-500">Ringkasan cepat berdasarkan data saat ini.</p>
+              <p className="mt-1 text-xs text-slate-500">
+                Ringkasan cepat berdasarkan data saat ini.
+              </p>
             </div>
           </div>
 
           <div className="mt-6 space-y-3">
             {[
-              ['Kategori dominan', analytics.topCategory, `${analytics.categoryEntries[0]?.value ?? 0} produk`],
-              ['Subkategori dominan', analytics.topSubCategory, `${analytics.subEntries[0]?.value ?? 0} produk`],
-              ['Struktur katalog', `${analytics.mainCategoryCount} / ${analytics.secondCategoryCount} / ${analytics.subCategoryCount}`, 'Utama / kedua / subkategori'],
-              ['Rasio terlaris', analytics.totalProducts > 0 ? `${Math.round((analytics.bestSellerCount / analytics.totalProducts) * 100)}%` : '0%', 'Dari keseluruhan katalog'],
+              [
+                'Kategori dominan',
+                analytics.topCategory,
+                `${analytics.categoryEntries[0]?.value ?? 0} produk`,
+              ],
+              [
+                'Subkategori dominan',
+                analytics.topSubCategory,
+                `${analytics.subEntries[0]?.value ?? 0} produk`,
+              ],
+              [
+                'Struktur katalog',
+                `${analytics.mainCategoryCount} / ${analytics.secondCategoryCount} / ${analytics.subCategoryCount}`,
+                'Utama / kedua / subkategori',
+              ],
+              [
+                'Rasio terlaris',
+                analytics.totalProducts > 0
+                  ? `${Math.round((analytics.bestSellerCount / analytics.totalProducts) * 100)}%`
+                  : '0%',
+                'Dari keseluruhan katalog',
+              ],
             ].map(([label, value, detail], index) => (
               <motion.div
                 key={label}
@@ -585,7 +626,9 @@ const rating =
                   <p className="text-xs text-slate-500">{label}</p>
                   <p className="mt-1 text-sm font-semibold text-slate-200">{detail}</p>
                 </div>
-                <strong className="max-w-[46%] truncate text-right text-sm text-cyan-200">{value}</strong>
+                <strong className="max-w-[46%] truncate text-right text-sm text-cyan-200">
+                  {value}
+                </strong>
               </motion.div>
             ))}
           </div>
@@ -597,16 +640,23 @@ const rating =
           transition={{ delay: 0.4, duration: 0.5 }}
           className="admin-panel relative overflow-hidden rounded-[24px] p-5 sm:p-6"
         >
-          <div aria-hidden="true" className="absolute -bottom-16 -right-16 h-52 w-52 rounded-full bg-blue-500/10 blur-3xl" />
+          <div
+            aria-hidden="true"
+            className="absolute -bottom-16 -right-16 h-52 w-52 rounded-full bg-blue-500/10 blur-3xl"
+          />
           <div className="relative flex h-full flex-col justify-between gap-8">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-emerald-300/10 bg-emerald-400/[0.06] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.13em] text-emerald-200">
                 <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
                 Tracker siap deploy
               </div>
-              <h3 className="mt-5 text-2xl font-semibold tracking-tight text-white">Vercel Web Analytics ikut diaktifkan.</h3>
+              <h3 className="mt-5 text-2xl font-semibold tracking-tight text-white">
+                Vercel Web Analytics ikut diaktifkan.
+              </h3>
               <p className="mt-3 max-w-xl text-sm leading-7 text-slate-400">
-                Saat proyek dipublikasikan di Vercel, page view dan performa kunjungan dapat direkam oleh Vercel Analytics. Grafik pada halaman ini tetap menggunakan data katalog nyata dari spreadsheet dan tidak membuat angka kunjungan palsu.
+                Saat proyek dipublikasikan di Vercel, page view dan performa kunjungan dapat direkam
+                oleh Vercel Analytics. Grafik pada halaman ini tetap menggunakan data katalog nyata
+                dari spreadsheet dan tidak membuat angka kunjungan palsu.
               </p>
             </div>
 
@@ -672,9 +722,7 @@ function VisitAnalytics() {
       setData(payload);
     } catch (loadError) {
       setError(
-        loadError instanceof Error
-          ? loadError.message
-          : 'Gagal memuat analytics kunjungan.',
+        loadError instanceof Error ? loadError.message : 'Gagal memuat analytics kunjungan.',
       );
     } finally {
       setLoading(false);
@@ -698,9 +746,7 @@ function VisitAnalytics() {
             <p className="text-xs font-bold uppercase tracking-[0.22em] text-cyan-400">
               Analytics internal
             </p>
-            <h2 className="mt-2 text-3xl font-black text-white">
-              Kunjungan katalog
-            </h2>
+            <h2 className="mt-2 text-3xl font-black text-white">Kunjungan katalog</h2>
             <p className="mt-2 text-sm text-slate-400">
               Data kunjungan halaman publik tersimpan langsung di NeonDB.
             </p>
@@ -766,9 +812,7 @@ function VisitAnalytics() {
                   height: `${Math.max(4, (item.views / maxDaily) * 190)}px`,
                 }}
               />
-              <span className="text-[10px] text-slate-500">
-                {item.date.slice(5)}
-              </span>
+              <span className="text-[10px] text-slate-500">{item.date.slice(5)}</span>
             </div>
           ))}
         </div>
@@ -793,8 +837,8 @@ function VisitAnalytics() {
       </div>
 
       <p className="text-xs text-slate-500">
-        Statistik mulai terisi setelah pengunjung membuka halaman publik.
-        Halaman admin dan API tidak dihitung.
+        Statistik mulai terisi setelah pengunjung membuka halaman publik. Halaman admin dan API
+        tidak dihitung.
       </p>
     </div>
   );
@@ -815,9 +859,7 @@ function VisitRanking({
     <section className="admin-panel rounded-2xl p-5">
       <h3 className="font-bold text-white">{title}</h3>
       <div className="mt-5 space-y-4">
-        {items.length === 0 ? (
-          <p className="text-sm text-slate-500">{empty}</p>
-        ) : null}
+        {items.length === 0 ? <p className="text-sm text-slate-500">{empty}</p> : null}
 
         {items.map((item) => (
           <div key={item.name}>

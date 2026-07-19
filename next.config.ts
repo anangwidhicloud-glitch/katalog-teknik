@@ -1,20 +1,20 @@
-import path from "path";
-import type { NextConfig } from "next";
+import path from 'path';
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-images: {
-  remotePatterns: [
-    {
-      protocol: "https",
-      hostname: "res.cloudinary.com",
-    },
-  ],
-},
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+      },
+    ],
+  },
 
   sassOptions: {
     includePaths: [
-      path.join(process.cwd(), "node_modules"),
-      path.join(process.cwd(), "app", "styles"),
+      path.join(process.cwd(), 'node_modules'),
+      path.join(process.cwd(), 'app', 'styles'),
     ],
   },
 };

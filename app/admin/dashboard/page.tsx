@@ -78,7 +78,11 @@ function formatCurrency(value?: string | number | null) {
 
 function isTruthy(value?: boolean | string | null) {
   if (typeof value === 'boolean') return value;
-  return ['true','ya','yes','1'].includes(String(value ?? '').trim().toLowerCase());
+  return ['true', 'ya', 'yes', '1'].includes(
+    String(value ?? '')
+      .trim()
+      .toLowerCase(),
+  );
 }
 
 export default function DashboardPage() {
@@ -150,13 +154,26 @@ export default function DashboardPage() {
   ];
 
   const hour = new Date().getHours();
-  const greeting = hour < 11 ? 'Selamat pagi' : hour < 15 ? 'Selamat siang' : hour < 19 ? 'Selamat sore' : 'Selamat malam';
+  const greeting =
+    hour < 11
+      ? 'Selamat pagi'
+      : hour < 15
+        ? 'Selamat siang'
+        : hour < 19
+          ? 'Selamat sore'
+          : 'Selamat malam';
 
   return (
     <div className="space-y-7">
       <section className="admin-panel relative overflow-hidden rounded-[28px] px-6 py-7 sm:px-8 sm:py-9">
-        <div aria-hidden="true" className="absolute -right-16 -top-24 h-64 w-64 rounded-full bg-blue-500/10 blur-3xl" />
-        <div aria-hidden="true" className="absolute bottom-0 right-1/3 h-32 w-32 rounded-full bg-cyan-400/10 blur-3xl" />
+        <div
+          aria-hidden="true"
+          className="absolute -right-16 -top-24 h-64 w-64 rounded-full bg-blue-500/10 blur-3xl"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute bottom-0 right-1/3 h-32 w-32 rounded-full bg-cyan-400/10 blur-3xl"
+        />
 
         <div className="relative flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
           <div className="max-w-2xl">
@@ -168,7 +185,8 @@ export default function DashboardPage() {
               {greeting}, Administrator.
             </h2>
             <p className="mt-3 max-w-xl text-sm leading-7 text-slate-400 sm:text-base">
-              Pantau katalog dan perbarui konten website dari satu ruang kerja yang lebih terstruktur.
+              Pantau katalog dan perbarui konten website dari satu ruang kerja yang lebih
+              terstruktur.
             </p>
           </div>
 
@@ -184,7 +202,8 @@ export default function DashboardPage() {
 
       {(productsError || settingsError) && (
         <div className="rounded-2xl border border-amber-300/15 bg-amber-400/[0.06] px-5 py-4 text-sm text-amber-100">
-          Sebagian ringkasan belum dapat dimuat. Data utama tetap dapat dikelola melalui menu terkait.
+          Sebagian ringkasan belum dapat dimuat. Data utama tetap dapat dikelola melalui menu
+          terkait.
         </div>
       )}
 
@@ -210,7 +229,9 @@ export default function DashboardPage() {
                   </p>
                   <p className="mt-2 text-xs text-slate-500">{stat.detail}</p>
                 </div>
-                <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-2xl border ${stat.iconClass}`}>
+                <span
+                  className={`grid h-11 w-11 shrink-0 place-items-center rounded-2xl border ${stat.iconClass}`}
+                >
                   <Icon className="h-5 w-5" />
                 </span>
               </div>
@@ -224,9 +245,14 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-5 sm:px-6">
             <div>
               <h3 className="font-semibold text-white">Produk terbaru</h3>
-              <p className="mt-1 text-xs text-slate-500">Ringkasan lima produk pertama dari database Neon.</p>
+              <p className="mt-1 text-xs text-slate-500">
+                Ringkasan lima produk pertama dari database Neon.
+              </p>
             </div>
-            <Link href="/admin/products" className="text-xs font-semibold text-sky-300 transition hover:text-sky-200">
+            <Link
+              href="/admin/products"
+              className="text-xs font-semibold text-sky-300 transition hover:text-sky-200"
+            >
               Lihat semua
             </Link>
           </div>
@@ -234,7 +260,10 @@ export default function DashboardPage() {
           <div className="divide-y divide-white/[0.06]">
             {productsLoading ? (
               Array.from({ length: 5 }).map((_, index) => (
-                <div key={index} className="flex animate-pulse items-center gap-4 px-5 py-4 sm:px-6">
+                <div
+                  key={index}
+                  className="flex animate-pulse items-center gap-4 px-5 py-4 sm:px-6"
+                >
                   <div className="h-11 w-11 rounded-xl bg-white/[0.06]" />
                   <div className="flex-1 space-y-2">
                     <div className="h-3 w-2/5 rounded bg-white/[0.06]" />
@@ -243,22 +272,39 @@ export default function DashboardPage() {
                 </div>
               ))
             ) : products.length === 0 ? (
-              <div className="px-6 py-12 text-center text-sm text-slate-500">Belum ada data produk.</div>
+              <div className="px-6 py-12 text-center text-sm text-slate-500">
+                Belum ada data produk.
+              </div>
             ) : (
               products.slice(0, 5).map((product, index) => (
-                <div key={`${product.name}-${index}`} className="flex items-center gap-4 px-5 py-4 transition hover:bg-white/[0.025] sm:px-6">
+                <div
+                  key={`${product.name}-${index}`}
+                  className="flex items-center gap-4 px-5 py-4 transition hover:bg-white/[0.025] sm:px-6"
+                >
                   <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.04]">
                     {product.imageUrl ? (
-                      <Image src={product.imageUrl} alt={product.name || 'Produk'} fill sizes="44px" className="object-cover" />
+                      <Image
+                        src={product.imageUrl}
+                        alt={product.name || 'Produk'}
+                        fill
+                        sizes="44px"
+                        className="object-cover"
+                      />
                     ) : (
                       <PackageCheck className="absolute inset-0 m-auto h-5 w-5 text-slate-600" />
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-slate-200">{product.name || 'Produk tanpa nama'}</p>
-                    <p className="mt-1 truncate text-xs text-slate-600">{product.mainCategory || 'Tanpa kategori'}</p>
+                    <p className="truncate text-sm font-medium text-slate-200">
+                      {product.name || 'Produk tanpa nama'}
+                    </p>
+                    <p className="mt-1 truncate text-xs text-slate-600">
+                      {product.mainCategory || 'Tanpa kategori'}
+                    </p>
                   </div>
-                  <p className="hidden shrink-0 text-xs font-semibold text-sky-300 sm:block">{formatCurrency(product.price)}</p>
+                  <p className="hidden shrink-0 text-xs font-semibold text-sky-300 sm:block">
+                    {formatCurrency(product.price)}
+                  </p>
                 </div>
               ))
             )}
@@ -268,14 +314,21 @@ export default function DashboardPage() {
         <div className="admin-panel rounded-[24px] p-5 sm:p-6">
           <div className="mb-5">
             <h3 className="font-semibold text-white">Akses cepat</h3>
-            <p className="mt-1 text-xs text-slate-500">Lanjutkan ke aktivitas yang paling sering digunakan.</p>
+            <p className="mt-1 text-xs text-slate-500">
+              Lanjutkan ke aktivitas yang paling sering digunakan.
+            </p>
           </div>
 
           <div className="space-y-3">
             {quickActions.map((action, index) => {
               const Icon = action.icon;
               return (
-                <motion.div key={action.href} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.12 + index * 0.06 }}>
+                <motion.div
+                  key={action.href}
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.12 + index * 0.06 }}
+                >
                   <Link
                     href={action.href}
                     className="group flex items-center gap-4 rounded-2xl border border-white/[0.07] bg-white/[0.025] p-4 transition hover:-translate-y-0.5 hover:border-sky-300/15 hover:bg-sky-400/[0.055]"
@@ -284,8 +337,12 @@ export default function DashboardPage() {
                       <Icon className="h-[18px] w-[18px]" />
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="block text-sm font-semibold text-slate-200">{action.title}</span>
-                      <span className="mt-1 block text-xs leading-5 text-slate-600">{action.description}</span>
+                      <span className="block text-sm font-semibold text-slate-200">
+                        {action.title}
+                      </span>
+                      <span className="mt-1 block text-xs leading-5 text-slate-600">
+                        {action.description}
+                      </span>
                     </span>
                     <ArrowUpRight className="h-4 w-4 shrink-0 text-slate-700 transition group-hover:text-sky-300" />
                   </Link>
@@ -298,7 +355,9 @@ export default function DashboardPage() {
             <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-300" />
             <div>
               <p className="text-xs font-semibold text-emerald-100">Sistem terhubung</p>
-              <p className="mt-1 text-xs leading-5 text-emerald-200/55">Data dibaca langsung dari Neon PostgreSQL.</p>
+              <p className="mt-1 text-xs leading-5 text-emerald-200/55">
+                Data dibaca langsung dari Neon PostgreSQL.
+              </p>
             </div>
           </div>
         </div>

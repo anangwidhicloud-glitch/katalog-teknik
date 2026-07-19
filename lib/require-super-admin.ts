@@ -1,9 +1,6 @@
 import { cookies } from 'next/headers';
 
-import {
-  ADMIN_SESSION_COOKIE,
-  verifyAdminSession,
-} from '@/lib/auth/admin-session';
+import { ADMIN_SESSION_COOKIE, verifyAdminSession } from '@/lib/auth/admin-session';
 import { env } from '@/lib/env';
 
 export async function requireSuperAdmin() {
@@ -20,8 +17,5 @@ export async function requireSuperAdmin() {
     return false;
   }
 
-  return (
-    session.sub.trim().toLowerCase() ===
-    env.ADMIN_EMAIL.trim().toLowerCase()
-  );
+  return session.sub.trim().toLowerCase() === env.ADMIN_EMAIL.trim().toLowerCase();
 }

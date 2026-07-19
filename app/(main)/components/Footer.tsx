@@ -9,11 +9,7 @@ type SettingRow = {
   value?: string;
 };
 
-function SocialGlyph({
-  kind,
-}: {
-  kind: 'tiktok' | 'facebook' | 'youtube' | 'instagram';
-}) {
+function SocialGlyph({ kind }: { kind: 'tiktok' | 'facebook' | 'youtube' | 'instagram' }) {
   if (kind === 'facebook') {
     return (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

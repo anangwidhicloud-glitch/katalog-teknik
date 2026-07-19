@@ -3,18 +3,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDatabase } from '@/lib/database/neon';
 import { isAdminAuthenticated } from '@/lib/require-admin';
 
-
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-
-
 export async function GET() {
-
   try {
-
     const sql = getDatabase();
-
 
     const gallery = await sql`
 SELECT
@@ -32,63 +26,40 @@ FROM gallery
       ORDER BY sort_order ASC, id ASC
     `;
 
-
     return NextResponse.json(gallery);
-
-
-  } catch(error){
-
-    console.error(
-      'Gagal mengambil gallery:',
-      error,
-    );
-
+  } catch (error) {
+    console.error('Gagal mengambil gallery:', error);
 
     return NextResponse.json(
       {
-        message:
-          'Gagal mengambil gallery.',
+        message: 'Gagal mengambil gallery.',
       },
       {
-        status:500,
+        status: 500,
       },
     );
-
   }
-
 }
 
-export async function POST(
-  request: NextRequest,
-) {
-    console.log(
-  'COOKIE CHECK'
-);
+export async function POST(request: NextRequest) {
+  console.log('COOKIE CHECK');
   if (!(await isAdminAuthenticated())) {
     return NextResponse.json(
       {
-        message:
-          'Tidak memiliki akses.',
+        message: 'Tidak memiliki akses.',
       },
       {
-        status:401,
+        status: 401,
       },
     );
   }
 
-
   try {
+    const body = await request.json();
 
-    const body =
-      await request.json();
+    const sql = getDatabase();
 
-
-    const sql =
-      getDatabase();
-
-
-const result =
-  await sql`
+    const result = (await sql`
 INSERT INTO gallery (
   id,
   title,
@@ -110,65 +81,40 @@ VALUES (
   ${body.location || ''},
   ${body.description || ''},
   ${body.mediaType === 'youtube' ? 'youtube' : 'image'},
-  ${
-    body.mediaType === 'youtube'
-      ? body.youtubeVideoId || null
-      : null
-  },
-  ${
-    body.mediaType === 'image'
-      ? body.imageUrl || null
-      : null
-  },
-  ${
-    body.mediaType === 'image'
-      ? body.imagePublicId || null
-      : null
-  },
+  ${body.mediaType === 'youtube' ? body.youtubeVideoId || null : null},
+  ${body.mediaType === 'image' ? body.imageUrl || null : null},
+  ${body.mediaType === 'image' ? body.imagePublicId || null : null},
   ${Number(body.sortOrder) || 0},
   NOW(),
   NOW()
 )
     RETURNING *
-  ` as unknown as Array<{
-    id: string;
-    title: string;
-    category: string;
-    location: string;
-    description: string | null;
-    media_type: 'image' | 'youtube';
-    youtube_video_id: string | null;
-    image_url: string | null;
-    image_public_id: string | null;
-    sort_order: number;
-  }>;
+  `) as unknown as Array<{
+      id: string;
+      title: string;
+      category: string;
+      location: string;
+      description: string | null;
+      media_type: 'image' | 'youtube';
+      youtube_video_id: string | null;
+      image_url: string | null;
+      image_public_id: string | null;
+      sort_order: number;
+    }>;
 
-
-return NextResponse.json(
-  result[0],
-  {
-    status:201,
-  },
-);
-
-
-  } catch(error){
-
-    console.error(
-      'Gagal menambah gallery:',
-      error,
-    );
-
+    return NextResponse.json(result[0], {
+      status: 201,
+    });
+  } catch (error) {
+    console.error('Gagal menambah gallery:', error);
 
     return NextResponse.json(
       {
-        message:
-          'Gagal menambah gallery.',
+        message: 'Gagal menambah gallery.',
       },
       {
-        status:500,
+        status: 500,
       },
     );
-
   }
 }

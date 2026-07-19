@@ -29,27 +29,16 @@ const adminSelection = {
 };
 
 function isUniqueViolation(error: unknown) {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'code' in error &&
-    error.code === '23505'
-  );
+  return typeof error === 'object' && error !== null && 'code' in error && error.code === '23505';
 }
 
 export async function GET() {
   if (!(await requireSuperAdmin())) {
-    return NextResponse.json(
-      { message: 'Khusus super admin.' },
-      { status: 403 },
-    );
+    return NextResponse.json({ message: 'Khusus super admin.' }, { status: 403 });
   }
 
   try {
-    const data = await db
-      .select(adminSelection)
-      .from(admins)
-      .orderBy(desc(admins.createdAt));
+    const data = await db.select(adminSelection).from(admins).orderBy(desc(admins.createdAt));
 
     return NextResponse.json(data, {
       headers: {
@@ -59,19 +48,13 @@ export async function GET() {
   } catch (error) {
     console.error('Gagal mengambil akun admin:', error);
 
-    return NextResponse.json(
-      { message: 'Gagal mengambil akun admin.' },
-      { status: 500 },
-    );
+    return NextResponse.json({ message: 'Gagal mengambil akun admin.' }, { status: 500 });
   }
 }
 
 export async function POST(request: Request) {
   if (!(await requireSuperAdmin())) {
-    return NextResponse.json(
-      { message: 'Khusus super admin.' },
-      { status: 403 },
-    );
+    return NextResponse.json({ message: 'Khusus super admin.' }, { status: 403 });
   }
 
   try {
@@ -100,24 +83,15 @@ export async function POST(request: Request) {
     return NextResponse.json(createdAdmin, { status: 201 });
   } catch (error) {
     if (error instanceof ZodError) {
-      return NextResponse.json(
-        { message: 'Data admin tidak valid.' },
-        { status: 400 },
-      );
+      return NextResponse.json({ message: 'Data admin tidak valid.' }, { status: 400 });
     }
 
     if (isUniqueViolation(error)) {
-      return NextResponse.json(
-        { message: 'Email admin sudah digunakan.' },
-        { status: 409 },
-      );
+      return NextResponse.json({ message: 'Email admin sudah digunakan.' }, { status: 409 });
     }
 
     console.error('Gagal membuat akun admin:', error);
 
-    return NextResponse.json(
-      { message: 'Gagal membuat akun admin.' },
-      { status: 500 },
-    );
+    return NextResponse.json({ message: 'Gagal membuat akun admin.' }, { status: 500 });
   }
 }

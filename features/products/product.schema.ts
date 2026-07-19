@@ -1,12 +1,12 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const productSchema = z.object({
   name: z.string().min(2),
-  mainCategory: z.string().default("Lainnya"),
-  secondCategory: z.string().default("Lainnya"),
-  subCategory: z.string().default("Lainnya"),
+  mainCategory: z.string().default('Lainnya'),
+  secondCategory: z.string().default('Lainnya'),
+  subCategory: z.string().default('Lainnya'),
   price: z.number().min(0),
   rating: z.number().min(0).max(5),
-  imageUrl: z.string().url().or(z.literal("")),
+  imageUrl: z.string().url().or(z.literal('')),
   isBestSeller: z.boolean(),
 });

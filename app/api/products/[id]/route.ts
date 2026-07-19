@@ -11,10 +11,7 @@ type RouteContext = {
   }>;
 };
 
-export async function GET(
-  _request: NextRequest,
-  context: RouteContext,
-) {
+export async function GET(_request: NextRequest, context: RouteContext) {
   try {
     const { id } = await context.params;
 
@@ -31,10 +28,9 @@ export async function GET(
       );
     }
 
-
     const sql = getDatabase();
 
-const products = await sql`
+    const products = (await sql`
   SELECT
     id,
     legacy_no AS "legacyNo",
@@ -54,30 +50,28 @@ created_at AS "createdAt",
   FROM products
   WHERE id = ${productId}
   LIMIT 1
-` as unknown as Array<{
-  id: number;
-  legacyNo: number | null;
-  name: string;
-  mainCategory: string | null;
-  secondCategory: string | null;
-  subCategory: string | null;
-price: number | null;
-description: string | null;
-hasDiscount: boolean;
-discountPrice: number | null;
-soldCount: number | null;
-rating: number | null;
-imageUrl: string | null;
-createdAt: Date;
-  updatedAt: Date;
-}>;
-
+`) as unknown as Array<{
+      id: number;
+      legacyNo: number | null;
+      name: string;
+      mainCategory: string | null;
+      secondCategory: string | null;
+      subCategory: string | null;
+      price: number | null;
+      description: string | null;
+      hasDiscount: boolean;
+      discountPrice: number | null;
+      soldCount: number | null;
+      rating: number | null;
+      imageUrl: string | null;
+      createdAt: Date;
+      updatedAt: Date;
+    }>;
 
     if (products.length === 0) {
       return NextResponse.json(
         {
-          message:
-            'Produk tidak ditemukan.',
+          message: 'Produk tidak ditemukan.',
         },
         {
           status: 404,
@@ -85,22 +79,13 @@ createdAt: Date;
       );
     }
 
-
-    return NextResponse.json(
-      products[0],
-    );
-
+    return NextResponse.json(products[0]);
   } catch (error) {
-    console.error(
-      'Gagal mengambil detail produk:',
-      error,
-    );
-
+    console.error('Gagal mengambil detail produk:', error);
 
     return NextResponse.json(
       {
-        message:
-          'Gagal mengambil detail produk.',
+        message: 'Gagal mengambil detail produk.',
       },
       {
         status: 500,
@@ -109,25 +94,16 @@ createdAt: Date;
   }
 }
 
-export async function DELETE(
-  _request: NextRequest,
-  context: RouteContext,
-) {
+export async function DELETE(_request: NextRequest, context: RouteContext) {
   if (!(await isAdminAuthenticated())) {
-    return NextResponse.json(
-      { message: 'Tidak memiliki akses.' },
-      { status: 401 },
-    );
+    return NextResponse.json({ message: 'Tidak memiliki akses.' }, { status: 401 });
   }
 
   const { id } = await context.params;
   const productId = Number(id);
 
   if (!Number.isInteger(productId)) {
-    return NextResponse.json(
-      { message: 'ID produk tidak valid.' },
-      { status: 400 },
-    );
+    return NextResponse.json({ message: 'ID produk tidak valid.' }, { status: 400 });
   }
 
   try {
@@ -145,10 +121,7 @@ export async function DELETE(
     const product = rows[0];
 
     if (!product) {
-      return NextResponse.json(
-        { message: 'Produk tidak ditemukan.' },
-        { status: 404 },
-      );
+      return NextResponse.json({ message: 'Produk tidak ditemukan.' }, { status: 404 });
     }
 
     await sql`
@@ -158,19 +131,12 @@ export async function DELETE(
 
     if (product.image_public_id) {
       try {
-await cloudinary.uploader.destroy(
-  product.image_public_id,
-  {
-    invalidate: true,
-    resource_type: 'image',
-  },
-);
-
+        await cloudinary.uploader.destroy(product.image_public_id, {
+          invalidate: true,
+          resource_type: 'image',
+        });
       } catch (deleteError) {
-        console.error(
-          'Gagal menghapus gambar produk:',
-          deleteError,
-        );
+        console.error('Gagal menghapus gambar produk:', deleteError);
       }
     }
 
@@ -178,81 +144,63 @@ await cloudinary.uploader.destroy(
       success: true,
     });
   } catch (error) {
-    console.error(
-      'Gagal menghapus produk:',
-      error,
-    );
+    console.error('Gagal menghapus produk:', error);
 
     return NextResponse.json(
       {
-        message:
-          'Gagal menghapus produk.',
+        message: 'Gagal menghapus produk.',
       },
       { status: 500 },
     );
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  context: RouteContext,
-) {
+export async function PUT(request: NextRequest, context: RouteContext) {
   if (!(await isAdminAuthenticated())) {
-    return NextResponse.json(
-      { message: 'Tidak memiliki akses.' },
-      { status: 401 },
-    );
+    return NextResponse.json({ message: 'Tidak memiliki akses.' }, { status: 401 });
   }
 
   const { id } = await context.params;
   const productId = Number(id);
 
   if (!Number.isInteger(productId)) {
-    return NextResponse.json(
-      { message: 'ID produk tidak valid.' },
-      { status: 400 },
-    );
+    return NextResponse.json({ message: 'ID produk tidak valid.' }, { status: 400 });
   }
 
   try {
-const body = (await request.json()) as {
-  name: string;
-  mainCategory: string;
-  secondCategory: string;
-  subCategory: string;
-  price: number;
-description?: string | null;
-hasDiscount?: boolean;
-discountPrice?: number | null;
-soldCount?: number;
-rating: number;
-  imageUrl: string;
-  imagePublicId: string;
-  isBestSeller: boolean;
-};
+    const body = (await request.json()) as {
+      name: string;
+      mainCategory: string;
+      secondCategory: string;
+      subCategory: string;
+      price: number;
+      description?: string | null;
+      hasDiscount?: boolean;
+      discountPrice?: number | null;
+      soldCount?: number;
+      rating: number;
+      imageUrl: string;
+      imagePublicId: string;
+      isBestSeller: boolean;
+    };
 
-const normalizedPrice = Number(body.price) || 0;
-let normalizedDiscountPrice: number | null = null;
+    const normalizedPrice = Number(body.price) || 0;
+    let normalizedDiscountPrice: number | null = null;
 
-if (body.hasDiscount) {
-  normalizedDiscountPrice =
-    Number(body.discountPrice) || 0;
+    if (body.hasDiscount) {
+      normalizedDiscountPrice = Number(body.discountPrice) || 0;
 
-  if (
-    normalizedDiscountPrice <= 0 ||
-    normalizedDiscountPrice >= normalizedPrice
-  ) {
-    return NextResponse.json(
-      {
-        message:
-          'Harga diskon harus lebih besar dari 0 dan lebih kecil dari harga lama.',
-      },
-      {
-        status: 400,
-      },
-    );
-  }
-}
+      if (normalizedDiscountPrice <= 0 || normalizedDiscountPrice >= normalizedPrice) {
+        return NextResponse.json(
+          {
+            message: 'Harga diskon harus lebih besar dari 0 dan lebih kecil dari harga lama.',
+          },
+          {
+            status: 400,
+          },
+        );
+      }
+    }
 
     const sql = getDatabase();
 
@@ -265,8 +213,7 @@ if (body.hasDiscount) {
       image_public_id: string | null;
     }>;
 
-    const oldImagePublicId =
-      existingRows[0]?.image_public_id ?? null;
+    const oldImagePublicId = existingRows[0]?.image_public_id ?? null;
 
     await sql`
       UPDATE products
@@ -282,12 +229,7 @@ price = ${normalizedPrice},
 description = ${body.description?.trim() || null},
 has_discount = ${Boolean(body.hasDiscount)},
 discount_price = ${normalizedDiscountPrice},
-sold_count = ${
-  Math.max(
-    0,
-    Math.floor(Number(body.soldCount) || 0),
-  )
-},
+sold_count = ${Math.max(0, Math.floor(Number(body.soldCount) || 0))},
 rating = ${Number(body.rating) || 0},
 image_url = ${body.imageUrl || ''},
 image_public_id = ${body.imagePublicId || null},
@@ -295,23 +237,13 @@ updated_at = NOW()
       WHERE id = ${productId}
     `;
 
-    if (
-      oldImagePublicId &&
-      body.imagePublicId &&
-      oldImagePublicId !== body.imagePublicId
-    ) {
+    if (oldImagePublicId && body.imagePublicId && oldImagePublicId !== body.imagePublicId) {
       try {
-await cloudinary.uploader.destroy(
-  oldImagePublicId,
-  {
-    invalidate: true,
-  },
-);
+        await cloudinary.uploader.destroy(oldImagePublicId, {
+          invalidate: true,
+        });
       } catch (deleteError) {
-        console.error(
-          'Gagal menghapus gambar produk lama:',
-          deleteError,
-        );
+        console.error('Gagal menghapus gambar produk lama:', deleteError);
       }
     }
 
@@ -319,15 +251,11 @@ await cloudinary.uploader.destroy(
       success: true,
     });
   } catch (error) {
-    console.error(
-      'Gagal memperbarui produk:',
-      error,
-    );
+    console.error('Gagal memperbarui produk:', error);
 
     return NextResponse.json(
       {
-        message:
-          'Gagal memperbarui produk.',
+        message: 'Gagal memperbarui produk.',
       },
       { status: 500 },
     );

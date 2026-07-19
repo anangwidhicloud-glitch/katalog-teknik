@@ -7,15 +7,9 @@ export const runtime = 'nodejs';
 
 const MAX_FILE_SIZE = 3 * 1024 * 1024; // 3 MB
 
-const ALLOWED_TYPES = [
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-];
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
-export async function POST(
-  request: NextRequest,
-) {
+export async function POST(request: NextRequest) {
   // 1. Cek login admin
   if (!(await isAdminAuthenticated())) {
     return NextResponse.json(
@@ -32,9 +26,7 @@ export async function POST(
     // 2. Ambil file dari form-data
     const formData = await request.formData();
     const folder =
-  formData.get('folder') === 'gallery'
-    ? 'katalog-teknik/gallery'
-    : 'katalog-teknik/products';
+      formData.get('folder') === 'gallery' ? 'katalog-teknik/gallery' : 'katalog-teknik/products';
 
     const file = formData.get('file');
 
@@ -53,8 +45,7 @@ export async function POST(
     if (!ALLOWED_TYPES.includes(file.type)) {
       return NextResponse.json(
         {
-          message:
-            'Format gambar harus JPG, PNG, atau WEBP.',
+          message: 'Format gambar harus JPG, PNG, atau WEBP.',
         },
         {
           status: 400,
@@ -66,8 +57,7 @@ export async function POST(
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
         {
-          message:
-            'Ukuran gambar maksimal 3MB.',
+          message: 'Ukuran gambar maksimal 3MB.',
         },
         {
           status: 400,
@@ -81,76 +71,60 @@ export async function POST(
     const buffer = Buffer.from(bytes);
 
     // 6. Upload ke Cloudinary
-const result =
-  await new Promise<{
-    secure_url: string;
-    public_id: string;
-  }>((resolve, reject) => {
-        cloudinary.uploader
-          .upload_stream(
-            {
-              folder,
+    const result = await new Promise<{
+      secure_url: string;
+      public_id: string;
+    }>((resolve, reject) => {
+      cloudinary.uploader
+        .upload_stream(
+          {
+            folder,
 
-              transformation: [
-                {
-                  width: 1200,
-                  height: 1200,
-                  crop: 'limit',
-                  quality: 'auto',
-                  fetch_format: 'auto',
-                },
-              ],
-            },
+            transformation: [
+              {
+                width: 1200,
+                height: 1200,
+                crop: 'limit',
+                quality: 'auto',
+                fetch_format: 'auto',
+              },
+            ],
+          },
 
-            (error, uploadResult) => {
-              if (error) {
-                reject(error);
-                return;
-              }
+          (error, uploadResult) => {
+            if (error) {
+              reject(error);
+              return;
+            }
 
-if (
-  !uploadResult?.secure_url ||
-  !uploadResult?.public_id
-) {
-  reject(
-    new Error(
-      'Data Cloudinary tidak lengkap.',
-    ),
-  );
-  return;
-}
+            if (!uploadResult?.secure_url || !uploadResult?.public_id) {
+              reject(new Error('Data Cloudinary tidak lengkap.'));
+              return;
+            }
 
-resolve({
-  secure_url:
-    uploadResult.secure_url,
+            resolve({
+              secure_url: uploadResult.secure_url,
 
-  public_id:
-    uploadResult.public_id,
-});
-            },
-          )
-          .end(buffer);
-      });
+              public_id: uploadResult.public_id,
+            });
+          },
+        )
+        .end(buffer);
+    });
 
-return NextResponse.json({
-  success: true,
+    return NextResponse.json({
+      success: true,
 
-  url:
-    result.secure_url,
+      url: result.secure_url,
 
-  publicId:
-    result.public_id,
-});
+      publicId: result.public_id,
+    });
   } catch (error) {
-    console.error(
-      'Upload gambar gagal:',
-      error,
-    );
+    console.error('Upload gambar gagal:', error);
 
     return NextResponse.json(
       {
-        message:
-          'Gagal mengupload gambar.',
+        message: 'Gagal mengupload gambar.',
       },
       {
         status: 500,

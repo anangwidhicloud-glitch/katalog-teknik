@@ -49,11 +49,7 @@ export function verifyAdminSession(token: string, secret: string) {
 
     const now = Math.floor(Date.now() / 1000);
 
-    if (
-      typeof payload.sub !== 'string' ||
-      typeof payload.exp !== 'number' ||
-      payload.exp <= now
-    ) {
+    if (typeof payload.sub !== 'string' || typeof payload.exp !== 'number' || payload.exp <= now) {
       return null;
     }
 

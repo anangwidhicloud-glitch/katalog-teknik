@@ -15,7 +15,11 @@ export default function DashboardTable() {
           {/* Contoh baris data */}
           <tr className="hover:bg-white/5 transition">
             <td className="p-6 font-medium">Genset Utama 01</td>
-            <td className="p-6"><span className="text-green-400 bg-green-400/10 px-3 py-1 rounded-full text-xs">Aktif</span></td>
+            <td className="p-6">
+              <span className="text-green-400 bg-green-400/10 px-3 py-1 rounded-full text-xs">
+                Aktif
+              </span>
+            </td>
             <td className="p-6 text-gray-400">2026-06-15</td>
             <td className="p-6 text-purple-400 hover:underline cursor-pointer">Detail</td>
           </tr>

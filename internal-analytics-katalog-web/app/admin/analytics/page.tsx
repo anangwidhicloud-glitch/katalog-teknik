@@ -50,9 +50,13 @@ export default function AnalyticsPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.22em] text-cyan-400">Analytics internal</p>
+          <p className="text-xs font-bold uppercase tracking-[0.22em] text-cyan-400">
+            Analytics internal
+          </p>
           <h1 className="mt-2 text-3xl font-black text-white">Kunjungan katalog</h1>
-          <p className="mt-2 text-sm text-slate-400">Data halaman publik tersimpan langsung di NeonDB.</p>
+          <p className="mt-2 text-sm text-slate-400">
+            Data halaman publik tersimpan langsung di NeonDB.
+          </p>
         </div>
         <div className="flex gap-2">
           <select
@@ -75,7 +79,9 @@ export default function AnalyticsPage() {
       </div>
 
       {error ? (
-        <div className="rounded-2xl border border-red-400/20 bg-red-500/10 p-5 text-sm text-red-200">{error}</div>
+        <div className="rounded-2xl border border-red-400/20 bg-red-500/10 p-5 text-sm text-red-200">
+          {error}
+        </div>
       ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -85,9 +91,14 @@ export default function AnalyticsPage() {
           ['Pengunjung hari ini', data?.totals.todayVisitors ?? 0],
           ['Halaman dikunjungi', data?.totals.pages ?? 0],
         ].map(([label, value]) => (
-          <div key={String(label)} className="rounded-2xl border border-white/10 bg-slate-950/50 p-5">
+          <div
+            key={String(label)}
+            className="rounded-2xl border border-white/10 bg-slate-950/50 p-5"
+          >
             <p className="text-sm text-slate-400">{label}</p>
-            <p className="mt-3 text-3xl font-black text-white">{loading ? '…' : numberFormatter.format(Number(value))}</p>
+            <p className="mt-3 text-3xl font-black text-white">
+              {loading ? '…' : numberFormatter.format(Number(value))}
+            </p>
           </div>
         ))}
       </div>
@@ -96,7 +107,10 @@ export default function AnalyticsPage() {
         <h2 className="font-bold text-white">Tren kunjungan</h2>
         <div className="mt-6 flex h-64 items-end gap-2 overflow-x-auto border-b border-white/10 pb-1">
           {(data?.daily || []).map((item) => (
-            <div key={item.date} className="flex min-w-10 flex-1 flex-col items-center justify-end gap-2">
+            <div
+              key={item.date}
+              className="flex min-w-10 flex-1 flex-col items-center justify-end gap-2"
+            >
               <span className="text-[10px] text-slate-400">{item.views}</span>
               <div
                 title={`${item.date}: ${item.views} views`}
@@ -110,13 +124,22 @@ export default function AnalyticsPage() {
       </section>
 
       <div className="grid gap-6 xl:grid-cols-3">
-        <Ranking title="Halaman teratas" items={data?.topPages || []} empty="Belum ada halaman tercatat." />
-        <Ranking title="Sumber kunjungan" items={data?.referrers || []} empty="Belum ada referrer eksternal." />
+        <Ranking
+          title="Halaman teratas"
+          items={data?.topPages || []}
+          empty="Belum ada halaman tercatat."
+        />
+        <Ranking
+          title="Sumber kunjungan"
+          items={data?.referrers || []}
+          empty="Belum ada referrer eksternal."
+        />
         <Ranking title="Perangkat" items={data?.devices || []} empty="Belum ada data perangkat." />
       </div>
 
       <p className="text-xs text-slate-500">
-        Statistik mulai terisi setelah pengunjung membuka halaman publik. Halaman admin dan API tidak dihitung.
+        Statistik mulai terisi setelah pengunjung membuka halaman publik. Halaman admin dan API
+        tidak dihitung.
       </p>
     </div>
   );
@@ -141,11 +164,16 @@ function Ranking({
         {items.map((item) => (
           <div key={item.name}>
             <div className="flex items-center justify-between gap-3 text-xs">
-              <span className="truncate text-slate-300" title={item.name}>{item.name}</span>
+              <span className="truncate text-slate-300" title={item.name}>
+                {item.name}
+              </span>
               <span className="font-bold text-white">{numberFormatter.format(item.value)}</span>
             </div>
             <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/5">
-              <div className="h-full rounded-full bg-cyan-400" style={{ width: `${(item.value / max) * 100}%` }} />
+              <div
+                className="h-full rounded-full bg-cyan-400"
+                style={{ width: `${(item.value / max) * 100}%` }}
+              />
             </div>
           </div>
         ))}

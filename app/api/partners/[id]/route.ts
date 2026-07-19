@@ -29,10 +29,7 @@ function normalizeLogoUrl(value: unknown) {
   try {
     const url = new URL(value.trim());
 
-    if (
-      url.protocol !== 'https:' ||
-      url.hostname !== 'res.cloudinary.com'
-    ) {
+    if (url.protocol !== 'https:' || url.hostname !== 'res.cloudinary.com') {
       return null;
     }
 
@@ -57,17 +54,11 @@ function getPartnerPublicId(urlValue: string | null | undefined) {
 
     const afterUpload = segments.slice(uploadIndex + 1);
     const versionIndex = afterUpload.findIndex((segment) => /^v\d+$/.test(segment));
-    const publicIdSegments =
-      versionIndex >= 0
-        ? afterUpload.slice(versionIndex + 1)
-        : afterUpload;
+    const publicIdSegments = versionIndex >= 0 ? afterUpload.slice(versionIndex + 1) : afterUpload;
 
-    const publicId = decodeURIComponent(publicIdSegments.join('/'))
-      .replace(/\.[^/.]+$/, '');
+    const publicId = decodeURIComponent(publicIdSegments.join('/')).replace(/\.[^/.]+$/, '');
 
-    return publicId.startsWith('katalog-teknik/partners/')
-      ? publicId
-      : null;
+    return publicId.startsWith('katalog-teknik/partners/') ? publicId : null;
   } catch {
     return null;
   }
@@ -100,22 +91,13 @@ async function deleteCloudinaryLogo(urlLogo: string | null | undefined) {
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  context: RouteContext,
-) {
+export async function PUT(request: NextRequest, context: RouteContext) {
   if (!(await isAdminAuthenticated())) {
-    return NextResponse.json(
-      { message: 'Tidak memiliki akses.' },
-      { status: 401 },
-    );
+    return NextResponse.json({ message: 'Tidak memiliki akses.' }, { status: 401 });
   }
 
   if (!isSameOrigin(request)) {
-    return NextResponse.json(
-      { message: 'Permintaan tidak valid.' },
-      { status: 403 },
-    );
+    return NextResponse.json({ message: 'Permintaan tidak valid.' }, { status: 403 });
   }
 
   try {
@@ -125,17 +107,11 @@ export async function PUT(
     const urlLogo = normalizeLogoUrl(body.urlLogo);
 
     if (!nama) {
-      return NextResponse.json(
-        { message: 'Nama mitra wajib diisi.' },
-        { status: 400 },
-      );
+      return NextResponse.json({ message: 'Nama mitra wajib diisi.' }, { status: 400 });
     }
 
     if (!urlLogo) {
-      return NextResponse.json(
-        { message: 'Logo wajib tersedia.' },
-        { status: 400 },
-      );
+      return NextResponse.json({ message: 'Logo wajib tersedia.' }, { status: 400 });
     }
 
     const sql = getDatabase();
@@ -152,10 +128,7 @@ export async function PUT(
     const existing = existingRows[0];
 
     if (!existing) {
-      return NextResponse.json(
-        { message: 'Mitra tidak ditemukan.' },
-        { status: 404 },
-      );
+      return NextResponse.json({ message: 'Mitra tidak ditemukan.' }, { status: 404 });
     }
 
     const rows = (await sql`
@@ -178,29 +151,17 @@ export async function PUT(
   } catch (error) {
     console.error('Gagal memperbarui logo mitra:', error);
 
-    return NextResponse.json(
-      { message: 'Gagal memperbarui logo mitra.' },
-      { status: 500 },
-    );
+    return NextResponse.json({ message: 'Gagal memperbarui logo mitra.' }, { status: 500 });
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  context: RouteContext,
-) {
+export async function DELETE(request: NextRequest, context: RouteContext) {
   if (!(await isAdminAuthenticated())) {
-    return NextResponse.json(
-      { message: 'Tidak memiliki akses.' },
-      { status: 401 },
-    );
+    return NextResponse.json({ message: 'Tidak memiliki akses.' }, { status: 401 });
   }
 
   if (!isSameOrigin(request)) {
-    return NextResponse.json(
-      { message: 'Permintaan tidak valid.' },
-      { status: 403 },
-    );
+    return NextResponse.json({ message: 'Permintaan tidak valid.' }, { status: 403 });
   }
 
   try {
@@ -218,10 +179,7 @@ export async function DELETE(
     const deleted = rows[0];
 
     if (!deleted) {
-      return NextResponse.json(
-        { message: 'Mitra tidak ditemukan.' },
-        { status: 404 },
-      );
+      return NextResponse.json({ message: 'Mitra tidak ditemukan.' }, { status: 404 });
     }
 
     await deleteCloudinaryLogo(deleted.urlLogo);
@@ -230,9 +188,6 @@ export async function DELETE(
   } catch (error) {
     console.error('Gagal menghapus logo mitra:', error);
 
-    return NextResponse.json(
-      { message: 'Gagal menghapus logo mitra.' },
-      { status: 500 },
-    );
+    return NextResponse.json({ message: 'Gagal menghapus logo mitra.' }, { status: 500 });
   }
 }

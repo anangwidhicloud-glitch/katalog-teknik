@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  ChevronLeft,
-  ChevronRight,
-  ExternalLink,
-  Menu,
-  ShieldCheck,
-} from 'lucide-react';
+import { ChevronLeft, ChevronRight, ExternalLink, Menu, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 

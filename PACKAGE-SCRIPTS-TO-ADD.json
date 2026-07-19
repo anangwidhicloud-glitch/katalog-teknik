@@ -5,16 +5,6 @@
     "db:push": "drizzle-kit push",
     "auth:hash-password": "tsx scripts/hash-admin-password.ts"
   },
-  "dependencies_to_install": [
-    "@neondatabase/serverless",
-    "drizzle-orm",
-    "zod",
-    "argon2"
-  ],
-  "dev_dependencies_to_install": [
-    "drizzle-kit",
-    "tsx",
-    "dotenv",
-    "tsconfig-paths"
-  ]
+  "dependencies_to_install": ["@neondatabase/serverless", "drizzle-orm", "zod", "argon2"],
+  "dev_dependencies_to_install": ["drizzle-kit", "tsx", "dotenv", "tsconfig-paths"]
 }

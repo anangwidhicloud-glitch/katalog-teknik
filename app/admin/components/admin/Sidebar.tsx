@@ -1,8 +1,6 @@
 'use client';
 
-import {
-  AnimatePresence,
-  motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   BarChart3,
   Boxes,
@@ -110,9 +108,7 @@ function SidebarContent({
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
-  const visibleNavigation = navigation.filter(
-    (item) => !item.superAdminOnly || isSuperAdmin,
-  );
+  const visibleNavigation = navigation.filter((item) => !item.superAdminOnly || isSuperAdmin);
 
   return (
     <div className="flex h-full flex-col">
@@ -146,9 +142,7 @@ function SidebarContent({
       </div>
 
       <div
-        className={`admin-scrollbar flex-1 overflow-y-auto py-5 ${
-          isCollapsed ? 'px-3' : 'px-4'
-        }`}
+        className={`admin-scrollbar flex-1 overflow-y-auto py-5 ${isCollapsed ? 'px-3' : 'px-4'}`}
       >
         {!isCollapsed && (
           <p className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-600">
@@ -199,9 +193,7 @@ function SidebarContent({
 
                 {!isCollapsed && (
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-semibold">
-                      {item.label}
-                    </span>
+                    <span className="block truncate text-sm font-semibold">{item.label}</span>
                     <span className="mt-0.5 block truncate text-[11px] text-slate-600 group-hover:text-slate-500">
                       {item.description}
                     </span>
@@ -213,11 +205,7 @@ function SidebarContent({
         </nav>
       </div>
 
-      <div
-        className={`border-t border-white/[0.07] py-4 ${
-          isCollapsed ? 'px-3' : 'px-4'
-        }`}
-      >
+      <div className={`border-t border-white/[0.07] py-4 ${isCollapsed ? 'px-3' : 'px-4'}`}>
         <Link
           href="/"
           onClick={onNavigate}
@@ -227,9 +215,7 @@ function SidebarContent({
           }`}
         >
           <ExternalLink className="h-[18px] w-[18px] shrink-0" />
-          {!isCollapsed && (
-            <span className="text-sm font-medium">Lihat Website</span>
-          )}
+          {!isCollapsed && <span className="text-sm font-medium">Lihat Website</span>}
         </Link>
 
         <AdminLogoutButton compact={isCollapsed} />
@@ -251,10 +237,7 @@ export default function Sidebar({
           isCollapsed ? 'w-[92px]' : 'w-[280px]'
         }`}
       >
-        <SidebarContent
-          isCollapsed={isCollapsed}
-          isSuperAdmin={isSuperAdmin}
-        />
+        <SidebarContent isCollapsed={isCollapsed} isSuperAdmin={isSuperAdmin} />
       </aside>
 
       <AnimatePresence>
