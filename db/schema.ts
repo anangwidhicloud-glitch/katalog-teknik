@@ -1,4 +1,12 @@
-import { bigint, boolean, integer, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+import {
+  bigint,
+  boolean,
+  integer,
+  pgTable,
+  serial,
+  text,
+  timestamp,
+} from 'drizzle-orm/pg-core';
 
 export const products = pgTable('products', {
   id: serial('id').primaryKey(),
@@ -13,8 +21,19 @@ export const products = pgTable('products', {
   discountPrice: bigint('discount_price', { mode: 'number' }),
   soldCount: bigint('sold_count', { mode: 'number' }).notNull().default(0),
   rating: integer('rating'),
+
+  // Foto utama untuk card serta foto pertama pada galeri detail.
   imageUrl: text('image_url').notNull(),
   imagePublicId: text('image_public_id'),
+
+  // Tiga foto tambahan untuk slider/galeri detail produk.
+  imageUrl2: text('image_url_2'),
+  imagePublicId2: text('image_public_id_2'),
+  imageUrl3: text('image_url_3'),
+  imagePublicId3: text('image_public_id_3'),
+  imageUrl4: text('image_url_4'),
+  imagePublicId4: text('image_public_id_4'),
+
   isBestSeller: boolean('is_best_seller').notNull().default(false),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),

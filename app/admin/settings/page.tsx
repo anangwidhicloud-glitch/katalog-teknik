@@ -20,6 +20,7 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 
 import { getSiteContentTab, siteContentTabs, type SiteContentTabId } from '@/lib/site-content-tabs';
+import SettingsImageUpload from '../components/SettingsImageUpload';
 
 type SettingRow = {
   key: string;
@@ -42,6 +43,8 @@ const labelMap: Record<string, string> = {
   hero_button_product: 'Teks tombol produk',
   hero_button_contact: 'Teks tombol kontak',
   hero_rotation_speed: 'Kecepatan pergantian kata',
+  hero_background_url: 'Foto background hero',
+  header_brand_logo_url: 'Logo perusahaan pada navigasi',
 
   footer_phone: 'Nomor telepon',
   footer_email: 'Email',
@@ -650,6 +653,12 @@ export default function SettingsPage() {
                 const booleanSetting = isBooleanSetting(setting.key);
                 const inputType = getInputType(setting.key);
                 const isRotationSpeed = setting.key === 'hero_rotation_speed';
+                const imageUploadKind =
+                  setting.key === 'hero_background_url'
+                    ? 'hero'
+                    : setting.key === 'header_brand_logo_url'
+                      ? 'logo'
+                      : null;
 
                 return (
                   <motion.article
@@ -682,6 +691,16 @@ export default function SettingsPage() {
                       )}
                     </div>
 
+                    {imageUploadKind && (
+                      <SettingsImageUpload
+                        kind={imageUploadKind}
+                        label={formatLabel(setting.key)}
+                        value={value}
+                        onChange={(nextValue) =>
+                          handleChange(setting.key, nextValue)
+                        }
+                      />
+                    )}
                     {booleanSetting ? (
                       <select
                         id={setting.key}

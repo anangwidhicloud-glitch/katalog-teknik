@@ -102,9 +102,25 @@ export default function Header() {
             className="brand-mark"
             aria-label={getContent('header_brand_aria_label', 'MP Katalog Teknik')}
           >
-            <span className="brand-symbol">
-              <span className="brand-electric-line" />
-              {getContent('header_brand_initials', 'MP')}
+            <span
+              className={`brand-symbol ${
+                getContent('header_brand_logo_url', '') ? 'has-logo' : ''
+              }`}
+            >
+              {getContent('header_brand_logo_url', '') ? (
+                // URL logo berasal dari Cloudinary melalui dashboard admin.
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={getContent('header_brand_logo_url', '')}
+                  alt=""
+                  className="brand-logo-image"
+                />
+              ) : (
+                <>
+                  <span className="brand-electric-line" />
+                  {getContent('header_brand_initials', 'MP')}
+                </>
+              )}
             </span>
             <span className="brand-copy">
               <strong>{getContent('header_brand_name', 'Katalog Teknik')}</strong>
@@ -203,8 +219,8 @@ export default function Header() {
                 {getContent('header_mobile_contact_button', 'Hubungi Kami')}{' '}
                 <ArrowUpRight size={17} />
               </Link>
-              <div className="mt-4 flex items-center justify-between border-t border-[var(--border)] pt-4">
-                <span className="text-sm text-[var(--text-muted)]">
+              <div className="mt-4 flex items-center justify-between border-t border-(--border) pt-4">
+                <span className="text-sm text-(--text-muted)">
                   {getContent('header_theme_label', 'Tampilan')}
                 </span>
                 <ThemeToggle />

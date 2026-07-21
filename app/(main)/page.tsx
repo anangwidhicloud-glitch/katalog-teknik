@@ -242,19 +242,104 @@ export default function Home() {
   }, [resolvedActiveCategory, bestSellerProducts]);
 
   const heroProduct = bestSellerProducts[0] ?? allProducts[0] ?? fallbackProducts[0];
+
+  const heroBackgroundImage = content.hero_background_url?.trim() || '';
+
+  const [loadedHeroImage, setLoadedHeroImage] = useState('');
+
+  const heroImageReady = Boolean(heroBackgroundImage) && loadedHeroImage === heroBackgroundImage;
+
+  useEffect(() => {
+    if (!heroBackgroundImage) {
+      return;
+    }
+
+    let isCancelled = false;
+    const image = new window.Image();
+
+    const handleLoad = () => {
+      if (!isCancelled) {
+        setLoadedHeroImage(heroBackgroundImage);
+      }
+    };
+
+    const handleError = () => {
+      if (!isCancelled) {
+        setLoadedHeroImage('');
+      }
+    };
+
+    image.onload = handleLoad;
+    image.onerror = handleError;
+    image.src = heroBackgroundImage;
+
+    if (image.complete && image.naturalWidth > 0) {
+      handleLoad();
+    }
+
+    return () => {
+      isCancelled = true;
+      image.onload = null;
+      image.onerror = null;
+    };
+  }, [heroBackgroundImage]);
+
   return (
     <main>
-      <section className="hero-section section-shell">
-        <div className="hero-grid">
+      <section className="hero-section hero-section-fullscreen section-shell">
+        {heroBackgroundImage && (
+          <motion.div
+            key={heroBackgroundImage}
+            className="hero-background-image"
+            style={{
+              backgroundImage: `url("${heroBackgroundImage}")`,
+            }}
+            initial={{
+              opacity: 0,
+              scale: 1.04,
+            }}
+            animate={{
+              opacity: heroImageReady ? 1 : 0,
+              scale: heroImageReady ? 1 : 1.04,
+            }}
+            transition={{
+              opacity: {
+                duration: 1.2,
+                ease: 'easeOut',
+              },
+              scale: {
+                duration: 1.8,
+                ease: [0.22, 1, 0.36, 1],
+              },
+            }}
+            aria-hidden="true"
+          />
+        )}
+
+        <div className="hero-background-overlay" aria-hidden="true" />
+
+        <div className="hero-grid hero-content-layer">
           <motion.div
             className="hero-copy"
-            initial={{ opacity: 0, y: 32, filter: 'blur(10px)' }}
-            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+            initial={{
+              opacity: 0,
+              y: 32,
+              filter: 'blur(10px)',
+            }}
+            animate={{
+              opacity: 1,
+              y: 0,
+              filter: 'blur(0px)',
+            }}
+            transition={{
+              duration: 0.9,
+              ease: [0.22, 1, 0.36, 1],
+            }}
           >
             <div className="site-eyebrow">
               {content.hero_badge || 'Authorized Distributor Resmi'}
             </div>
+
             <h1 className="hero-title">{content.hero_title || 'Temukan Solusi'}</h1>
 
             <motion.div className="hero-dynamic-row" layout aria-live="polite">
@@ -263,24 +348,59 @@ export default function Home() {
                   <motion.span
                     key={currentWord}
                     layout
-                    initial={{ opacity: 0, y: 28, rotateX: -52, filter: 'blur(8px)' }}
-                    animate={{ opacity: 1, y: 0, rotateX: 0, filter: 'blur(0px)' }}
-                    exit={{ opacity: 0, y: -24, rotateX: 42, filter: 'blur(7px)' }}
+                    initial={{
+                      opacity: 0,
+                      y: 28,
+                      rotateX: -52,
+                      filter: 'blur(8px)',
+                    }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                      rotateX: 0,
+                      filter: 'blur(0px)',
+                    }}
+                    exit={{
+                      opacity: 0,
+                      y: -24,
+                      rotateX: 42,
+                      filter: 'blur(7px)',
+                    }}
                     transition={{
-                      opacity: { duration: 0.32 },
-                      filter: { duration: 0.38 },
-                      layout: { type: 'spring', stiffness: 360, damping: 34 },
-                      y: { type: 'spring', stiffness: 330, damping: 30 },
-                      rotateX: { duration: 0.42, ease: [0.22, 1, 0.36, 1] },
+                      opacity: {
+                        duration: 0.32,
+                      },
+                      filter: {
+                        duration: 0.38,
+                      },
+                      layout: {
+                        type: 'spring',
+                        stiffness: 360,
+                        damping: 34,
+                      },
+                      y: {
+                        type: 'spring',
+                        stiffness: 330,
+                        damping: 30,
+                      },
+                      rotateX: {
+                        duration: 0.42,
+                        ease: [0.22, 1, 0.36, 1],
+                      },
                     }}
                     className="gradient-text hero-dynamic-word"
                   >
                     {currentWord}
                   </motion.span>
                 </AnimatePresence>
+
                 <motion.span
                   layout="position"
-                  transition={{ type: 'spring', stiffness: 360, damping: 34 }}
+                  transition={{
+                    type: 'spring',
+                    stiffness: 360,
+                    damping: 34,
+                  }}
                   className="hero-suffix"
                 >
                   {content.hero_suffix || 'Peralatan Anda'}
@@ -311,101 +431,30 @@ export default function Home() {
               ))}
             </div>
           </motion.div>
-
-          {heroProduct && (
-            <motion.div
-              className="hero-visual hero-visual-clean"
-              initial={{ opacity: 0, x: 42, scale: 0.96 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              transition={{
-                duration: 1,
-                delay: 0.15,
-                ease: [0.22, 1, 0.36, 1],
-              }}
-            >
-              <div className="hero-visual-panel hero-visual-panel-clean">
-                <div className="hero-visual-grid" />
-                <MPBackground strong />
-
-                <div className="hero-visual-topbar">
-                  <span className="hero-live-status">
-                    <span className="hero-live-dot" />
-                    Equipment intelligence
-                  </span>
-
-                  <span className="hero-visual-code">MP / 01</span>
-                </div>
-
-                <div className="hero-product-stage">
-                  <motion.div
-                    className="hero-product-orbit"
-                    animate={{ rotate: 360 }}
-                    transition={{
-                      duration: 24,
-                      repeat: Infinity,
-                      ease: 'linear',
-                    }}
-                  />
-
-                  <div className="hero-product-halo" />
-
-                  {heroProduct.imageUrl ? (
-                    <motion.div
-                      className="hero-product-image-wrap"
-                      animate={{ y: [0, -8, 0] }}
-                      transition={{
-                        duration: 5.6,
-                        repeat: Infinity,
-                        ease: 'easeInOut',
-                      }}
-                    >
-                      <Image
-                        src={heroProduct.imageUrl}
-                        alt={heroProduct.name || 'Produk unggulan'}
-                        fill
-                        sizes="(max-width: 1040px) 72vw, 420px"
-                        className="hero-product-image"
-                      />
-                    </motion.div>
-                  ) : (
-                    <Wrench size={90} strokeWidth={0.9} className="hero-product-placeholder" />
-                  )}
-                </div>
-
-                <div className="hero-visual-footer-clean">
-                  <div className="hero-product-caption">
-                    <span>Featured equipment</span>
-                    <strong>{heroProduct.name || 'Produk unggulan'}</strong>
-                  </div>
-
-                  <div className="hero-metric-row">
-                    <div className="hero-metric-item">
-                      <strong>{allProducts.length}</strong>
-                      <span>Produk pilihan</span>
-                    </div>
-
-                    <div className="hero-metric-separator" />
-
-                    <div className="hero-metric-item">
-                      <strong>{heroProduct.rating || '-'}</strong>
-                      <span>Quality rating</span>
-                    </div>
-
-                    <div className="hero-metric-separator" />
-
-                    <div className="hero-metric-item">
-                      <CheckCircle2 size={18} />
-                      <span>Original</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          )}
         </div>
+
+        <a
+          href="#home-content-start"
+          className="hero-scroll-more"
+          aria-label="Scroll ke konten berikutnya"
+        >
+          <span className="hero-scroll-more-label">Scroll For More</span>
+          <svg
+            className="hero-scroll-more-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </a>
       </section>
 
-      <section className="section-block section-shell">
+      <section id="home-content-start" className="section-block section-shell">
         <SectionHeading
           eyebrow="Mengapa memilih kami"
           title="Lebih dari sekadar katalog produk."

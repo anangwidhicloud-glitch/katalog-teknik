@@ -1,41 +1,91 @@
-'use client';
+"use client";
 
-import { motion } from 'framer-motion';
-import MPBackground from './MPBackground';
+import { motion, useReducedMotion } from "framer-motion";
+import { useEffect, useState } from "react";
 
-const particles = [
-  { left: '8%', top: '18%', delay: 0.2, duration: 7 },
-  { left: '20%', top: '65%', delay: 1.7, duration: 9 },
-  { left: '36%', top: '26%', delay: 3.1, duration: 8 },
-  { left: '53%', top: '72%', delay: 0.8, duration: 10 },
-  { left: '69%', top: '20%', delay: 2.4, duration: 8.5 },
-  { left: '82%', top: '58%', delay: 4.2, duration: 9.5 },
-  { left: '93%', top: '34%', delay: 1.1, duration: 7.5 },
-];
+const INTRO_STORAGE_KEY = "katalog-mp-background-intro-v6";
 
 export default function SiteBackground() {
-  return (
-    <div aria-hidden="true" className="site-background">
-      <div className="site-grid" />
-      <div className="site-aurora site-aurora-one" />
-      <div className="site-aurora site-aurora-two" />
-      <div className="site-aurora site-aurora-three" />
-      <MPBackground />
+  const reduceMotion = useReducedMotion();
+  const [ready, setReady] = useState(false);
+  const [playIntro, setPlayIntro] = useState(false);
 
-      {particles.map((particle, index) => (
-        <motion.span
-          key={index}
-          className="site-particle"
-          style={{ left: particle.left, top: particle.top }}
-          animate={{ y: [0, -24, 0], opacity: [0.15, 0.8, 0.15], scale: [0.8, 1.2, 0.8] }}
-          transition={{
-            delay: particle.delay,
-            duration: particle.duration,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-        />
-      ))}
+  useEffect(() => {
+    let hasPlayed = false;
+
+    try {
+      hasPlayed = window.sessionStorage.getItem(INTRO_STORAGE_KEY) === "1";
+      if (!hasPlayed) {
+        window.sessionStorage.setItem(INTRO_STORAGE_KEY, "1");
+      }
+    } catch {
+      // Jika sessionStorage ditolak browser, animasi pembuka tetap aman.
+    }
+
+    setPlayIntro(!hasPlayed && !reduceMotion);
+    setReady(true);
+  }, [reduceMotion]);
+
+  const pathInitial = playIntro ? { pathLength: 0, opacity: 0 } : false;
+
+  return (
+    <div
+      className={
+        "site-background site-background-v5" + (ready ? " is-ready" : "")
+      }
+      aria-hidden="true"
+    >
+      <div className="site-background-v5-grid" />
+      <div className="site-background-v5-glow site-background-v5-glow-one" />
+      <div className="site-background-v5-glow site-background-v5-glow-two" />
+      <div className="site-background-v5-ring site-background-v5-ring-one" />
+      <div className="site-background-v5-ring site-background-v5-ring-two" />
+
+      {ready && (
+        <div className="site-background-v5-mark-wrap">
+          <motion.svg
+            key={playIntro ? "intro" : "static"}
+            className="site-background-v5-mark"
+            viewBox="0 0 1200 620"
+            preserveAspectRatio="xMidYMid meet"
+            initial={playIntro ? { opacity: 0 } : false}
+            animate={{ opacity: 1 }}
+            transition={{
+              duration: playIntro ? 0.55 : 0,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+          >
+            <motion.path
+              className="site-background-v5-stroke"
+              d="M105 515V105L320 345L535 105V515"
+              initial={pathInitial}
+              animate={{ pathLength: 1, opacity: 1 }}
+              transition={{
+                pathLength: {
+                  duration: playIntro ? 1.45 : 0,
+                  delay: playIntro ? 0.08 : 0,
+                  ease: [0.22, 1, 0.36, 1],
+                },
+                opacity: { duration: playIntro ? 0.3 : 0 },
+              }}
+            />
+            <motion.path
+              className="site-background-v5-stroke"
+              d="M685 515V105H885C1020 105 1095 158 1095 250C1095 342 1020 395 885 395H685"
+              initial={pathInitial}
+              animate={{ pathLength: 1, opacity: 1 }}
+              transition={{
+                pathLength: {
+                  duration: playIntro ? 1.55 : 0,
+                  delay: playIntro ? 0.22 : 0,
+                  ease: [0.22, 1, 0.36, 1],
+                },
+                opacity: { duration: playIntro ? 0.3 : 0 },
+              }}
+            />
+          </motion.svg>
+        </div>
+      )}
     </div>
   );
 }

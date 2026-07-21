@@ -25,6 +25,7 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useSheetData } from '../../hooks/useSheetData';
 import PageHero from '../components/PageHero';
+import ProductDetailGallery from '../components/ProductDetailGallery';
 
 type ProductRow = {
   id?: number;
@@ -40,6 +41,9 @@ type ProductRow = {
   soldCount?: number | string | null;
   rating?: number | string | null;
   imageUrl?: string | null;
+  imageUrl2?: string | null;
+  imageUrl3?: string | null;
+  imageUrl4?: string | null;
   isBestSeller?: boolean | null;
 };
 
@@ -1081,19 +1085,14 @@ export default function ProductsPage() {
                 <X size={19} />
               </button>
               <div className="product-modal-image">
-                {selected.imageUrl ? (
-                  <Image
-                    src={selected.imageUrl}
-                    alt={selected.name || getContent('products_product_image_short_alt', 'Produk')}
-                    fill
-                    sizes="(max-width: 760px) 100vw, 45vw"
-                    className="object-contain p-10"
-                  />
-                ) : (
-                  <div className="product-image-placeholder">
-                    <Wrench size={70} strokeWidth={1} />
-                  </div>
-                )}
+                <ProductDetailGallery
+                  key={selected.id ?? selected.name ?? 'produk'}
+                  name={selected.name || 'Produk Teknik'}
+                  imageUrl={selected.imageUrl}
+                  imageUrl2={selected.imageUrl2}
+                  imageUrl3={selected.imageUrl3}
+                  imageUrl4={selected.imageUrl4}
+                />
               </div>
               <div className="product-modal-content">
                 <span className="site-chip">

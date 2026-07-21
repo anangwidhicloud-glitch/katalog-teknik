@@ -2,47 +2,71 @@ import { z } from 'zod';
 
 import { getDatabase } from '@/lib/database/neon';
 
-import { createProducts as insertProducts, findProducts } from './product.repository';
+import {
+  createProducts as insertProducts,
+  findProducts,
+} from './product.repository';
 
 const productQuerySchema = z.object({
   search: z.string().trim().max(100).optional(),
 });
 
-const productCreateSchema = z.object({
-  name: z.string().trim().min(2, 'Nama produk minimal 2 karakter.'),
+const optionalImageUrl = z
+  .string()
+  .trim()
+  .optional()
+  .nullable()
+  .transform((value) => value ?? '');
+const optionalPublicId = z
+  .string()
+  .trim()
+  .optional()
+  .nullable()
+  .transform((value) => value ?? '');
 
-  mainCategory: z.string().trim().default('Lainnya'),
+const productCreateSchema = z
+  .object({
+    name: z.string().trim().min(2, 'Nama produk minimal 2 karakter.'),
+    mainCategory: z.string().trim().default('Lainnya'),
+    secondCategory: z.string().trim().default('Lainnya'),
+    subCategory: z.string().trim().default('Lainnya'),
+    price: z.coerce.number().min(0),
+    description: z.string().trim().optional().nullable(),
+    hasDiscount: z.coerce.boolean().default(false),
+    discountPrice: z.coerce.number().min(0).optional().nullable(),
+    soldCount: z.coerce.number().int().min(0).default(0),
+    rating: z.coerce.number().min(0).max(5),
+    imageUrl: z.string().trim().min(1, 'Gambar produk wajib diunggah.'),
+    imagePublicId: optionalPublicId,
+    imageUrl2: optionalImageUrl,
+    imagePublicId2: optionalPublicId,
+    imageUrl3: optionalImageUrl,
+    imagePublicId3: optionalPublicId,
+    imageUrl4: optionalImageUrl,
+    imagePublicId4: optionalPublicId,
+    isBestSeller: z.coerce.boolean().default(false),
+  })
+  .superRefine((value, context) => {
+    if (!value.hasDiscount) return;
 
-  secondCategory: z.string().trim().default('Lainnya'),
+    const discountPrice = Number(value.discountPrice) || 0;
 
-  subCategory: z.string().trim().default('Lainnya'),
-
-  price: z.coerce.number().min(0),
-
-  description: z.string().trim().optional().default(''),
-
-  hasDiscount: z.boolean().optional().default(false),
-
-  discountPrice: z.coerce.number().min(0).nullable().optional(),
-
-  soldCount: z.coerce.number().int().min(0).optional().default(0),
-
-  rating: z.coerce.number().min(0).max(5),
-
-  imageUrl: z.string().trim().min(1, 'Gambar produk wajib diunggah.'),
-
-  imagePublicId: z.string().trim().optional(),
-});
+    if (discountPrice <= 0 || discountPrice >= value.price) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['discountPrice'],
+        message: 'Harga diskon harus lebih besar dari 0 dan lebih kecil dari harga lama.',
+      });
+    }
+  });
 
 export async function getProducts(query: unknown) {
   const parsed = productQuerySchema.parse(query);
-
   return findProducts(parsed.search);
 }
 
 export async function createProduct(input: unknown) {
   const parsed = productCreateSchema.parse(input);
-
   const sql = getDatabase();
 
   type MaxLegacyRow = {
@@ -50,34 +74,34 @@ export async function createProduct(input: unknown) {
   };
 
   const lastLegacyResult = (await sql`
-      SELECT
-        MAX(legacy_no) AS maxlegacy
-      FROM products
-    `) as unknown as MaxLegacyRow[];
+    SELECT MAX(legacy_no) AS maxlegacy
+    FROM products
+  `) as unknown as MaxLegacyRow[];
 
   const nextLegacy = (lastLegacyResult[0]?.maxlegacy ?? 0) + 1;
 
   const result = await insertProducts([
     {
       legacyNo: nextLegacy,
-
       name: parsed.name,
-
-      mainCategory: parsed.mainCategory,
-
-      secondCategory: parsed.secondCategory,
-
-      subCategory: parsed.subCategory,
-
+      mainCategory: parsed.mainCategory || 'Lainnya',
+      secondCategory: parsed.secondCategory || 'Lainnya',
+      subCategory: parsed.subCategory || 'Lainnya',
       price: parsed.price,
-      description: parsed.description || null,
+      description: parsed.description?.trim() || null,
       hasDiscount: parsed.hasDiscount,
-      discountPrice: parsed.hasDiscount ? (parsed.discountPrice ?? null) : null,
-      soldCount: parsed.soldCount,
+      discountPrice: parsed.hasDiscount ? Number(parsed.discountPrice) || null : null,
+      soldCount: Math.max(0, Math.floor(parsed.soldCount || 0)),
       rating: parsed.rating,
-
       imageUrl: parsed.imageUrl,
       imagePublicId: parsed.imagePublicId || null,
+      imageUrl2: parsed.imageUrl2 || null,
+      imagePublicId2: parsed.imagePublicId2 || null,
+      imageUrl3: parsed.imageUrl3 || null,
+      imagePublicId3: parsed.imagePublicId3 || null,
+      imageUrl4: parsed.imageUrl4 || null,
+      imagePublicId4: parsed.imagePublicId4 || null,
+      isBestSeller: parsed.isBestSeller,
     },
   ]);
 

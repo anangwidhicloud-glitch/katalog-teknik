@@ -1,5 +1,4 @@
 import { Analytics } from '@vercel/analytics/next';
-import Script from 'next/script';
 
 const themeScript = `
 (function () {
@@ -27,15 +26,9 @@ const themeScript = `
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="id" suppressHydrationWarning data-scroll-behavior="smooth">
-      <body>
-        <Script
-          id="theme-init"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{
-            __html: themeScript,
-          }}
-        />
+      <head></head>
 
+      <body>
         {children}
         <Analytics />
       </body>
